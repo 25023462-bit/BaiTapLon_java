@@ -66,11 +66,11 @@ public class Auction implements AuctionObservable {
         try {
             if (status != Status.RUNNING) {
                 throw new AuctionClosedException(
-                        "Phiên không ở trạng thái RUNNING. Hiện tại: " + status);
+                    "Phiên không ở trạng thái RUNNING. Hiện tại: " + status);
             }
             if (amount <= item.getCurrentPrice()) {
                 throw new InvalidBidException(
-                        "Giá $" + amount + " phải cao hơn giá hiện tại $" + item.getCurrentPrice());
+                    "Giá $" + amount + " phải cao hơn giá hiện tại $" + item.getCurrentPrice());
             }
             item.setCurrentPrice(amount);
             this.winnerId = bidderId;
@@ -99,7 +99,7 @@ public class Auction implements AuctionObservable {
         this.status = Status.FINISHED;
         if (winnerId != null) {
             System.out.println("⏹ Phiên KẾT THÚC. Người thắng: " + winnerId
-                    + " | Giá: $" + item.getCurrentPrice());
+                + " | Giá: $" + item.getCurrentPrice());
         } else {
             System.out.println("⏹ Phiên KẾT THÚC. Không có ai đặt giá.");
         }

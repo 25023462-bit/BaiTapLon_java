@@ -26,7 +26,7 @@ public class Main {
         bob.deposit(3000);
 
         Item phone = ItemFactory.create("electronics", "iPhone 15 Pro", "Moi 100%",
-                1000.0, LocalDateTime.now(), LocalDateTime.now().plusHours(1), seller.getId());
+            1000.0, LocalDateTime.now(), LocalDateTime.now().plusHours(1), seller.getId());
 
         AuctionManager manager = AuctionManager.getInstance();
         Auction auction = manager.createAuction(phone);
@@ -64,7 +64,7 @@ public class Main {
         System.out.println("\n========== DEMO CONCURRENCY ==========");
 
         Item car = ItemFactory.create("vehicle", "Toyota Camry", "Moi",
-                10000.0, LocalDateTime.now(), LocalDateTime.now().plusHours(2), seller.getId());
+            10000.0, LocalDateTime.now(), LocalDateTime.now().plusHours(2), seller.getId());
         Auction carAuction = manager.createAuction(car);
         carAuction.addObserver(new ConsoleNotifier("Car Auction"));
         carAuction.start();
