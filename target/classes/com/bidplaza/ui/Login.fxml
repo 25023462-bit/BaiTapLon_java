@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" spacing="20"
+      xmlns="http://javafx.openjfx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.bidplaza.ui.controller.LoginController"
+      style="-fx-background-color: #f0f4f8;">
+
+    <padding>
+        <Insets top="60" right="80" bottom="60" left="80"/>
+    </padding>
+
+    <!-- Tiêu đề -->
+    <Label text="BidPlaza" style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+    <Label text="Hệ thống đấu giá trực tuyến" style="-fx-font-size: 14; -fx-text-fill: #7f8c8d;"/>
+
+    <!-- Form đăng nhập -->
+    <VBox spacing="12" maxWidth="320">
+        <Label text="Tên đăng nhập" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="usernameField" promptText="Nhập username" prefWidth="320"
+                   style="-fx-padding: 10; -fx-border-radius: 6; -fx-background-radius: 6;"/>
+
+        <Label text="Mật khẩu" style="-fx-font-weight: bold;"/>
+        <PasswordField fx:id="passwordField" promptText="Nhập mật khẩu" prefWidth="320"
+                       style="-fx-padding: 10; -fx-border-radius: 6; -fx-background-radius: 6;"/>
+
+        <!-- Chọn vai trò -->
+        <Label text="Vai trò" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="roleCombo" prefWidth="320"
+                  style="-fx-padding: 6; -fx-border-radius: 6; -fx-background-radius: 6;"/>
+
+        <!-- Thông báo lỗi -->
+        <Label fx:id="errorLabel" text="" style="-fx-text-fill: #e74c3c; -fx-font-size: 12;"/>
+
+        <!-- Nút đăng nhập -->
+        <Button text="Đăng nhập" prefWidth="320" prefHeight="42"
+                onAction="#handleLogin"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;
+                       -fx-font-size: 14; -fx-font-weight: bold;
+                       -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
+    </VBox>
+</VBox>
