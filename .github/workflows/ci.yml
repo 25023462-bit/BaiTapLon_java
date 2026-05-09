@@ -1,44 +1,57 @@
-name: BidPlaza CI
+name: CI
 
-# Chạy khi push hoặc pull request vào nhánh main
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
-  build-and-test:
+  test:
+    name: Maven clean test
     runs-on: ubuntu-latest
 
     steps:
-      # Bước 1: Lấy code từ repo
-      - name: Checkout code
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      # Bước 2: Cài Java 17
-      - name: Set up JDK 17
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
 
-      # Bước 3: Cache Maven để build nhanh hơn lần sau
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      - name: Find Maven project
+        id: maven-project
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      # Bước 4: Build và chạy tất cả JUnit test
-      - name: Build and run tests
-        run: mvn clean test
-        working-directory: ./bidplaza
+          if [ -f pom.xml ]; then
+            echo "directory=." >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-      # Bước 5: Hiện kết quả test (kể cả khi fail)
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: bidplaza/target/surefire-reports/
+          pom_file="$(find . -path './target' -prune -o -name pom.xml -print -quit)"
+
+          if [ -n "$pom_file" ]; then
+            echo "directory=$(dirname "$pom_file")" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "directory=" >> "$GITHUB_OUTPUT"
+
+      - name: Run Maven tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          project_dir="${{ steps.maven-project.outputs.directory }}"
+
+          if [ -n "$project_dir" ] && [ -f "$project_dir/pom.xml" ]; then
+            cd "$project_dir"
+            mvn "-Djava.version=17" clean test
+          else
+            echo "pom.xml not found in detected working directory; retrying from repository root."
+            mvn "-Djava.version=17" clean test
+          fi
