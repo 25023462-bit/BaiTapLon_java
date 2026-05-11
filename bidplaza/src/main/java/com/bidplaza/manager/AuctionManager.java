@@ -5,6 +5,7 @@ import com.bidplaza.model.item.Item;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.Serializable;
+import com.bidplaza.model.user.User;
 
 /**
  * AuctionManager - áp dụng Singleton Pattern.
@@ -22,10 +23,12 @@ public class AuctionManager implements Serializable {
     private static AuctionManager instance;
 
     private final List<Auction> auctions;
+    private final List<User> users;
 
     // private constructor: ngăn không cho bên ngoài gọi new AuctionManager()
     private AuctionManager() {
         this.auctions = new ArrayList<>();
+        this.users = new ArrayList<>();
     }
 
     /**
@@ -57,6 +60,23 @@ public class AuctionManager implements Serializable {
             .filter(a -> a.getId().equals(id))
             .findFirst()
             .orElse(null);
+    }
+    // Thêm người dùng mới
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    // Tìm user theo username
+    public User findUserByUsername(String username) {
+        return users.stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // Lấy danh sách tất cả user
+    public List<User> getAllUsers() {
+        return users;
     }
     protected Object readResolve() {
         instance = this;
