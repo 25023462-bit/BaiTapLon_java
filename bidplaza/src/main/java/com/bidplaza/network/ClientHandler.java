@@ -7,6 +7,7 @@ import com.bidplaza.model.Auction;
 
 import java.io.*;
 import java.net.Socket;
+import com.bidplaza.storage.DataStorage;
 
 /**
  * Xử lý 1 client cụ thể - chạy trên thread riêng.
@@ -86,6 +87,8 @@ public class ClientHandler implements Runnable {
                 message.getBidderId()
             );
             AuctionServer.broadcast(update, this);
+            // Auto-save sau khi có bid mới
+            DataStorage.save(auctionManager);
 
         } catch (InvalidBidException e) {
             sendMessage(Message.bidFailed(auction.getId(), e.getMessage()));
