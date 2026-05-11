@@ -13,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.bidplaza.storage.DataStorage;
+import com.bidplaza.model.user.Bidder;
+import com.bidplaza.model.user.Seller;
 
 /**
  * Server chính - lắng nghe kết nối từ nhiều Client đồng thời.
@@ -34,21 +36,36 @@ public class AuctionServer {
     private static AuctionManager auctionManager;
 
     public static void main(String[] args) throws IOException {
-        System.out.println("=== TEST: Trước khi load ===");
-        auctionManager = DataStorage.load();
-        System.out.println("=== TEST: Sau khi load ===");
         auctionManager = DataStorage.load();
 
-        // Tạo sẵn 1 phiên đấu giá để test
-        Item phone = ItemFactory.create(
-            "electronics", "iPhone 15 Pro", "Mới 100%",
-            1000.0, LocalDateTime.now(),
-            LocalDateTime.now().plusHours(1), "seller-001"
-        );
-        Auction auction = auctionManager.createAuction(phone);
-        auction.start();
-        DataStorage.save(auctionManager); // lưu dữ liệu sau khi tạo phiên
-        System.out.println("Phiên đấu giá tạo sẵn: " + auction.getId());
+        // Tạo dữ liệu mẫu chỉ khi lần đầu chạy (chưa có dữ liệu)
+        if (auctionManager.getAllAuctions().isEmpty()) {
+            // User mẫu
+            Bidder bidder1 = new Bidder("b001", "Alice", "alice@mail.com", "123");
+            Bidder bidder2 = new Bidder("b002", "Bob", "bob@mail.com", "123");
+            Seller seller1 = new Seller("s001", "Shop ABC", "shop@mail.com", "123");
+            auctionManager.addUser(bidder1);
+            auctionManager.addUser(bidder2);
+            auctionManager.addUser(seller1);
+
+            // Phiên đấu giá mẫu
+            Item phone = ItemFactory.create("electronics", "i001",
+                    "iPhone 15 Pro", "Mới 100%", 1000.0,
+                    LocalDateTime.now(), LocalDateTime.now().plusHours(1), "s001");
+            Item laptop = ItemFactory.create("electronics", "i002",
+                    "Laptop Dell", "Core i7", 500.0,
+                    LocalDateTime.now(), LocalDateTime.now().plusHours(2), "s001");
+
+            Auction auction1 = auctionManager.createAuction(phone);
+            Auction auction2 = auctionManager.createAuction(laptop);
+            auction1.start();
+            auction2.start();
+
+            DataStorage.save(auctionManager);
+            System.out.println("Đã tạo dữ liệu mẫu!");
+        } else {
+            System.out.println("Đã load " + auctionManager.getAllAuctions().size() + " phiên đấu giá.");
+        }
 
         // Thread pool: tối đa 10 client cùng lúc
         ExecutorService pool = Executors.newFixedThreadPool(10);
