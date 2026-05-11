@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * - startTime, endTime: thời gian phiên đấu giá
  * - sellerId: id của người bán
  */
-public abstract class Item extends Entity {
+public abstract class Item extends Entity  {
 
     private String name;
     private String description;

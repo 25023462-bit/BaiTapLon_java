@@ -33,8 +33,8 @@ public class Auction implements AuctionObservable {
     private String winnerId;
     private final List<BidTransaction> bids;
 
-    private final ReentrantLock lock = new ReentrantLock();
-    private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
+    private transient ReentrantLock lock = new ReentrantLock();
+    private transient List<BidObserver> observers = new CopyOnWriteArrayList<>();
 
     public Auction(Item item) {
         this.id = UUID.randomUUID().toString();

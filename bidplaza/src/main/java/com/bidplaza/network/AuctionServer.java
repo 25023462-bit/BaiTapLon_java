@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.bidplaza.storage.DataStorage;
 
 /**
  * Server chính - lắng nghe kết nối từ nhiều Client đồng thời.
@@ -33,7 +34,10 @@ public class AuctionServer {
     private static AuctionManager auctionManager;
 
     public static void main(String[] args) throws IOException {
-        auctionManager = AuctionManager.getInstance();
+        System.out.println("=== TEST: Trước khi load ===");
+        auctionManager = DataStorage.load();
+        System.out.println("=== TEST: Sau khi load ===");
+        auctionManager = DataStorage.load();
 
         // Tạo sẵn 1 phiên đấu giá để test
         Item phone = ItemFactory.create(
@@ -43,6 +47,7 @@ public class AuctionServer {
         );
         Auction auction = auctionManager.createAuction(phone);
         auction.start();
+        DataStorage.save(auctionManager); // lưu dữ liệu sau khi tạo phiên
         System.out.println("Phiên đấu giá tạo sẵn: " + auction.getId());
 
         // Thread pool: tối đa 10 client cùng lúc

@@ -2,6 +2,7 @@ package com.bidplaza.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.io.Serializable;
 
 /**
  * Lớp cha gốc của toàn bộ hệ thống.
@@ -11,7 +12,8 @@ import java.util.UUID;
  * - id: tự động sinh UUID duy nhất cho mỗi object
  * - createdAt: ghi lại thời điểm tạo
  */
-public abstract class Entity {
+public abstract class Entity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final LocalDateTime createdAt;

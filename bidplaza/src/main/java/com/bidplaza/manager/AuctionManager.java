@@ -4,6 +4,7 @@ import com.bidplaza.model.Auction;
 import com.bidplaza.model.item.Item;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * AuctionManager - áp dụng Singleton Pattern.
@@ -14,7 +15,8 @@ import java.util.List;
  * Cách dùng: AuctionManager.getInstance()
  * Không dùng: new AuctionManager()  ← sẽ lỗi compile
  */
-public class AuctionManager {
+public class AuctionManager implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     // instance duy nhất, static để thuộc về class chứ không thuộc object
     private static AuctionManager instance;
@@ -55,5 +57,9 @@ public class AuctionManager {
             .filter(a -> a.getId().equals(id))
             .findFirst()
             .orElse(null);
+    }
+    protected Object readResolve() {
+        instance = this;
+        return instance;
     }
 }

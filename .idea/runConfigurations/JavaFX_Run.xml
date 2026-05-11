@@ -1,7 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="JavaFX Run" type="Application" factoryName="Application">
-    <option name="MAIN_CLASS_NAME" value="com.bidplaza.ui.Main" />
-    <module name="JAVAFX" />
+    <option name="MAIN_CLASS_NAME" value="com.template.Launcher" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
