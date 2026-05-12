@@ -64,6 +64,7 @@ public class Auction implements AuctionObservable {
             throws AuctionClosedException, InvalidBidException {
         lock.lock();
         try {
+            if (amount <= 0) throw new InvalidBidException("Số tiền phải lớn hơn 0");
             if (status != Status.RUNNING) {
                 throw new AuctionClosedException(
                     "Phiên không ở trạng thái RUNNING. Hiện tại: " + status);

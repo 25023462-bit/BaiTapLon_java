@@ -56,4 +56,10 @@ public class AuctionManager {
             .findFirst()
             .orElse(null);
     }
+
+    public List<Auction> getAuctionsByStatus(Auction.Status status) {
+        return auctions.stream()
+            .filter(a -> a.getStatus() == status)
+            .collect(java.util.stream.Collectors.toList());
+    }
 }
