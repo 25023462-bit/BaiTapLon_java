@@ -34,6 +34,7 @@ public class AuctionServer {
 
     public static void main(String[] args) throws IOException {
         auctionManager = AuctionManager.getInstance();
+        com.bidplaza.manager.UserManager.getInstance();
 
         // Tạo sẵn 1 phiên đấu giá để test
         Item phone = ItemFactory.create(

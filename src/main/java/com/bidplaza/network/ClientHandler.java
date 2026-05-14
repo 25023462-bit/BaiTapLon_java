@@ -1,9 +1,14 @@
 package com.bidplaza.network;
 
+import com.bidplaza.exception.AuthenticationException;
 import com.bidplaza.exception.AuctionClosedException;
 import com.bidplaza.exception.InvalidBidException;
 import com.bidplaza.manager.AuctionManager;
+import com.bidplaza.manager.UserManager;
 import com.bidplaza.model.Auction;
+import com.bidplaza.model.user.User;
+import com.bidplaza.network.LoginRequest;
+import com.bidplaza.network.LoginResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,12 +24,14 @@ public class ClientHandler implements Runnable {
 
     private final Socket socket;
     private final AuctionManager auctionManager;
+    private final UserManager userManager;
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
     public ClientHandler(Socket socket, AuctionManager auctionManager) {
         this.socket = socket;
         this.auctionManager = auctionManager;
+        this.userManager = UserManager.getInstance();
     }
 
     @Override
@@ -57,6 +64,9 @@ public class ClientHandler implements Runnable {
      */
     private void handleMessage(Message message) {
         switch (message.getType()) {
+            case LOGIN:
+                handleLogin((LoginRequest) message.getPayload());
+                break;
             case PLACE_BID:
                 handlePlaceBid(message);
                 break;
@@ -91,6 +101,48 @@ public class ClientHandler implements Runnable {
             sendMessage(Message.bidFailed(auction.getId(), e.getMessage()));
         } catch (AuctionClosedException e) {
             sendMessage(Message.bidFailed(auction.getId(), "Phiên đã đóng: " + e.getMessage()));
+        }
+    }
+
+    private void handleLogin(LoginRequest request) {
+        LoginResponse response;
+
+        try {
+            User user;
+            if (request.isRegister()) {
+                user = userManager.register(
+                    request.getUsername(),
+                    request.getPassword(),
+                    request.getRole()
+                );
+                addUserToAuctionManager(user);
+                saveData();
+                response = new LoginResponse(true, "Đăng ký thành công!", user);
+            } else {
+                user = userManager.login(request.getUsername(), request.getPassword());
+                response = new LoginResponse(true, "Đăng nhập thành công!", user);
+            }
+        } catch (AuthenticationException e) {
+            response = new LoginResponse(false, e.getMessage(), null);
+        }
+
+        sendMessage(new Message(Message.Type.LOGIN, response));
+    }
+
+    private void addUserToAuctionManager(User user) {
+        try {
+            auctionManager.getClass()
+                .getMethod("addUser", User.class)
+                .invoke(auctionManager, user);
+        } catch (ReflectiveOperationException ignored) {
+        }
+    }
+
+    private void saveData() {
+        try {
+            Class<?> dataStorage = Class.forName("com.bidplaza.storage.DataStorage");
+            dataStorage.getMethod("save", AuctionManager.class).invoke(null, auctionManager);
+        } catch (ReflectiveOperationException ignored) {
         }
     }
 
