@@ -13,63 +13,101 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller cho màn hình Login.
- *
- * Trong MVC:
- * - View: Login.fxml
- * - Controller: LoginController (file này)
- * - Model: UserSession (lưu thông tin user đang đăng nhập)
+ * Controller cho màn hình Login
  */
 public class LoginController implements Initializable {
 
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private ComboBox<String> roleCombo;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private ComboBox<String> roleCombo;
+
+    @FXML
+    private Label errorLabel;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Điền các vai trò vào ComboBox
-        roleCombo.setItems(FXCollections.observableArrayList("BIDDER", "SELLER", "ADMIN"));
-        roleCombo.setValue("BIDDER"); // mặc định
+
+        // Danh sách role
+        roleCombo.setItems(
+                FXCollections.observableArrayList(
+                        "BIDDER",
+                        "SELLER",
+                        "ADMIN"
+                )
+        );
+
+        // Role mặc định
+        roleCombo.setValue("BIDDER");
     }
 
     @FXML
     private void handleLogin() {
+
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
-        String role     = roleCombo.getValue();
+        String role = roleCombo.getValue();
 
-        // Kiểm tra rỗng
+        // Validate input
         if (username.isEmpty() || password.isEmpty()) {
+
             errorLabel.setText("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        // TODO: sau này gọi Server qua Socket để xác thực
-        // Hiện tại: chấp nhận mọi đăng nhập để test UI
         if (password.length() < 3) {
+
             errorLabel.setText("Mật khẩu tối thiểu 3 ký tự!");
             return;
         }
 
-        // Lưu thông tin session
+        // Lưu session
         UserSession.getInstance().login(username, role);
 
-        // Chuyển sang màn hình phù hợp theo vai trò
         try {
-            String fxml = role.equals("SELLER") ? "SellerDashboard.fxml" : "AuctionList.fxml";
+
+            String fxml;
+
+            switch (role) {
+
+                case "SELLER":
+                    fxml = "SellerDashboard.fxml";
+                    break;
+
+                case "ADMIN":
+                    fxml = "AdminDashboard.fxml";
+                    break;
+
+                default:
+                    fxml = "AuctionList.fxml";
+                    break;
+            }
+
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/" + fxml));
-            Scene scene = new Scene(loader.load(), 900, 600);
+                    getClass().getResource("/com/bidplaza/ui/" + fxml)
+            );
+
+            Scene scene = new Scene(loader.load());
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
+
             stage.setTitle("BidPlaza - " + role);
+
+            // Fullscreen đẹp hơn
+            stage.setMaximized(true);
+
             stage.setScene(scene);
+
             stage.show();
 
         } catch (Exception e) {
-            errorLabel.setText("Lỗi chuyển màn hình: " + e.getMessage());
+
+            errorLabel.setText("Lỗi chuyển màn hình!");
+
             e.printStackTrace();
         }
     }
