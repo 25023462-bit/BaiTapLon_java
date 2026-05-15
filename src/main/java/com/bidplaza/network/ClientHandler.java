@@ -70,6 +70,9 @@ public class ClientHandler implements Runnable {
             case PLACE_BID:
                 handlePlaceBid(message);
                 break;
+            case GET_AUCTION_LIST:
+                handleGetAuctionList();
+                break;
             default:
                 sendMessage(Message.error("Loại message không hợp lệ: " + message.getType()));
         }
@@ -102,6 +105,24 @@ public class ClientHandler implements Runnable {
         } catch (AuctionClosedException e) {
             sendMessage(Message.bidFailed(auction.getId(), "Phiên đã đóng: " + e.getMessage()));
         }
+    }
+
+    private void handleGetAuctionList() {
+        java.util.List<String[]> listData = new java.util.ArrayList<>();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        for (Auction a : auctionManager.getAllAuctions()) {
+            com.bidplaza.model.item.Item item = a.getItem();
+            listData.add(new String[]{
+                a.getId(),
+                item.getName(),
+                item.getCategory(),
+                "$" + item.getStartingPrice(),
+                "$" + item.getCurrentPrice(),
+                a.getStatus().name(),
+                item.getEndTime().format(formatter)
+            });
+        }
+        sendMessage(new Message(Message.Type.AUCTION_LIST_RESPONSE, listData));
     }
 
     private void handleLogin(LoginRequest request) {

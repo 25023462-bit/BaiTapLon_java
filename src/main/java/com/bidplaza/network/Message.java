@@ -26,7 +26,9 @@ public class Message implements Serializable {
         BID_SUCCESS,
         BID_FAILED,
         AUCTION_UPDATE,
-        ERROR
+        ERROR,
+        GET_AUCTION_LIST,
+        AUCTION_LIST_RESPONSE
     }
 
     private final Type type;
