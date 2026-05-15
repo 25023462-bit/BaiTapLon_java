@@ -70,8 +70,15 @@ public class ClientHandler implements Runnable {
             case PLACE_BID:
                 handlePlaceBid(message);
                 break;
+            case LIST_AUCTIONS:
             case GET_AUCTION_LIST:
-                handleGetAuctionList();
+                handleListAuctions();
+                break;
+            case CREATE_AUCTION:
+                handleCreateAuction((com.bidplaza.network.CreateAuctionRequest) message.getPayload());
+                break;
+            case FINISH_AUCTION:
+                handleFinishAuction(message.getAuctionId());
                 break;
             default:
                 sendMessage(Message.error("Loại message không hợp lệ: " + message.getType()));
@@ -107,22 +114,45 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleGetAuctionList() {
-        java.util.List<String[]> listData = new java.util.ArrayList<>();
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private void handleListAuctions() {
+        java.util.List<com.bidplaza.network.AuctionSnapshot> snapshots = new java.util.ArrayList<>();
         for (Auction a : auctionManager.getAllAuctions()) {
-            com.bidplaza.model.item.Item item = a.getItem();
-            listData.add(new String[]{
-                a.getId(),
-                item.getName(),
-                item.getCategory(),
-                "$" + item.getStartingPrice(),
-                "$" + item.getCurrentPrice(),
-                a.getStatus().name(),
-                item.getEndTime().format(formatter)
-            });
+            snapshots.add(com.bidplaza.network.AuctionSnapshot.from(a));
         }
-        sendMessage(new Message(Message.Type.AUCTION_LIST_RESPONSE, listData));
+        sendMessage(new Message(Message.Type.LIST_AUCTIONS, snapshots));
+    }
+
+    private void handleCreateAuction(com.bidplaza.network.CreateAuctionRequest req) {
+        try {
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            com.bidplaza.model.item.Item item = com.bidplaza.factory.ItemFactory.create(
+                req.getCategory(),
+                req.getName(),
+                req.getDescription(),
+                req.getStartingPrice(),
+                now,
+                now.plusHours(req.getDurationHours()),
+                req.getSellerId()
+            );
+            Auction auction = auctionManager.createAuction(item);
+            auction.start();
+            saveData();
+            sendMessage(new Message(Message.Type.CREATE_AUCTION, com.bidplaza.network.AuctionSnapshot.from(auction)));
+        } catch (Exception e) {
+            sendMessage(Message.error("Lỗi tạo phiên: " + e.getMessage()));
+        }
+    }
+
+    private void handleFinishAuction(String auctionId) {
+        Auction auction = auctionManager.findById(auctionId);
+        if (auction != null) {
+            auction.finish();
+            saveData();
+            Message update = new Message(Message.Type.AUCTION_UPDATE, com.bidplaza.network.AuctionSnapshot.from(auction));
+            AuctionServer.broadcast(update, this);
+        } else {
+            sendMessage(Message.error("Không tìm thấy phiên đấu giá: " + auctionId));
+        }
     }
 
     private void handleLogin(LoginRequest request) {

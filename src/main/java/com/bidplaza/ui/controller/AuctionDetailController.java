@@ -103,10 +103,7 @@ public class AuctionDetailController implements Initializable {
         try {
             while (connected) {
                 Object obj = in.readObject();
-
-                // Xử lý message (dùng reflection-free approach)
-                String msgStr = obj.toString();
-                Platform.runLater(() -> handleServerMessage(msgStr, obj));
+                Platform.runLater(() -> handleServerMessage(obj));
             }
         } catch (Exception e) {
             Platform.runLater(() ->
@@ -114,28 +111,37 @@ public class AuctionDetailController implements Initializable {
         }
     }
 
-    private void handleServerMessage(String msgStr, Object obj) {
-        // Kiểm tra loại message qua toString()
-        if (msgStr.contains("BID_SUCCESS")) {
-            bidResultLabel.setStyle("-fx-text-fill: #27ae60;");
-            bidResultLabel.setText("✅ Đặt giá thành công!");
-            statusLabel.setText("✅ Bid thành công");
-
-        } else if (msgStr.contains("BID_FAILED")) {
-            bidResultLabel.setStyle("-fx-text-fill: #e74c3c;");
-            bidResultLabel.setText("❌ Đặt giá thất bại: " + extractInfo(msgStr));
-
-        } else if (msgStr.contains("AUCTION_UPDATE")) {
-            // Có người khác vừa đặt giá → cập nhật UI
-            String newPrice = extractAmount(msgStr);
-            String leader   = extractLeader(msgStr);
-
-            currentPriceLabel.setText("$" + newPrice);
-            leaderLabel.setText("Người dẫn đầu: " + leader);
-            bidHistory.add(0, "💰 " + leader + " đặt $" + newPrice);
-
-            if (auction != null) {
-                auction.setCurrentPrice("$" + newPrice);
+    private void handleServerMessage(Object obj) {
+        if (obj instanceof com.bidplaza.network.Message) {
+            com.bidplaza.network.Message msg = (com.bidplaza.network.Message) obj;
+            switch (msg.getType()) {
+                case BID_SUCCESS:
+                    bidResultLabel.setStyle("-fx-text-fill: #27ae60;");
+                    bidResultLabel.setText("✅ Đặt giá thành công!");
+                    statusLabel.setText("✅ Bid thành công");
+                    
+                    // Cập nhật giá mới cho chính mình
+                    currentPriceLabel.setText("$" + msg.getAmount());
+                    leaderLabel.setText("Người dẫn đầu: Bạn");
+                    if (auction != null) {
+                        auction.setCurrentPrice("$" + msg.getAmount());
+                    }
+                    break;
+                case BID_FAILED:
+                    bidResultLabel.setStyle("-fx-text-fill: #e74c3c;");
+                    bidResultLabel.setText("❌ Đặt giá thất bại: " + msg.getInfo());
+                    break;
+                case AUCTION_UPDATE:
+                    // Có người khác vừa đặt giá
+                    currentPriceLabel.setText("$" + msg.getAmount());
+                    leaderLabel.setText("Người dẫn đầu: " + msg.getBidderId());
+                    bidHistory.add(0, "💰 " + msg.getBidderId() + " đặt $" + msg.getAmount());
+                    if (auction != null) {
+                        auction.setCurrentPrice("$" + msg.getAmount());
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -164,9 +170,8 @@ public class AuctionDetailController implements Initializable {
             // Gửi bid đến Server qua Socket
             new Thread(() -> {
                 try {
-                    // Tạo message dạng text đơn giản
-                    // (sau này dùng Message class từ backend)
-                    String bidMsg = auctionId + " " + bidderId + " " + amount;
+                    // Sử dụng Message class từ backend
+                    com.bidplaza.network.Message bidMsg = com.bidplaza.network.Message.placeBid(auctionId, bidderId, amount);
                     out.writeObject(bidMsg);
                     out.flush();
 
@@ -216,26 +221,5 @@ public class AuctionDetailController implements Initializable {
         try {
             if (socket != null) socket.close();
         } catch (IOException ignored) {}
-    }
-
-    // Helper methods để parse toString() của Message
-    private String extractInfo(String msg) {
-        int i = msg.indexOf("info=");
-        if (i == -1) return "Không rõ lý do";
-        return msg.substring(i + 5, msg.indexOf("}", i));
-    }
-
-    private String extractAmount(String msg) {
-        int i = msg.indexOf("amount=");
-        if (i == -1) return "0";
-        String rest = msg.substring(i + 7);
-        return rest.split("[,}]")[0];
-    }
-
-    private String extractLeader(String msg) {
-        int i = msg.indexOf("bidder=");
-        if (i == -1) return "Unknown";
-        String rest = msg.substring(i + 7);
-        return rest.split("[,}]")[0];
     }
 }
