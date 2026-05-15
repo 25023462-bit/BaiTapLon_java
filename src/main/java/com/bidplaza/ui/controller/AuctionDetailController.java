@@ -85,6 +85,10 @@ public class AuctionDetailController implements Initializable {
                 Platform.runLater(() ->
                     statusLabel.setText("✅ Đã kết nối đến server"));
 
+                // Gửi ngay 1 message LIST_AUCTIONS để lấy thông tin phiên hiện tại
+                out.writeObject(new com.bidplaza.network.Message(com.bidplaza.network.Message.Type.LIST_AUCTIONS, null));
+                out.flush();
+
                 // Lắng nghe update từ server liên tục
                 listenForUpdates();
 
@@ -132,13 +136,44 @@ public class AuctionDetailController implements Initializable {
                     bidResultLabel.setText("❌ Đặt giá thất bại: " + msg.getInfo());
                     break;
                 case AUCTION_UPDATE:
-                    // Có người khác vừa đặt giá
-                    currentPriceLabel.setText("$" + msg.getAmount());
-                    leaderLabel.setText("Người dẫn đầu: " + msg.getBidderId());
-                    bidHistory.add(0, "💰 " + msg.getBidderId() + " đặt $" + msg.getAmount());
-                    if (auction != null) {
-                        auction.setCurrentPrice("$" + msg.getAmount());
+                    // Có người khác hoặc mình vừa đặt giá
+                    if (msg.getPayload() instanceof com.bidplaza.network.AuctionSnapshot) {
+                        com.bidplaza.network.AuctionSnapshot snapshot = (com.bidplaza.network.AuctionSnapshot) msg.getPayload();
+                        currentPriceLabel.setText("$" + snapshot.getCurrentPrice());
+                        String l = snapshot.getWinnerId() != null ? snapshot.getWinnerId() : "Chưa có";
+                        leaderLabel.setText("Người dẫn đầu: " + l);
+                        bidHistory.add(0, "💰 " + l + " đặt $" + snapshot.getCurrentPrice());
+                        if (auction != null) {
+                            auction.setCurrentPrice("$" + snapshot.getCurrentPrice());
+                        }
+                    } else {
+                        currentPriceLabel.setText("$" + msg.getAmount());
+                        leaderLabel.setText("Người dẫn đầu: " + msg.getBidderId());
+                        bidHistory.add(0, "💰 " + msg.getBidderId() + " đặt $" + msg.getAmount());
+                        if (auction != null) {
+                            auction.setCurrentPrice("$" + msg.getAmount());
+                        }
                     }
+                    break;
+                case LIST_AUCTIONS:
+                    if (msg.getPayload() instanceof java.util.List) {
+                        java.util.List<?> snapshots = (java.util.List<?>) msg.getPayload();
+                        for (Object sObj : snapshots) {
+                            if (sObj instanceof com.bidplaza.network.AuctionSnapshot) {
+                                com.bidplaza.network.AuctionSnapshot s = (com.bidplaza.network.AuctionSnapshot) sObj;
+                                if (auction != null && s.getId().equals(auction.getId())) {
+                                    currentPriceLabel.setText("$" + s.getCurrentPrice());
+                                    String ld = s.getWinnerId() != null ? s.getWinnerId() : "Chưa có";
+                                    leaderLabel.setText("Người dẫn đầu: " + ld);
+                                    auction.setCurrentPrice("$" + s.getCurrentPrice());
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case ERROR:
+                    bidResultLabel.setStyle("-fx-text-fill: #e74c3c;");
+                    bidResultLabel.setText("❌ Lỗi Server: " + msg.getInfo());
                     break;
                 default:
                     break;

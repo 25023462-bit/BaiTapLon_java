@@ -99,13 +99,9 @@ public class ClientHandler implements Runnable {
             // Gửi xác nhận cho client này
             sendMessage(Message.bidSuccess(auction.getId(), auction.getItem().getCurrentPrice()));
 
-            // Broadcast giá mới cho tất cả client khác
-            Message update = Message.auctionUpdate(
-                auction.getId(),
-                auction.getItem().getCurrentPrice(),
-                message.getBidderId()
-            );
-            AuctionServer.broadcast(update, this);
+            // Broadcast giá mới cho tất cả client (bao gồm cả sender nếu cần, hoặc null để gửi tất cả)
+            Message update = new Message(Message.Type.AUCTION_UPDATE, com.bidplaza.network.AuctionSnapshot.from(auction));
+            AuctionServer.broadcast(update, null);
 
         } catch (InvalidBidException e) {
             sendMessage(Message.bidFailed(auction.getId(), e.getMessage()));

@@ -49,24 +49,32 @@ public class AuctionListController implements Initializable {
     }
 
     private void loadSampleData() {
-        // TODO: thay bằng gọi Socket đến Server
-        auctionData.add(new AuctionItem(
-            "sample-id-1", "iPhone 15 Pro", "ELECTRONICS",
-            "$1,000", "$1,500", "RUNNING", "2026-05-01 20:00"
-        ));
-        auctionData.add(new AuctionItem(
-            "sample-id-2", "Toyota Camry 2024", "VEHICLE",
-            "$10,000", "$12,500", "RUNNING", "2026-05-02 18:00"
-        ));
-        auctionData.add(new AuctionItem(
-            "sample-id-3", "Tranh sơn dầu", "ART",
-            "$500", "$500", "OPEN", "2026-05-03 15:00"
-        ));
+        try {
+            com.bidplaza.network.Message request = new com.bidplaza.network.Message(com.bidplaza.network.Message.Type.GET_AUCTION_LIST, null);
+            com.bidplaza.network.Message response = com.bidplaza.ui.net.ServerClient.request(request);
+            if (response.getType() == com.bidplaza.network.Message.Type.LIST_AUCTIONS) {
+                java.util.List<?> snapshots = (java.util.List<?>) response.getPayload();
+                for (Object sObj : snapshots) {
+                    if (sObj instanceof com.bidplaza.network.AuctionSnapshot) {
+                        com.bidplaza.network.AuctionSnapshot s = (com.bidplaza.network.AuctionSnapshot) sObj;
+                        // Format thời gian đẹp hơn
+                        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                        auctionData.add(new AuctionItem(
+                            s.getId(), s.getName(), s.getCategory(),
+                            "$" + s.getStartingPrice(), "$" + s.getCurrentPrice(),
+                            s.getStatus(), s.getEndTime().format(dtf)
+                        ));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Lỗi kết nối", "Không thể tải danh sách phiên đấu giá từ Server: " + e.getMessage());
+        }
     }
 
     @FXML
     private void handleRefresh() {
-        // TODO: gọi Server lấy danh sách mới nhất
         auctionData.clear();
         loadSampleData();
     }
