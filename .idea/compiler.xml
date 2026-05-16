@@ -8,10 +8,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="bidplaza" />
         <module name="bidplaza (2)" />
-        <module name="bidplaza (1)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="bidplaza (1)" target="17" />
       <module name="JAVAFX" target="21" />
     </bytecodeTargetLevel>
   </component>

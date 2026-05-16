@@ -7,52 +7,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AuctionManager - áp dụng Singleton Pattern.
- *
- * Singleton nghĩa là: toàn bộ chương trình chỉ có DUY NHẤT
- * 1 AuctionManager. Không ai có thể tạo thêm cái khác.
- *
- * Cách dùng: AuctionManager.getInstance()
- * Không dùng: new AuctionManager()  ← sẽ lỗi compile
+ * AuctionManager applies the Singleton pattern for shared auction state.
  */
 public class AuctionManager {
 
-    // instance duy nhất, static để thuộc về class chứ không thuộc object
     private static AuctionManager instance;
 
     private final List<Auction> auctions;
     private final List<User> users;
 
-    // private constructor: ngăn không cho bên ngoài gọi new AuctionManager()
     private AuctionManager() {
         this.auctions = new ArrayList<>();
         this.users = new ArrayList<>();
     }
 
-    /**
-     * Lấy instance duy nhất.
-     * synchronized: thread-safe khi nhiều thread cùng gọi lần đầu.
-     */
     public static synchronized AuctionManager getInstance() {
         if (instance == null) {
-            instance = new AuctionManager(); // tạo lần đầu và duy nhất
+            instance = new AuctionManager();
         }
         return instance;
     }
 
-    // Tạo phiên đấu giá mới
     public Auction createAuction(Item item) {
         Auction auction = new Auction(item);
         auctions.add(auction);
         return auction;
     }
 
-    // Lấy danh sách tất cả phiên
     public List<Auction> getAllAuctions() {
         return auctions;
     }
 
-    // Tìm phiên theo id
     public Auction findById(String id) {
         return auctions.stream()
             .filter(a -> a.getId().equals(id))
@@ -60,7 +45,12 @@ public class AuctionManager {
             .orElse(null);
     }
 
-<<<<<<< HEAD
+    public List<Auction> getAuctionsByStatus(Auction.Status status) {
+        return auctions.stream()
+            .filter(a -> a.getStatus() == status)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
     public void addUser(User user) {
         users.add(user);
     }
@@ -74,11 +64,5 @@ public class AuctionManager {
 
     public List<User> getAllUsers() {
         return users;
-=======
-    public List<Auction> getAuctionsByStatus(Auction.Status status) {
-        return auctions.stream()
-            .filter(a -> a.getStatus() == status)
-            .collect(java.util.stream.Collectors.toList());
->>>>>>> cade1658b480eadddf16e8af7c5761c766d5d9cd
     }
 }

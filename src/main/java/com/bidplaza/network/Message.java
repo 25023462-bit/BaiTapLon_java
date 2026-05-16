@@ -3,47 +3,32 @@ package com.bidplaza.network;
 import java.io.Serializable;
 
 /**
- * Tin nhắn trao đổi giữa Client và Server.
- *
- * Serializable: cho phép chuyển object thành bytes
- * để gửi qua Socket, rồi khôi phục lại ở đầu kia.
- *
- * Các loại tin nhắn (type):
- * - PLACE_BID: client gửi yêu cầu đặt giá
- * - BID_SUCCESS: server xác nhận bid thành công
- * - BID_FAILED: server báo bid thất bại
- * - AUCTION_UPDATE: server broadcast giá mới cho tất cả client
- * - ERROR: thông báo lỗi
+ * Message exchanged between client and server through object streams.
  */
 public class Message implements Serializable {
 
-    // serialVersionUID: bắt buộc với Serializable
     private static final long serialVersionUID = 1L;
 
     public enum Type {
         LOGIN,
+        LOGIN_RESPONSE,
         PLACE_BID,
         BID_SUCCESS,
         BID_FAILED,
         AUCTION_UPDATE,
         ERROR,
-<<<<<<< HEAD
-        LOGIN,
-        LOGIN_RESPONSE
-=======
         GET_AUCTION_LIST,
         AUCTION_LIST_RESPONSE,
         LIST_AUCTIONS,
         CREATE_AUCTION,
         FINISH_AUCTION
->>>>>>> cade1658b480eadddf16e8af7c5761c766d5d9cd
     }
 
     private final Type type;
     private final String auctionId;
     private final String bidderId;
     private final double amount;
-    private final String info; // thông tin bổ sung (thông báo lỗi, v.v.)
+    private final String info;
     private final Object payload;
 
     public Message(Type type, String auctionId, String bidderId,
@@ -65,14 +50,12 @@ public class Message implements Serializable {
         this.payload = payload;
     }
 
-    // Factory methods - tạo nhanh từng loại message
-
     public static Message placeBid(String auctionId, String bidderId, double amount) {
         return new Message(Type.PLACE_BID, auctionId, bidderId, amount, null);
     }
 
     public static Message bidSuccess(String auctionId, double newPrice) {
-        return new Message(Type.BID_SUCCESS, auctionId, null, newPrice, "Bid thành công!");
+        return new Message(Type.BID_SUCCESS, auctionId, null, newPrice, "Bid thanh cong!");
     }
 
     public static Message bidFailed(String auctionId, String reason) {
@@ -81,7 +64,7 @@ public class Message implements Serializable {
 
     public static Message auctionUpdate(String auctionId, double currentPrice, String leaderId) {
         return new Message(Type.AUCTION_UPDATE, auctionId, leaderId, currentPrice,
-            "Giá mới: $" + currentPrice);
+            "Gia moi: $" + currentPrice);
     }
 
     public static Message error(String reason) {
@@ -90,17 +73,29 @@ public class Message implements Serializable {
 
     public static Message login(String username, String password,
                                 String role, boolean isRegister) {
-        String action = isRegister ? "REGISTER" : "LOGIN";
-        return new Message(Type.LOGIN, null, username, 0,
-            password + "|" + role + "|" + action);
+        return new Message(Type.LOGIN, new LoginRequest(username, password, role, isRegister));
     }
 
     public static Message loginResponse(boolean success, String message) {
-        return new Message(Type.LOGIN_RESPONSE, null, null,
-            success ? 1 : 0, message);
+        return loginResponse(success, message, null);
     }
 
-    // Getters
+    public static Message loginResponse(boolean success, String message,
+                                        com.bidplaza.model.user.User user) {
+        return new Message(Type.LOGIN_RESPONSE, null, null, success ? 1 : 0,
+            message, new LoginResponse(success, message, user));
+    }
+
+    private Message(Type type, String auctionId, String bidderId,
+                    double amount, String info, Object payload) {
+        this.type = type;
+        this.auctionId = auctionId;
+        this.bidderId = bidderId;
+        this.amount = amount;
+        this.info = info;
+        this.payload = payload;
+    }
+
     public Type getType()       { return type; }
     public String getAuctionId(){ return auctionId; }
     public String getBidderId() { return bidderId; }
