@@ -60,6 +60,7 @@ public class AuctionManager {
             .orElse(null);
     }
 
+<<<<<<< HEAD
     public void addUser(User user) {
         users.add(user);
     }
@@ -73,5 +74,11 @@ public class AuctionManager {
 
     public List<User> getAllUsers() {
         return users;
+=======
+    public List<Auction> getAuctionsByStatus(Auction.Status status) {
+        return auctions.stream()
+            .filter(a -> a.getStatus() == status)
+            .collect(java.util.stream.Collectors.toList());
+>>>>>>> cade1658b480eadddf16e8af7c5761c766d5d9cd
     }
 }

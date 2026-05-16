@@ -32,6 +32,7 @@ public class Auction implements AuctionObservable {
     private Status status;
     private String winnerId;
     private final List<BidTransaction> bids;
+    private final List<AutoBidder> autoBidders = new ArrayList<>();
 
     private final ReentrantLock lock = new ReentrantLock();
     private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
@@ -64,6 +65,7 @@ public class Auction implements AuctionObservable {
             throws AuctionClosedException, InvalidBidException {
         lock.lock();
         try {
+            if (amount <= 0) throw new InvalidBidException("Số tiền phải lớn hơn 0");
             if (status != Status.RUNNING) {
                 throw new AuctionClosedException(
                     "Phiên không ở trạng thái RUNNING. Hiện tại: " + status);
@@ -77,6 +79,8 @@ public class Auction implements AuctionObservable {
             BidTransaction bid = new BidTransaction(bidderId, item.getId(), amount);
             bids.add(bid);
             notifyObservers(bid);
+            
+            triggerAutoBids();
         } finally {
             lock.unlock();
         }
@@ -128,4 +132,54 @@ public class Auction implements AuctionObservable {
     public Status getStatus()             { return status; }
     public String getWinnerId()           { return winnerId; }
     public List<BidTransaction> getBids() { return bids; }
+
+    public void registerAutoBid(String bidderId, double maxBid, double increment) {
+        autoBidders.add(new AutoBidder(bidderId, maxBid, increment));
+        System.out.println("Đã đăng ký auto-bid cho " + bidderId + ": max=$" + maxBid + ", step=$" + increment);
+    }
+
+    private synchronized void triggerAutoBids() {
+        for (AutoBidder autoBidder : autoBidders) {
+            if (autoBidder.getBidderId().equals(winnerId)) {
+                continue;
+            }
+            double currentPrice = item.getCurrentPrice();
+            if (autoBidder.getMaxBid() > currentPrice) {
+                double newBid = currentPrice + autoBidder.getIncrement();
+                if (newBid > autoBidder.getMaxBid()) {
+                    newBid = autoBidder.getMaxBid();
+                }
+                try {
+                    placeBid(autoBidder.getBidderId(), newBid);
+                    break;
+                } catch (AuctionClosedException | InvalidBidException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    public class AutoBidder {
+        private String bidderId;
+        private double maxBid;
+        private double increment;
+
+        public AutoBidder(String bidderId, double maxBid, double increment) {
+            this.bidderId = bidderId;
+            this.maxBid = maxBid;
+            this.increment = increment;
+        }
+
+        public String getBidderId() {
+            return bidderId;
+        }
+
+        public double getMaxBid() {
+            return maxBid;
+        }
+
+        public double getIncrement() {
+            return increment;
+        }
+    }
 }

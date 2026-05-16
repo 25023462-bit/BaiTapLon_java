@@ -21,13 +21,22 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Type {
+        LOGIN,
         PLACE_BID,
         BID_SUCCESS,
         BID_FAILED,
         AUCTION_UPDATE,
         ERROR,
+<<<<<<< HEAD
         LOGIN,
         LOGIN_RESPONSE
+=======
+        GET_AUCTION_LIST,
+        AUCTION_LIST_RESPONSE,
+        LIST_AUCTIONS,
+        CREATE_AUCTION,
+        FINISH_AUCTION
+>>>>>>> cade1658b480eadddf16e8af7c5761c766d5d9cd
     }
 
     private final Type type;
@@ -35,6 +44,7 @@ public class Message implements Serializable {
     private final String bidderId;
     private final double amount;
     private final String info; // thông tin bổ sung (thông báo lỗi, v.v.)
+    private final Object payload;
 
     public Message(Type type, String auctionId, String bidderId,
                    double amount, String info) {
@@ -43,6 +53,16 @@ public class Message implements Serializable {
         this.bidderId = bidderId;
         this.amount = amount;
         this.info = info;
+        this.payload = null;
+    }
+
+    public Message(Type type, Object payload) {
+        this.type = type;
+        this.auctionId = null;
+        this.bidderId = null;
+        this.amount = 0;
+        this.info = null;
+        this.payload = payload;
     }
 
     // Factory methods - tạo nhanh từng loại message
@@ -86,6 +106,7 @@ public class Message implements Serializable {
     public String getBidderId() { return bidderId; }
     public double getAmount()   { return amount; }
     public String getInfo()     { return info; }
+    public Object getPayload()  { return payload; }
 
     @Override
     public String toString() {

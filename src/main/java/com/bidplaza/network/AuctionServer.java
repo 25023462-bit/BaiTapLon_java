@@ -34,6 +34,7 @@ public class AuctionServer {
 
     public static void main(String[] args) throws IOException {
         auctionManager = AuctionManager.getInstance();
+        com.bidplaza.manager.UserManager.getInstance();
 
         // Tạo sẵn 1 phiên đấu giá để test
         Item phone = ItemFactory.create(
@@ -44,6 +45,11 @@ public class AuctionServer {
         Auction auction = auctionManager.createAuction(phone);
         auction.start();
         System.out.println("Phiên đấu giá tạo sẵn: " + auction.getId());
+        
+        // Thêm một số Auto-Bidder để demo logic đấu giá tự động
+        auction.registerAutoBid("bot-vip-1", 1500.0, 50.0);
+        auction.registerAutoBid("bot-vip-2", 2000.0, 100.0);
+        System.out.println("Đã thêm bot-vip-1 (max $1500, inc $50) và bot-vip-2 (max $2000, inc $100)");
 
         // Thread pool: tối đa 10 client cùng lúc
         ExecutorService pool = Executors.newFixedThreadPool(10);
