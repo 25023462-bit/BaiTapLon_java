@@ -20,7 +20,7 @@ public abstract class Item extends Entity  {
     private final double startingPrice;
     private double currentPrice;
     private final LocalDateTime startTime;
-    private final LocalDateTime endTime;
+    private LocalDateTime endTime;
     private final String sellerId;
 
     public Item(String name, String description, double startingPrice,
@@ -42,6 +42,7 @@ public abstract class Item extends Entity  {
     public double getCurrentPrice()    { return currentPrice; }
     public LocalDateTime getStartTime(){ return startTime; }
     public LocalDateTime getEndTime()  { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public String getSellerId()        { return sellerId; }
 
     // Setter: chỉ dùng khi có bid mới hợp lệ

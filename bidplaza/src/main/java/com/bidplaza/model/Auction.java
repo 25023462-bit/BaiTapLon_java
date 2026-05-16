@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+import java.time.LocalDateTime;
 
 /**
  * Một phiên đấu giá - trung tâm của hệ thống.
@@ -32,6 +33,9 @@ public class Auction implements AuctionObservable {
     private Status status;
     private String winnerId;
     private final List<BidTransaction> bids;
+    private static final int SNIPE_WINDOW_SECONDS = 30;
+    private static final int EXTENSION_SECONDS = 60;
+    private LocalDateTime endTime;
 
     private transient ReentrantLock lock = new ReentrantLock();
     private transient List<BidObserver> observers = new CopyOnWriteArrayList<>();
@@ -77,6 +81,12 @@ public class Auction implements AuctionObservable {
             BidTransaction bid = new BidTransaction(bidderId, item.getId(), amount);
             bids.add(bid);
             notifyObservers(bid);
+            // Anti-sniping
+            if (endTime != null && java.time.LocalDateTime.now()
+                    .isAfter(endTime.minusSeconds(SNIPE_WINDOW_SECONDS))) {
+                endTime = endTime.plusSeconds(EXTENSION_SECONDS);
+                System.out.println("Anti-sniping: gia hạn phiên thêm 60 giây");
+            }
         } finally {
             lock.unlock();
         }
@@ -128,4 +138,6 @@ public class Auction implements AuctionObservable {
     public Status getStatus()             { return status; }
     public String getWinnerId()           { return winnerId; }
     public List<BidTransaction> getBids() { return bids; }
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
 }
