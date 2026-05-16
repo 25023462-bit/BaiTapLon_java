@@ -1,7 +1,6 @@
 package com.bidplaza.ui.controller;
 
 import com.bidplaza.ui.model.UserSession;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,15 +10,8 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import com.bidplaza.network.Message;
 
-/**
- * Controller cho màn hình Login.
- *
- * Trong MVC:
- * - View: Login.fxml
- * - Controller: LoginController (file này)
- * - Model: UserSession (lưu thông tin user đang đăng nhập)
- */
 public class LoginController implements Initializable {
 
     @FXML private TextField usernameField;
@@ -29,9 +21,8 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Điền các vai trò vào ComboBox
-        roleCombo.setItems(FXCollections.observableArrayList("BIDDER", "SELLER", "ADMIN"));
-        roleCombo.setValue("BIDDER"); // mặc định
+        roleCombo.getItems().addAll("BIDDER", "SELLER", "ADMIN");
+        roleCombo.setValue("BIDDER");
     }
 
     @FXML
@@ -40,37 +31,96 @@ public class LoginController implements Initializable {
         String password = passwordField.getText().trim();
         String role     = roleCombo.getValue();
 
-        // Kiểm tra rỗng
         if (username.isEmpty() || password.isEmpty()) {
             errorLabel.setText("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
+        sendLoginRequest(username, password, role, false);
+    }
 
-        // TODO: sau này gọi Server qua Socket để xác thực
-        // Hiện tại: chấp nhận mọi đăng nhập để test UI
-        if (password.length() < 3) {
-            errorLabel.setText("Mật khẩu tối thiểu 3 ký tự!");
+    @FXML
+    private void handleRegister() {
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
+        String role     = roleCombo.getValue();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            errorLabel.setText("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
+        sendLoginRequest(username, password, role, true);
+    }
 
-        // Lưu thông tin session
-        UserSession.getInstance().login(username, role);
-
-        // Chuyển sang màn hình phù hợp theo vai trò
+    private void sendLoginRequest(String username, String password,
+                                  String role, boolean isRegister) {
         try {
-            String fxml = role.equals("SELLER") ? "SellerDashboard.fxml" : "AuctionList.fxml";
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/" + fxml));
-            Scene scene = new Scene(loader.load(), 900, 600);
+            java.net.Socket socket = new java.net.Socket("127.0.0.1", 8080);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(
+                    socket.getOutputStream());
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(
+                    socket.getInputStream());
 
+            out.writeObject(Message.login(username, password, role, isRegister));
+            out.flush();
+
+            Message response = (Message) in.readObject();
+            socket.close();
+
+            if (response.getAmount() == 1) {
+                if (isRegister) {
+                    errorLabel.setStyle("-fx-text-fill: green;");
+                    errorLabel.setText("Đăng ký thành công!");
+                    sendLoginRequest(username, password, role, false);
+                } else {
+                    UserSession.getInstance().login(username, role);
+                    chuyenManHinh(role);
+                }
+            } else {
+                errorLabel.setStyle("-fx-text-fill: #e74c3c;");
+                String msg = response.getInfo();
+                errorLabel.setText(msg != null ? msg : "Lỗi không xác định");
+            }
+
+        } catch (java.net.ConnectException e) {
+            errorLabel.setText("Không thể kết nối Server!");
+        } catch (Exception e) {
+            errorLabel.setText("Lỗi: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        }
+    }
+    private Object createLoginMessage(String username, String password,
+                                      String role, String action) throws Exception {
+        Class<?> msgClass = Class.forName("com.bidplaza.network.Message");
+        Class<?> typeClass = Class.forName("com.bidplaza.network.Message$Type");
+
+        // Tìm đúng enum value thay vì dùng index cứng
+        Object loginType = null;
+        for (Object enumVal : (Object[]) typeClass.getMethod("values").invoke(null)) {
+            if (enumVal.toString().equals("LOGIN")) {
+                loginType = enumVal;
+                break;
+            }
+        }
+
+        java.lang.reflect.Constructor<?> ctor = msgClass.getDeclaredConstructor(
+                typeClass, String.class, String.class, double.class, String.class);
+        ctor.setAccessible(true);
+        return ctor.newInstance(loginType, null, username, 0.0,
+                password + "|" + role + "|" + action);
+    }
+
+    private void chuyenManHinh(String role) {
+        try {
+            String fxml = role.equals("SELLER") ?
+                    "SellerDashboard.fxml" : "AuctionList.fxml";
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/bidplaza/ui/" + fxml));
+            Scene scene = new Scene(loader.load(), 900, 600);
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setTitle("BidPlaza - " + role);
             stage.setScene(scene);
             stage.show();
-
         } catch (Exception e) {
             errorLabel.setText("Lỗi chuyển màn hình: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }

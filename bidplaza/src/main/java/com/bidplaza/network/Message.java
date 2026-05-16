@@ -25,7 +25,10 @@ public class Message implements Serializable {
         BID_SUCCESS,
         BID_FAILED,
         AUCTION_UPDATE,
-        ERROR
+        ERROR,
+        LOGIN,           // ← thêm
+        LOGIN_RESPONSE   // ← thêm
+    }
     }
 
     private final Type type;
@@ -65,6 +68,21 @@ public class Message implements Serializable {
     public static Message error(String reason) {
         return new Message(Type.ERROR, null, null, 0, reason);
     }
+
+    public static Message login(String username, String password,
+                            String role, boolean isRegister) {
+        String info = isRegister ? "REGISTER" : "LOGIN";
+        return new Message(Type.LOGIN, null, username, 0,
+            password + "|" + role + "|" + info);
+    }
+
+    public static Message loginResponse(boolean success, String message) {
+        return new Message(Type.LOGIN_RESPONSE, null, null,
+            success ? 1 : 0, message);
+    }
+
+    public boolean isSuccess() { return amount == 1; }
+    public String getMessage() { return info; }
 
     // Getters
     public Type getType()       { return type; }

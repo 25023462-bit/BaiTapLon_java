@@ -25,7 +25,9 @@ public class Message implements Serializable {
         BID_SUCCESS,
         BID_FAILED,
         AUCTION_UPDATE,
-        ERROR
+        ERROR,
+        LOGIN,
+        LOGIN_RESPONSE
     }
 
     private final Type type;
@@ -64,6 +66,18 @@ public class Message implements Serializable {
 
     public static Message error(String reason) {
         return new Message(Type.ERROR, null, null, 0, reason);
+    }
+
+    public static Message login(String username, String password,
+                                String role, boolean isRegister) {
+        String action = isRegister ? "REGISTER" : "LOGIN";
+        return new Message(Type.LOGIN, null, username, 0,
+            password + "|" + role + "|" + action);
+    }
+
+    public static Message loginResponse(boolean success, String message) {
+        return new Message(Type.LOGIN_RESPONSE, null, null,
+            success ? 1 : 0, message);
     }
 
     // Getters

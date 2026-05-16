@@ -57,9 +57,13 @@ public class ClientHandler implements Runnable {
      * Xử lý từng loại message từ client.
      */
     private void handleMessage(Message message) {
+        System.out.println("Type nhận được: " + message.getType() + " | Class: " + message.getClass().getName());
         switch (message.getType()) {
             case PLACE_BID:
                 handlePlaceBid(message);
+                break;
+            case LOGIN:          // ← thêm
+                handleLogin(message);
                 break;
             default:
                 sendMessage(Message.error("Loại message không hợp lệ: " + message.getType()));
@@ -117,6 +121,42 @@ public class ClientHandler implements Runnable {
             if (socket != null) socket.close();
         } catch (IOException e) {
             // bỏ qua lỗi khi đóng
+        }
+    }
+
+    private void handleLogin(Message message) {
+        String[] parts = message.getInfo().split("\\|");
+        String password = parts[0];
+        String role     = parts[1];
+        String action   = parts[2]; // LOGIN hoặc REGISTER
+        String username = message.getBidderId();
+
+        if (action.equals("REGISTER")) {
+            // Kiểm tra username đã tồn tại chưa
+            if (auctionManager.findUserByUsername(username) != null) {
+                sendMessage(Message.loginResponse(false, "Username đã tồn tại!"));
+                return;
+            }
+            // Tạo user mới theo role
+            com.bidplaza.model.user.User newUser = switch (role) {
+                case "SELLER" -> new com.bidplaza.model.user.Seller(
+                        java.util.UUID.randomUUID().toString(), username, username + "@mail.com", password);
+                case "ADMIN"  -> new com.bidplaza.model.user.Admin(
+                        java.util.UUID.randomUUID().toString(), username, username + "@mail.com", password);
+                default       -> new com.bidplaza.model.user.Bidder(
+                        java.util.UUID.randomUUID().toString(), username, username + "@mail.com", password);
+            };
+            auctionManager.addUser(newUser);
+            DataStorage.save(auctionManager);
+            sendMessage(Message.loginResponse(true, "Đăng ký thành công!"));
+        } else {
+            // Đăng nhập
+            com.bidplaza.model.user.User user = auctionManager.findUserByUsername(username);
+            if (user == null || !user.checkPassword(password)) {
+                sendMessage(Message.loginResponse(false, "Sai username hoặc mật khẩu!"));
+                return;
+            }
+            sendMessage(Message.loginResponse(true, "Đăng nhập thành công!|" + user.getRole()));
         }
     }
 }

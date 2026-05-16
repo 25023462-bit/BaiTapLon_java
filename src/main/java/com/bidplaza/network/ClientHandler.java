@@ -4,6 +4,10 @@ import com.bidplaza.exception.AuctionClosedException;
 import com.bidplaza.exception.InvalidBidException;
 import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.model.Auction;
+import com.bidplaza.model.user.Admin;
+import com.bidplaza.model.user.Bidder;
+import com.bidplaza.model.user.Seller;
+import com.bidplaza.model.user.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -60,9 +64,62 @@ public class ClientHandler implements Runnable {
             case PLACE_BID:
                 handlePlaceBid(message);
                 break;
+            case LOGIN:
+                handleLogin(message);
+                break;
             default:
                 sendMessage(Message.error("Loại message không hợp lệ: " + message.getType()));
         }
+    }
+
+    private void handleLogin(Message message) {
+        String username = message.getBidderId();
+        String info = message.getInfo();
+        if (username == null || info == null) {
+            sendMessage(Message.loginResponse(false, "Thieu thong tin dang nhap!"));
+            return;
+        }
+
+        String[] parts = info.split("\\|", 3);
+        if (parts.length < 3) {
+            sendMessage(Message.loginResponse(false, "Du lieu dang nhap khong hop le!"));
+            return;
+        }
+
+        String password = parts[0];
+        String role = parts[1];
+        String action = parts[2];
+
+        if ("REGISTER".equals(action)) {
+            register(username, password, role);
+        } else {
+            login(username, password);
+        }
+    }
+
+    private void register(String username, String password, String role) {
+        if (auctionManager.findUserByUsername(username) != null) {
+            sendMessage(Message.loginResponse(false, "Username da ton tai!"));
+            return;
+        }
+
+        User newUser = switch (role) {
+            case "SELLER" -> new Seller(username, password, username + "@mail.com", username);
+            case "ADMIN" -> new Admin(username, password, username + "@mail.com");
+            default -> new Bidder(username, password, username + "@mail.com");
+        };
+        auctionManager.addUser(newUser);
+        sendMessage(Message.loginResponse(true, "Dang ky thanh cong!"));
+    }
+
+    private void login(String username, String password) {
+        User user = auctionManager.findUserByUsername(username);
+        if (user == null || !user.checkPassword(password)) {
+            sendMessage(Message.loginResponse(false, "Sai username hoac mat khau!"));
+            return;
+        }
+
+        sendMessage(Message.loginResponse(true, "Dang nhap thanh cong!|" + user.getRole()));
     }
 
     private void handlePlaceBid(Message message) {
