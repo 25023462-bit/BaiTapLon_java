@@ -1,5 +1,6 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
 import javafx.collections.FXCollections;
@@ -54,7 +55,7 @@ public class AuctionListController implements Initializable {
         UserSession session = UserSession.getInstance();
 
         userLabel.setText(
-                "👤 " + session.getUsername()
+                session.getUsername()
                         + " (" + session.getRole() + ")"
         );
 
@@ -173,6 +174,7 @@ public class AuctionListController implements Initializable {
             );
 
             Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
 
             // Truyền dữ liệu
             AuctionDetailController controller =
@@ -218,6 +220,7 @@ public class AuctionListController implements Initializable {
             );
 
             Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
 
             Stage stage =
                     (Stage) userLabel.getScene().getWindow();

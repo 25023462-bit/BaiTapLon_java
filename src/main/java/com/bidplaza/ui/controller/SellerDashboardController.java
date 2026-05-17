@@ -1,7 +1,13 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.network.AuctionSnapshot;
+import com.bidplaza.network.CreateAuctionRequest;
+import com.bidplaza.network.Message;
+import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
+import com.bidplaza.ui.net.ServerClient;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,8 +19,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SellerDashboardController implements Initializable {
@@ -33,14 +39,17 @@ public class SellerDashboardController implements Initializable {
     @FXML private TableColumn<AuctionItem, String> colStatus;
     @FXML private TableColumn<AuctionItem, String> colBids;
 
-    private ObservableList<AuctionItem> items = FXCollections.observableArrayList();
+    private static final DateTimeFormatter FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        userLabel.setText("👤 " + UserSession.getInstance().getUsername());
+        userLabel.setText(UserSession.getInstance().getUsername());
 
         categoryCombo.setItems(FXCollections.observableArrayList(
-            "electronics", "art", "vehicle"));
+                "electronics", "art", "vehicle"));
         categoryCombo.setValue("electronics");
 
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -50,14 +59,44 @@ public class SellerDashboardController implements Initializable {
         colBids.setCellValueFactory(new PropertyValueFactory<>("endTime"));
 
         itemTable.setItems(items);
+
+        // Load danh sách phiên của Seller từ Server
+        loadSellerAuctions();
+    }
+
+    private void loadSellerAuctions() {
+        String sellerId = UserSession.getInstance().getUsername();
+        new Thread(() -> {
+            try {
+                Message response = ServerClient.request(
+                        new Message(Message.Type.LIST_AUCTIONS, null));
+
+                if (response.getPayload() instanceof List<?> list) {
+                    Platform.runLater(() -> {
+                        items.clear();
+                        for (Object obj : list) {
+                            if (obj instanceof AuctionSnapshot snap) {
+                                if (sellerId.equals(snap.getSellerId())) {
+                                    items.add(snapshotToItem(snap));
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        showResult("Không thể tải danh sách: " + e.getMessage(), false));
+            }
+        }).start();
     }
 
     @FXML
     private void handleAddItem() {
-        String name      = itemNameField.getText().trim();
-        String category  = categoryCombo.getValue();
-        String priceStr  = startPriceField.getText().trim();
-        int duration     = durationSpinner.getValue();
+        String name     = itemNameField.getText().trim();
+        String category = categoryCombo.getValue();
+        String desc     = descField != null ? descField.getText().trim() : "";
+        String priceStr = startPriceField.getText().trim();
+        int duration    = durationSpinner.getValue();
 
         if (name.isEmpty() || priceStr.isEmpty()) {
             showResult("Vui lòng nhập đầy đủ thông tin!", false);
@@ -72,24 +111,30 @@ public class SellerDashboardController implements Initializable {
             return;
         }
 
-        // Tính thời gian kết thúc
-        String endTime = LocalDateTime.now()
-            .plusHours(duration)
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String sellerId = UserSession.getInstance().getUsername();
+        CreateAuctionRequest req = new CreateAuctionRequest(
+                name, desc, category, price, duration, sellerId);
 
-        // Tạo AuctionItem mới
-        AuctionItem newItem = new AuctionItem(
-            "item-" + System.currentTimeMillis(),
-            name, category,
-            "$" + price, "$" + price,
-            "OPEN", endTime
-        );
-        items.add(newItem);
+        new Thread(() -> {
+            try {
+                Message response = ServerClient.request(
+                        new Message(Message.Type.CREATE_AUCTION, req));
 
-        // TODO: gửi lên Server qua Socket
-
-        showResult("✅ Đã đăng sản phẩm: " + name, true);
-        clearForm();
+                Platform.runLater(() -> {
+                    if (response.getPayload() instanceof AuctionSnapshot snap) {
+                        items.add(snapshotToItem(snap));
+                        showResult("Đã đăng sản phẩm: " + name, true);
+                        clearForm();
+                    } else {
+                        String err = response.getInfo();
+                        showResult(err != null ? err : "Lỗi tạo phiên đấu giá!", false);
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        showResult("Không thể kết nối Server!", false));
+            }
+        }).start();
     }
 
     @FXML
@@ -99,9 +144,33 @@ public class SellerDashboardController implements Initializable {
             showResult("Chưa chọn sản phẩm!", false);
             return;
         }
-        selected.setStatus("FINISHED");
-        itemTable.refresh();
-        showResult("Phiên đấu giá đã kết thúc.", true);
+
+        new Thread(() -> {
+            try {
+                Message response = ServerClient.request(
+                        new Message(Message.Type.FINISH_AUCTION,
+                                selected.getId(), null, 0, null));
+
+                Platform.runLater(() -> {
+                    if (response.getType() != Message.Type.ERROR) {
+                        selected.setStatus("FINISHED");
+                        itemTable.refresh();
+                        showResult("Phiên đấu giá đã kết thúc.", true);
+                    } else {
+                        String err = response.getInfo();
+                        showResult(err != null ? err : "Không thể kết thúc phiên!", false);
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        showResult("Không thể kết nối Server!", false));
+            }
+        }).start();
+    }
+
+    @FXML
+    private void handleRefresh() {
+        loadSellerAuctions();
     }
 
     @FXML
@@ -109,8 +178,9 @@ public class SellerDashboardController implements Initializable {
         UserSession.getInstance().logout();
         try {
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/Login.fxml"));
+                    getClass().getResource("/com/bidplaza/ui/Login.fxml"));
             Scene scene = new Scene(loader.load(), 500, 500);
+            AppStyles.applyTo(scene);
             Stage stage = (Stage) userLabel.getScene().getWindow();
             stage.setTitle("BidPlaza - Đăng nhập");
             stage.setScene(scene);
@@ -119,15 +189,29 @@ public class SellerDashboardController implements Initializable {
         }
     }
 
+    private AuctionItem snapshotToItem(AuctionSnapshot snap) {
+        String endTime = snap.getEndTime() != null
+                ? snap.getEndTime().format(FMT) : "N/A";
+        return new AuctionItem(
+                snap.getId(),
+                snap.getName(),
+                snap.getCategory(),
+                "$" + snap.getStartingPrice(),
+                "$" + snap.getCurrentPrice(),
+                snap.getStatus(),
+                endTime
+        );
+    }
+
     private void showResult(String msg, boolean success) {
         formResultLabel.setStyle(success
-            ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+                ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
         formResultLabel.setText(msg);
     }
 
     private void clearForm() {
         itemNameField.clear();
-        descField.clear();
+        if (descField != null) descField.clear();
         startPriceField.clear();
         categoryCombo.setValue("electronics");
     }

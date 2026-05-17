@@ -1,5 +1,6 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.ui.AppStyles;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,6 +22,7 @@ public class WelcomeController {
                     .getWindow();
 
             Scene scene = new Scene(root);
+            AppStyles.applyTo(scene);
 
             stage.setScene(scene);
 

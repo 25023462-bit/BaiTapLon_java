@@ -2,6 +2,7 @@ package com.bidplaza.ui.controller;
 
 import com.bidplaza.network.LoginResponse;
 import com.bidplaza.network.Message;
+import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.UserSession;
 import com.bidplaza.ui.net.ServerClient;
 import javafx.collections.FXCollections;
@@ -103,6 +104,7 @@ public class LoginController implements Initializable {
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/bidplaza/ui/" + fxml));
             Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setTitle("BidPlaza - " + role);
             stage.setMaximized(true);

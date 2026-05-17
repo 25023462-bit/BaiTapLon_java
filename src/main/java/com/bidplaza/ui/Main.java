@@ -1,5 +1,6 @@
 package com.bidplaza.ui;
 
+import com.bidplaza.ui.AppStyles;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(
             getClass().getResource("/com/bidplaza/ui/Login.fxml"));
         Scene scene = new Scene(loader.load(), 500, 520);
+        AppStyles.applyTo(scene);
         stage.setTitle("BidPlaza - Đăng nhập");
         stage.setScene(scene);
         stage.setResizable(false);

@@ -1,5 +1,6 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
 import javafx.application.Platform;
@@ -83,7 +84,7 @@ public class AuctionDetailController implements Initializable {
                 connected = true;
 
                 Platform.runLater(() ->
-                    statusLabel.setText("✅ Đã kết nối đến server"));
+                    statusLabel.setText("Đã kết nối đến server"));
 
                 // Gửi ngay 1 message LIST_AUCTIONS để lấy thông tin phiên hiện tại
                 out.writeObject(new com.bidplaza.network.Message(com.bidplaza.network.Message.Type.LIST_AUCTIONS, null));
@@ -94,7 +95,7 @@ public class AuctionDetailController implements Initializable {
 
             } catch (IOException e) {
                 Platform.runLater(() ->
-                    statusLabel.setText("⚠️ Không kết nối được server — chạy ở chế độ offline"));
+                    statusLabel.setText("Không kết nối được server - chạy ở chế độ offline"));
             }
         }).start();
     }
@@ -111,7 +112,7 @@ public class AuctionDetailController implements Initializable {
             }
         } catch (Exception e) {
             Platform.runLater(() ->
-                statusLabel.setText("❌ Mất kết nối với server"));
+                statusLabel.setText("Mất kết nối với server"));
         }
     }
 
@@ -121,8 +122,8 @@ public class AuctionDetailController implements Initializable {
             switch (msg.getType()) {
                 case BID_SUCCESS:
                     bidResultLabel.setStyle("-fx-text-fill: #27ae60;");
-                    bidResultLabel.setText("✅ Đặt giá thành công!");
-                    statusLabel.setText("✅ Bid thành công");
+                    bidResultLabel.setText("Đặt giá thành công!");
+                    statusLabel.setText("Bid thành công");
                     
                     // Cập nhật giá mới cho chính mình
                     currentPriceLabel.setText("$" + msg.getAmount());
@@ -133,7 +134,7 @@ public class AuctionDetailController implements Initializable {
                     break;
                 case BID_FAILED:
                     bidResultLabel.setStyle("-fx-text-fill: #e74c3c;");
-                    bidResultLabel.setText("❌ Đặt giá thất bại: " + msg.getInfo());
+                    bidResultLabel.setText("Đặt giá thất bại: " + msg.getInfo());
                     break;
                 case AUCTION_UPDATE:
                     // Có người khác hoặc mình vừa đặt giá
@@ -142,14 +143,14 @@ public class AuctionDetailController implements Initializable {
                         currentPriceLabel.setText("$" + snapshot.getCurrentPrice());
                         String l = snapshot.getWinnerId() != null ? snapshot.getWinnerId() : "Chưa có";
                         leaderLabel.setText("Người dẫn đầu: " + l);
-                        bidHistory.add(0, "💰 " + l + " đặt $" + snapshot.getCurrentPrice());
+                        bidHistory.add(0, l + " đặt $" + snapshot.getCurrentPrice());
                         if (auction != null) {
                             auction.setCurrentPrice("$" + snapshot.getCurrentPrice());
                         }
                     } else {
                         currentPriceLabel.setText("$" + msg.getAmount());
                         leaderLabel.setText("Người dẫn đầu: " + msg.getBidderId());
-                        bidHistory.add(0, "💰 " + msg.getBidderId() + " đặt $" + msg.getAmount());
+                        bidHistory.add(0, msg.getBidderId() + " đặt $" + msg.getAmount());
                         if (auction != null) {
                             auction.setCurrentPrice("$" + msg.getAmount());
                         }
@@ -173,7 +174,7 @@ public class AuctionDetailController implements Initializable {
                     break;
                 case ERROR:
                     bidResultLabel.setStyle("-fx-text-fill: #e74c3c;");
-                    bidResultLabel.setText("❌ Lỗi Server: " + msg.getInfo());
+                    bidResultLabel.setText("Lỗi Server: " + msg.getInfo());
                     break;
                 default:
                     break;
@@ -211,7 +212,7 @@ public class AuctionDetailController implements Initializable {
                     out.flush();
 
                     Platform.runLater(() -> {
-                        bidHistory.add(0, "📤 Bạn đặt $" + amount);
+                        bidHistory.add(0, "Bạn đặt $" + amount);
                         bidAmountField.clear();
                     });
 
@@ -225,9 +226,9 @@ public class AuctionDetailController implements Initializable {
             // Offline mode: cập nhật UI trực tiếp
             currentPriceLabel.setText("$" + amount);
             leaderLabel.setText("Người dẫn đầu: " + UserSession.getInstance().getUsername());
-            bidHistory.add(0, "💰 " + UserSession.getInstance().getUsername() + " đặt $" + amount);
+            bidHistory.add(0, UserSession.getInstance().getUsername() + " đặt $" + amount);
             bidAmountField.clear();
-            showBidResult("✅ Đặt giá: $" + amount + " (offline mode)", true);
+            showBidResult("Đặt giá: $" + amount + " (offline mode)", true);
         }
     }
 
@@ -238,6 +239,7 @@ public class AuctionDetailController implements Initializable {
             FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/bidplaza/ui/AuctionList.fxml"));
             Scene scene = new Scene(loader.load(), 900, 600);
+            AppStyles.applyTo(scene);
             Stage stage = (Stage) titleLabel.getScene().getWindow();
             stage.setScene(scene);
         } catch (Exception e) {
