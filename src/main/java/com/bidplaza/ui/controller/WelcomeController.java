@@ -30,4 +30,17 @@ public class WelcomeController {
             e.printStackTrace();
         }
     }
+    public void goToRegister(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/com/bidplaza/ui/Login.fxml"));
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource())
+                    .getScene().getWindow();
+            Scene scene = new Scene(root);
+            AppStyles.applyTo(scene);
+            stage.setScene(scene);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

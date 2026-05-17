@@ -13,7 +13,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         Parent root = FXMLLoader.load(
-                getClass().getResource("/com/bidplaza/ui/Login.fxml")
+                getClass().getResource("/com/bidplaza/ui/Welcome.fxml")
         );
 
         Scene scene = new Scene(root, 1200, 700);
