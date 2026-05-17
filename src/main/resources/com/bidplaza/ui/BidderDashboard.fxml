@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.bidplaza.ui.controller.BidderDashboardController">
+
+    <children>
+
+        <!-- Background -->
+        <AnchorPane prefWidth="1200"
+                    prefHeight="700"
+                    style="-fx-background-image: url('/images/register-bg.png');
+                           -fx-background-size: cover;
+                           -fx-background-position: center;">
+
+            <!-- Overlay -->
+            <Pane prefWidth="1200"
+                  prefHeight="700"
+                  style="-fx-background-color: rgba(0,0,0,0.55);" />
+
+            <!-- Main Content -->
+            <VBox spacing="30"
+                  alignment="TOP_CENTER"
+                  AnchorPane.topAnchor="40"
+                  AnchorPane.leftAnchor="40"
+                  AnchorPane.rightAnchor="40">
+
+                <!-- Header -->
+                <VBox spacing="8"
+                      alignment="CENTER">
+
+                    <Label text="BIDDER DASHBOARD"
+                           style="-fx-font-size: 38px;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: linear-gradient(to right, #00f5ff, #ff4dff);" />
+
+                    <Label fx:id="welcomeLabel"
+                           text="Welcome back!"
+                           style="-fx-font-size: 20px;
+                                  -fx-text-fill: white;" />
+
+                </VBox>
+
+                <!-- Cards -->
+                <HBox spacing="30"
+                      alignment="CENTER">
+
+                    <!-- Browse Auctions -->
+                    <VBox spacing="18"
+                          alignment="CENTER"
+                          prefWidth="250"
+                          prefHeight="220"
+                          style="-fx-background-color: rgba(15,20,35,0.75);
+                                 -fx-background-radius: 24;
+                                 -fx-border-color: rgba(0,255,255,0.4);
+                                 -fx-border-radius: 24;
+                                 -fx-padding: 25;">
+
+                        <Label text="Browse Auctions"
+                               style="-fx-font-size: 22px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
+
+                        <Label text="View all available auctions and place bids."
+                               wrapText="true"
+                               style="-fx-text-fill: #dfe6e9;
+                                      -fx-font-size: 14px;" />
+
+                        <Button text="OPEN"
+                                prefWidth="170"
+                                prefHeight="42"
+                                onAction="#openAuctions"
+                                style="-fx-background-color: linear-gradient(to right, #00f5ff, #00a8ff);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 15px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 14;" />
+
+                    </VBox>
+
+                    <!-- My Bids -->
+                    <VBox spacing="18"
+                          alignment="CENTER"
+                          prefWidth="250"
+                          prefHeight="220"
+                          style="-fx-background-color: rgba(15,20,35,0.75);
+                                 -fx-background-radius: 24;
+                                 -fx-border-color: rgba(255,77,255,0.4);
+                                 -fx-border-radius: 24;
+                                 -fx-padding: 25;">
+
+                        <Label text="My Bids"
+                               style="-fx-font-size: 22px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
+
+                        <Label text="Track auctions you have already bid on."
+                               wrapText="true"
+                               style="-fx-text-fill: #dfe6e9;
+                                      -fx-font-size: 14px;" />
+
+                        <Button text="VIEW"
+                                prefWidth="170"
+                                prefHeight="42"
+                                style="-fx-background-color: linear-gradient(to right, #ff4dff, #9b59b6);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 15px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 14;" />
+
+                    </VBox>
+
+                    <!-- Logout -->
+                    <VBox spacing="18"
+                          alignment="CENTER"
+                          prefWidth="250"
+                          prefHeight="220"
+                          style="-fx-background-color: rgba(15,20,35,0.75);
+                                 -fx-background-radius: 24;
+                                 -fx-border-color: rgba(255,80,80,0.4);
+                                 -fx-border-radius: 24;
+                                 -fx-padding: 25;">
+
+                        <Label text="Logout"
+                               style="-fx-font-size: 22px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
+
+                        <Label text="Return back to the login screen safely."
+                               wrapText="true"
+                               style="-fx-text-fill: #dfe6e9;
+                                      -fx-font-size: 14px;" />
+
+                        <Button text="LOGOUT"
+                                prefWidth="170"
+                                prefHeight="42"
+                                onAction="#handleLogout"
+                                style="-fx-background-color: linear-gradient(to right, #ff416c, #ff4b2b);
+                                       -fx-text-fill: white;
+                                       -fx-font-size: 15px;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 14;" />
+
+                    </VBox>
+
+                </HBox>
+
+            </VBox>
+
+        </AnchorPane>
+
+    </children>
+
+</StackPane>

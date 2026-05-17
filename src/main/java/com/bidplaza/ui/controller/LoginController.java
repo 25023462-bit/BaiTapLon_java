@@ -15,113 +15,216 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private ComboBox<String> roleCombo;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private ComboBox<String> roleCombo;
+
+    @FXML
+    private Label errorLabel;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        roleCombo.setItems(FXCollections.observableArrayList("BIDDER", "SELLER", "ADMIN"));
+
+        roleCombo.setItems(
+                FXCollections.observableArrayList(
+                        "BIDDER",
+                        "SELLER",
+                        "ADMIN"
+                )
+        );
+
         roleCombo.setValue("BIDDER");
     }
 
     @FXML
     private void handleLogin() {
-        submit(false);
-    }
 
-    @FXML
-    private void handleRegister() {
-        submit(true);
-    }
-
-    private void submit(boolean isRegister) {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
         String role = roleCombo.getValue();
 
         if (username.isEmpty() || password.isEmpty()) {
+
             showError("Vui long nhap day du thong tin!");
             return;
         }
 
-        if (isRegister && password.length() < 3) {
-            showError("Mat khau toi thieu 3 ky tu!");
-            return;
-        }
-
-        sendLoginRequest(username, password, role, isRegister);
+        sendLoginRequest(username, password, role);
     }
 
-    private void sendLoginRequest(String username, String password,
-                                  String role, boolean isRegister) {
+    @FXML
+    private void openRegister() {
+
         try {
-            Message request = Message.login(username, password, role, isRegister);
-            Message response = ServerClient.request(request);
-            LoginResponse loginResponse = extractLoginResponse(response);
 
-            if (loginResponse != null && loginResponse.isSuccess()) {
-                String resolvedRole = loginResponse.getUser() != null
-                    ? loginResponse.getUser().getRole()
-                    : role;
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/bidplaza/ui/Register.fxml")
+            );
 
-                if (isRegister) {
-                    showSuccess("Dang ky thanh cong!");
-                    sendLoginRequest(username, password, resolvedRole, false);
-                    return;
-                }
+            Scene scene = new Scene(loader.load());
 
-                UserSession.getInstance().login(username, resolvedRole);
-                chuyenManHinh(resolvedRole);
-            } else {
-                String msg = loginResponse != null ? loginResponse.getMessage() : response.getInfo();
-                showError(msg != null ? msg : "Loi khong xac dinh");
-            }
-        } catch (java.net.ConnectException e) {
-            showError("Khong the ket noi Server!");
+            AppStyles.applyTo(scene);
+
+            Stage stage =
+                    (Stage) usernameField.getScene().getWindow();
+
+            stage.setScene(scene);
+
+            stage.setTitle("BidPlaza - Register");
+
+            stage.show();
+
         } catch (Exception e) {
-            showError("Loi: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+
+            showError("Khong mo duoc Register!");
         }
     }
 
-    private LoginResponse extractLoginResponse(Message response) {
-        if (response.getPayload() instanceof LoginResponse loginResponse) {
+    private void sendLoginRequest(String username,
+                                  String password,
+                                  String role) {
+
+        try {
+
+            Message request =
+                    Message.login(username, password, role, false);
+
+            Message response =
+                    ServerClient.request(request);
+
+            LoginResponse loginResponse =
+                    extractLoginResponse(response);
+
+            if (loginResponse != null
+                    && loginResponse.isSuccess()) {
+
+                String resolvedRole =
+                        loginResponse.getUser() != null
+                                ? loginResponse.getUser().getRole()
+                                : role;
+
+                UserSession.getInstance()
+                        .login(username, resolvedRole);
+
+                chuyenManHinh(resolvedRole);
+
+            } else {
+
+                String msg =
+                        loginResponse != null
+                                ? loginResponse.getMessage()
+                                : response.getInfo();
+
+                showError(
+                        msg != null
+                                ? msg
+                                : "Loi khong xac dinh"
+                );
+            }
+
+        } catch (java.net.ConnectException e) {
+
+            showError("Khong the ket noi Server!");
+
+        } catch (Exception e) {
+
+            showError(
+                    "Loi: "
+                            + e.getClass().getSimpleName()
+                            + " - "
+                            + e.getMessage()
+            );
+        }
+    }
+
+    private LoginResponse extractLoginResponse(
+            Message response) {
+
+        if (response.getPayload()
+                instanceof LoginResponse loginResponse) {
+
             return loginResponse;
         }
 
-        return new LoginResponse(response.getAmount() == 1, response.getInfo(), null);
+        return new LoginResponse(
+                response.getAmount() == 1,
+                response.getInfo(),
+                null
+        );
     }
 
     private void chuyenManHinh(String role) {
+
         try {
-            String fxml = role.equals("SELLER") ? "SellerDashboard.fxml" : "AuctionList.fxml";
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/" + fxml));
-            Scene scene = new Scene(loader.load());
+
+            String fxml;
+
+            if (role.equals("SELLER")) {
+
+                fxml = "SellerDashboard.fxml";
+
+            } else if (role.equals("ADMIN")) {
+
+                fxml = "AdminDashboard.fxml";
+
+            } else {
+
+                fxml = "BidderDashboard.fxml";
+            }
+
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass().getResource(
+                                    "/com/bidplaza/ui/" + fxml
+                            )
+                    );
+
+            Scene scene =
+                    new Scene(loader.load());
+
             AppStyles.applyTo(scene);
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setTitle("BidPlaza - " + role);
+
+            Stage stage =
+                    (Stage) usernameField
+                            .getScene()
+                            .getWindow();
+
+            stage.setTitle(
+                    "BidPlaza - " + role
+            );
+
             stage.setMaximized(true);
+
             stage.setScene(scene);
+
             stage.show();
+
         } catch (Exception e) {
-            showError("Loi chuyen man hinh: " + e.getMessage());
+
+            showError(
+                    "Loi chuyen man hinh: "
+                            + e.getMessage()
+            );
         }
     }
 
-    private void showSuccess(String message) {
-        errorLabel.setStyle("-fx-text-fill: green;");
-        errorLabel.setText(message);
-    }
-
     private void showError(String message) {
-        errorLabel.setStyle("-fx-text-fill: #e74c3c;");
+
+        errorLabel.setStyle(
+                "-fx-text-fill: #e74c3c;"
+        );
+
         errorLabel.setText(message);
     }
 }

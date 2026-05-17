@@ -17,6 +17,7 @@ public class Main extends Application {
         );
 
         Scene scene = new Scene(root, 1200, 700);
+
         AppStyles.applyTo(scene);
 
         stage.setTitle("BidPlaza - Online Auction System");
