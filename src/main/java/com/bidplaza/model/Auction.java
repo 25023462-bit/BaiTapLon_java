@@ -36,6 +36,9 @@ public class Auction implements AuctionObservable {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
+    private static final int SNIPE_WINDOW_SECONDS = 30;
+    private static final int EXTENSION_SECONDS = 60;
+    private java.time.LocalDateTime endTime;
 
     public Auction(Item item) {
         this.id = UUID.randomUUID().toString();
@@ -81,6 +84,12 @@ public class Auction implements AuctionObservable {
             notifyObservers(bid);
             
             triggerAutoBids();
+            // Anti-sniping
+            if (endTime != null && java.time.LocalDateTime.now()
+                    .isAfter(endTime.minusSeconds(SNIPE_WINDOW_SECONDS))) {
+                endTime = endTime.plusSeconds(EXTENSION_SECONDS);
+                System.out.println("Anti-sniping: gia han phien them 60 giay");
+            }
         } finally {
             lock.unlock();
         }
@@ -182,4 +191,6 @@ public class Auction implements AuctionObservable {
             return increment;
         }
     }
+    public java.time.LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(java.time.LocalDateTime endTime) { this.endTime = endTime; }
 }
