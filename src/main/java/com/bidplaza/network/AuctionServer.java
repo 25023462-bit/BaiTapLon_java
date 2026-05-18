@@ -4,6 +4,7 @@ import com.bidplaza.factory.ItemFactory;
 import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.model.Auction;
 import com.bidplaza.model.item.Item;
+import com.bidplaza.storage.DataStorage;
 
 import java.io.*;
 import java.net.*;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Server chính - lắng nghe kết nối từ nhiều Client đồng thời.
@@ -33,8 +36,37 @@ public class AuctionServer {
     private static AuctionManager auctionManager;
 
     public static void main(String[] args) throws IOException {
-        auctionManager = AuctionManager.getInstance();
+        // Load data from storage
+        auctionManager = DataStorage.load();
+        
+        // Propagate loaded singleton reference to instance field using reflection for complete consistency
+        try {
+            java.lang.reflect.Field instanceField = AuctionManager.class.getDeclaredField("instance");
+            instanceField.setAccessible(true);
+            instanceField.set(null, auctionManager);
+        } catch (Exception ignored) {}
+
         com.bidplaza.manager.UserManager.getInstance();
+
+        // Start AuctionTimer to run every 10 seconds
+        ScheduledExecutorService timerScheduler = Executors.newSingleThreadScheduledExecutor();
+        AuctionTimer timerTask = new AuctionTimer(auctionManager, new DataStorage());
+        timerScheduler.scheduleAtFixedRate(timerTask, 0, 10, TimeUnit.SECONDS);
+
+        // Shutdown gracefully on exit
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("[Server] Đang tắt scheduler...");
+            timerScheduler.shutdown();
+            try {
+                if (!timerScheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    timerScheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                timerScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+            System.out.println("[Server] Scheduler đã dừng gracefully.");
+        }));
 
         // Tạo sẵn 1 phiên đấu giá để test
         Item phone = ItemFactory.create(
