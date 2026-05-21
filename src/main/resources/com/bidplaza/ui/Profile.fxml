@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootPane"
+            fx:controller="com.bidplaza.ui.controller.ProfileController"
+
+            style="
+                -fx-background-color: linear-gradient(
+                    to bottom,
+                    #050816,
+                    #0b1026
+                );
+            ">
+
+    <!-- TOP BAR -->
+
+    <top>
+
+        <HBox alignment="CENTER_LEFT"
+
+              spacing="20"
+
+              style="
+                -fx-background-color: rgba(10,10,35,0.92);
+
+                -fx-padding: 20;
+
+                -fx-border-color: #00e5ff;
+
+                -fx-border-width: 0 0 2 0;
+              ">
+
+            <Label text="PROFILE"
+
+                   style="
+                    -fx-text-fill: #00e5ff;
+
+                    -fx-font-size: 30;
+
+                    -fx-font-weight: bold;
+                   "/>
+
+        </HBox>
+
+    </top>
+
+    <!-- CENTER -->
+
+    <center>
+
+        <VBox alignment="CENTER"
+
+              spacing="25"
+
+              style="-fx-padding: 40;">
+
+            <VBox alignment="CENTER"
+
+                  spacing="20"
+
+                  prefWidth="450"
+
+                  prefHeight="420"
+
+                  style="
+                    -fx-background-color: rgba(20,20,45,0.85);
+
+                    -fx-background-radius: 25;
+
+                    -fx-border-color: #00e5ff;
+
+                    -fx-border-radius: 25;
+
+                    -fx-padding: 40;
+                  ">
+
+                <Label text="USER PROFILE"
+
+                       style="
+                        -fx-text-fill: white;
+
+                        -fx-font-size: 28;
+
+                        -fx-font-weight: bold;
+                       "/>
+
+                <Separator/>
+
+                <Label text="USERNAME"
+
+                       style="
+                        -fx-text-fill: #ff4dff;
+
+                        -fx-font-size: 16;
+                       "/>
+
+                <Label fx:id="usernameLabel"
+
+                       text="USERNAME"
+
+                       style="
+                        -fx-text-fill: white;
+
+                        -fx-font-size: 24;
+
+                        -fx-font-weight: bold;
+                       "/>
+
+                <Label text="ROLE"
+
+                       style="
+                        -fx-text-fill: #ff4dff;
+
+                        -fx-font-size: 16;
+                       "/>
+
+                <Label fx:id="roleLabel"
+
+                       text="BIDDER"
+
+                       style="
+                        -fx-text-fill: #00e5ff;
+
+                        -fx-font-size: 22;
+
+                        -fx-font-weight: bold;
+                       "/>
+
+                <Label text="EMAIL"
+
+                       style="
+                        -fx-text-fill: #ff4dff;
+
+                        -fx-font-size: 16;
+                       "/>
+
+                <Label fx:id="emailLabel"
+
+                       text="example@gmail.com"
+
+                       style="
+                        -fx-text-fill: white;
+
+                        -fx-font-size: 18;
+                       "/>
+
+                <Button text="BACK"
+
+                        onAction="#goBack"
+
+                        prefWidth="170"
+                        prefHeight="45"
+
+                        style="
+                            -fx-background-color: rgba(255,0,255,0.15);
+
+                            -fx-border-color: #ff00ff;
+
+                            -fx-text-fill: white;
+
+                            -fx-font-size: 16;
+
+                            -fx-background-radius: 15;
+
+                            -fx-border-radius: 15;
+                        "/>
+
+            </VBox>
+
+        </VBox>
+
+    </center>
+
+</BorderPane>

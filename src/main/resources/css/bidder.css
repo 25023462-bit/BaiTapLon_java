@@ -1,0 +1,28 @@
+.button{
+
+    -fx-background-color: transparent;
+
+    -fx-text-fill: white;
+
+    -fx-font-size: 17;
+
+    -fx-font-weight: bold;
+
+    -fx-cursor: hand;
+
+    -fx-border-color: transparent;
+}
+
+.button:hover{
+
+    -fx-text-fill: #00e5ff;
+
+    -fx-effect: dropshadow(
+            gaussian,
+            #00e5ff,
+            15,
+            0.8,
+            0,
+            0
+    );
+}

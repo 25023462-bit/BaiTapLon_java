@@ -1,6 +1,5 @@
 package com.bidplaza;
 
-import com.bidplaza.ui.AppStyles;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,11 +17,16 @@ public class Main extends Application {
 
         Scene scene = new Scene(root, 1200, 700);
 
-        AppStyles.applyTo(scene);
+        scene.getStylesheets().add(
+                getClass().getResource("/css/bidder.css").toExternalForm()
+        );
 
         stage.setTitle("BidPlaza - Online Auction System");
+
         stage.setScene(scene);
+
         stage.setResizable(false);
+
         stage.show();
     }
 

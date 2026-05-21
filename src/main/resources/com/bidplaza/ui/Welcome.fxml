@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -16,45 +14,61 @@
 
         <AnchorPane prefWidth="1200"
                     prefHeight="700"
-                    style="-fx-background-image: url('/images/welcome-bg.jpg');
+
+                    style="-fx-background-image: url('/images/neon-welcome.png');
                            -fx-background-size: cover;
-                           -fx-background-position: center;">
+                           -fx-background-position: center;
+                           -fx-background-repeat: no-repeat;">
 
-            <!-- lớp phủ tối -->
-            <Pane prefWidth="1200"
-                  prefHeight="700"
-                  style="-fx-background-color: rgba(0,0,0,0.55);" />
 
-            <!-- nội dung -->
-            <VBox alignment="CENTER"
-                  spacing="25"
-                  AnchorPane.topAnchor="0"
-                  AnchorPane.bottomAnchor="0"
-                  AnchorPane.leftAnchor="0"
-                  AnchorPane.rightAnchor="0">
+            <!-- LEFT TOP CONTENT -->
 
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
+            <VBox spacing="14"
+                  AnchorPane.topAnchor="35"
+                  AnchorPane.leftAnchor="38">
 
                 <Label text="BidPlaza"
-                       style="-fx-font-size: 56px;
-                              -fx-font-weight: bold;
-                              -fx-text-fill: white;" />
+                       style="
+                            -fx-font-size: 40px;
+                            -fx-font-weight: bold;
+                            -fx-text-fill: white;
+                       " />
 
-                <Label text="Online Auction Platform"
-                       style="-fx-font-size: 22px;
-                              -fx-text-fill: #dddddd;" />
+                <Label text="ONLINE AUCTION PLATFORM"
+                       style="
+                            -fx-font-size: 12px;
+                            -fx-text-fill: #d0d0d0;
+                       " />
 
-                <Button text="Start Bidding"
+
+                <!-- START BUTTON -->
+
+                <Button text="START BIDDING"
                         onAction="#goToLogin"
-                        style="-fx-background-color: #00b894;
-                               -fx-text-fill: white;
-                               -fx-font-size: 18px;
-                               -fx-font-weight: bold;
-                               -fx-padding: 14 35 14 35;
-                               -fx-background-radius: 12;
-                               -fx-cursor: hand;" />
+
+                        prefWidth="190"
+                        prefHeight="48"
+
+                        style="
+
+                            -fx-background-color:
+                                rgba(25,12,50,0.90);
+
+                            -fx-border-color:
+                                #d000ff;
+
+                            -fx-border-width: 2px;
+
+                            -fx-background-radius: 16px;
+                            -fx-border-radius: 16px;
+
+                            -fx-font-size: 16px;
+                            -fx-font-weight: bold;
+
+                            -fx-text-fill: white;
+
+                            -fx-cursor: hand;
+                        " />
 
             </VBox>
 
