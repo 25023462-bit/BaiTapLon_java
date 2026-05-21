@@ -2,7 +2,12 @@ package com.bidplaza.ui.model;
 
 /**
  * Lưu thông tin user đang đăng nhập - Singleton.
- * Dùng để các màn hình khác biết ai đang dùng app.
+ *
+ * Fix Phase 1.4:
+ * - BUG CŨ: login() chỉ lưu username + role, userId tự sinh bằng timestamp
+ *   → userId không khớp với userId trên server → đặt giá bị nhầm bidderId.
+ * - FIX: thêm overload login(username, role, userId) để lưu userId từ server.
+ *   Giữ nguyên login(username, role) để tương thích code cũ.
  */
 public class UserSession {
 
@@ -10,7 +15,7 @@ public class UserSession {
 
     private String username;
     private String role;
-    private String userId;
+    private String userId;  // userId thực từ server
 
     private UserSession() {}
 
@@ -21,16 +26,26 @@ public class UserSession {
         return instance;
     }
 
-    public void login(String username, String role) {
+    /**
+     * Login với userId từ server (dùng sau khi có LoginResponse).
+     */
+    public void login(String username, String role, String userId) {
         this.username = username;
-        this.role = role;
-        this.userId = username + "-" + System.currentTimeMillis();
+        this.role     = role;
+        this.userId   = (userId != null) ? userId : username + "-" + System.currentTimeMillis();
+    }
+
+    /**
+     * Login không có userId (backward compatible - tự sinh userId).
+     */
+    public void login(String username, String role) {
+        login(username, role, null);
     }
 
     public void logout() {
         this.username = null;
-        this.role = null;
-        this.userId = null;
+        this.role     = null;
+        this.userId   = null;
     }
 
     public String getUsername() { return username; }

@@ -7,13 +7,17 @@ import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.manager.UserManager;
 import com.bidplaza.model.Auction;
 import com.bidplaza.model.user.User;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
- * Handles one connected client on a dedicated thread.
+ * Xử lý 1 client kết nối trên thread riêng.
+ *
+ * Phase 3: thêm case REGISTER_AUTO_BID để server đăng ký auto-bid
+ * cho Auction tương ứng.
  */
 public class ClientHandler implements Runnable {
 
@@ -52,41 +56,33 @@ public class ClientHandler implements Runnable {
 
     private void handleMessage(Message message) {
         switch (message.getType()) {
-            case LOGIN:
-                handleLogin((LoginRequest) message.getPayload());
-                break;
-            case PLACE_BID:
-                handlePlaceBid(message);
-                break;
-            case LIST_AUCTIONS:
-            case GET_AUCTION_LIST:
-                handleListAuctions();
-                break;
-            case CREATE_AUCTION:
-                handleCreateAuction((CreateAuctionRequest) message.getPayload());
-                break;
-            case FINISH_AUCTION:
-                handleFinishAuction(message.getAuctionId());
-                break;
-            default:
-                sendMessage(Message.error("Loai message khong hop le: " + message.getType()));
+            case LOGIN             -> handleLogin((LoginRequest) message.getPayload());
+            case PLACE_BID         -> handlePlaceBid(message);
+            case LIST_AUCTIONS,
+                 GET_AUCTION_LIST  -> handleListAuctions();
+            case CREATE_AUCTION    -> handleCreateAuction(
+                                        (CreateAuctionRequest) message.getPayload());
+            case FINISH_AUCTION    -> handleFinishAuction(message.getAuctionId());
+            case REGISTER_AUTO_BID -> handleRegisterAutoBid(       // Phase 3
+                                        (AutoBidRequest) message.getPayload());
+            default                -> sendMessage(
+                                        Message.error("Loai message khong hop le: "
+                                            + message.getType()));
         }
     }
+
+    // ── Handlers ─────────────────────────────────────────────────
 
     private void handleLogin(LoginRequest request) {
         if (request == null) {
             sendMessage(Message.loginResponse(false, "Thieu thong tin dang nhap!"));
             return;
         }
-
         try {
             User user;
             if (request.isRegister()) {
                 user = userManager.register(
-                    request.getUsername(),
-                    request.getPassword(),
-                    request.getRole()
-                );
+                    request.getUsername(), request.getPassword(), request.getRole());
                 auctionManager.addUser(user);
                 saveData();
                 sendMessage(Message.loginResponse(true, "Dang ky thanh cong!", user));
@@ -101,21 +97,22 @@ public class ClientHandler implements Runnable {
 
     private void handlePlaceBid(Message message) {
         Auction auction = auctionManager.findById(message.getAuctionId());
-
         if (auction == null) {
             sendMessage(Message.error("Khong tim thay phien: " + message.getAuctionId()));
             return;
         }
-
         try {
             auction.placeBid(message.getBidderId(), message.getAmount());
-            sendMessage(Message.bidSuccess(auction.getId(), auction.getItem().getCurrentPrice()));
+            sendMessage(Message.bidSuccess(auction.getId(),
+                auction.getItem().getCurrentPrice()));
 
-            Message update = new Message(
-                Message.Type.AUCTION_UPDATE,
-                AuctionSnapshot.from(auction)
+            AuctionServer.broadcast(
+                Message.auctionUpdate(auction.getId(),
+                    auction.getItem().getCurrentPrice(),
+                    auction.getWinnerId(),
+                    AuctionSnapshot.from(auction)),
+                null
             );
-            AuctionServer.broadcast(update, null);
             saveData();
         } catch (InvalidBidException e) {
             sendMessage(Message.bidFailed(auction.getId(), e.getMessage()));
@@ -137,17 +134,12 @@ public class ClientHandler implements Runnable {
             sendMessage(Message.error("Thieu thong tin tao phien!"));
             return;
         }
-
         try {
             java.time.LocalDateTime now = java.time.LocalDateTime.now();
             com.bidplaza.model.item.Item item = com.bidplaza.factory.ItemFactory.create(
-                req.getCategory(),
-                req.getName(),
-                req.getDescription(),
-                req.getStartingPrice(),
-                now,
-                now.plusHours(req.getDurationHours()),
-                req.getSellerId()
+                req.getCategory(), req.getName(), req.getDescription(),
+                req.getStartingPrice(), now,
+                now.plusHours(req.getDurationHours()), req.getSellerId()
             );
             Auction auction = auctionManager.createAuction(item);
             auction.start();
@@ -161,15 +153,50 @@ public class ClientHandler implements Runnable {
     private void handleFinishAuction(String auctionId) {
         Auction auction = auctionManager.findById(auctionId);
         if (auction == null) {
-            sendMessage(Message.error("Khong tim thay phien dau gia: " + auctionId));
+            sendMessage(Message.error("Khong tim thay phien: " + auctionId));
+            return;
+        }
+        auction.finish();
+        saveData();
+        AuctionServer.broadcast(
+            new Message(Message.Type.AUCTION_UPDATE, AuctionSnapshot.from(auction)),
+            this
+        );
+    }
+
+    /**
+     * Phase 3: đăng ký auto-bid cho auction.
+     * Server gọi auction.registerAutoBid() và xác nhận lại cho client.
+     */
+    private void handleRegisterAutoBid(AutoBidRequest req) {
+        if (req == null) {
+            sendMessage(Message.error("Thieu thong tin auto-bid!"));
             return;
         }
 
-        auction.finish();
-        saveData();
-        Message update = new Message(Message.Type.AUCTION_UPDATE, AuctionSnapshot.from(auction));
-        AuctionServer.broadcast(update, this);
+        Auction auction = auctionManager.findById(req.getAuctionId());
+        if (auction == null) {
+            sendMessage(new Message(Message.Type.AUTO_BID_FAILED,
+                null, null, 0, "Khong tim thay phien: " + req.getAuctionId()));
+            return;
+        }
+        if (auction.getStatus() != Auction.Status.RUNNING) {
+            sendMessage(new Message(Message.Type.AUTO_BID_FAILED,
+                null, null, 0, "Phien khong o trang thai RUNNING"));
+            return;
+        }
+
+        auction.registerAutoBid(req.getBidderId(), req.getMaxBid(), req.getIncrement());
+
+        System.out.println("[Server] Auto-bid da dang ky: " + req.getBidderId()
+            + " max=$" + req.getMaxBid() + " inc=$" + req.getIncrement());
+
+        sendMessage(new Message(Message.Type.AUTO_BID_SUCCESS,
+            null, null, req.getMaxBid(),
+            "Da kich hoat auto-bid den $" + req.getMaxBid()));
     }
+
+    // ── Utilities ─────────────────────────────────────────────────
 
     public synchronized void sendMessage(Message message) {
         try {
@@ -182,19 +209,16 @@ public class ClientHandler implements Runnable {
 
     private void closeConnection() {
         try {
-            if (in != null) in.close();
+            if (in  != null) in.close();
             if (out != null) out.close();
             if (socket != null) socket.close();
-        } catch (IOException e) {
-            // Ignore close failures.
-        }
+        } catch (IOException ignored) {}
     }
 
     private void saveData() {
         try {
-            Class<?> dataStorage = Class.forName("com.bidplaza.storage.DataStorage");
-            dataStorage.getMethod("save", AuctionManager.class).invoke(null, auctionManager);
-        } catch (ReflectiveOperationException ignored) {
-        }
+            Class<?> ds = Class.forName("com.bidplaza.storage.DataStorage");
+            ds.getMethod("save", AuctionManager.class).invoke(null, auctionManager);
+        } catch (ReflectiveOperationException ignored) {}
     }
 }

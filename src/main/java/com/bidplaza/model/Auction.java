@@ -15,11 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Một phiên đấu giá - trung tâm của hệ thống.
  *
- * Tuần 7 bổ sung:
- * 1. Observer Pattern: tự động thông báo khi có bid mới
- * 2. Custom Exception: ném lỗi rõ ràng thay vì return false
- * 3. State machine: OPEN → RUNNING → FINISHED → PAID/CANCELED
- * 4. ReentrantLock: xử lý concurrency an toàn hơn synchronized
+ * Fix Phase 1.2:
+ * - BUG CŨ: triggerAutoBids() dùng synchronized ĐỒNG THỜI với ReentrantLock trong placeBid()
+ *   → deadlock khi auto-bidder gọi lại placeBid() từ bên trong lock.
+ * - FIX: bỏ synchronized khỏi triggerAutoBids(), để ReentrantLock duy nhất quản lý.
+ *   placeBid() unlock trước khi gọi triggerAutoBids() (lock đã giải phóng).
+ * - FIX: double-check status sau khi acquire lock để tránh lost-update giữa 2 thread.
  */
 public class Auction implements AuctionObservable {
 
@@ -64,27 +65,45 @@ public class Auction implements AuctionObservable {
         }
     }
 
+    /**
+     * Đặt giá - thread-safe bằng ReentrantLock.
+     *
+     * Flow:
+     * 1. Acquire lock
+     * 2. Validate (status, amount)
+     * 3. Cập nhật state
+     * 4. Release lock
+     * 5. Notify observers (ngoài lock để tránh deadlock)
+     * 6. Trigger auto-bids (ngoài lock vì auto-bid sẽ gọi lại placeBid())
+     */
     public void placeBid(String bidderId, double amount)
             throws AuctionClosedException, InvalidBidException {
+
+        BidTransaction bid;
+
         lock.lock();
         try {
-            if (amount <= 0) throw new InvalidBidException("Số tiền phải lớn hơn 0");
+            // Validate
+            if (amount <= 0) {
+                throw new InvalidBidException("So tien phai lon hon 0");
+            }
+            // Double-check: re-read status sau khi acquire lock
             if (status != Status.RUNNING) {
                 throw new AuctionClosedException(
-                    "Phiên không ở trạng thái RUNNING. Hiện tại: " + status);
+                    "Phien khong o trang thai RUNNING. Hien tai: " + status);
             }
             if (amount <= item.getCurrentPrice()) {
                 throw new InvalidBidException(
-                    "Giá $" + amount + " phải cao hơn giá hiện tại $" + item.getCurrentPrice());
+                    "Gia $" + amount + " phai cao hon gia hien tai $" + item.getCurrentPrice());
             }
+
+            // Update state
             item.setCurrentPrice(amount);
             this.winnerId = bidderId;
-            BidTransaction bid = new BidTransaction(bidderId, item.getId(), amount);
+            bid = new BidTransaction(bidderId, item.getId(), amount);
             bids.add(bid);
-            notifyObservers(bid);
-            
-            triggerAutoBids();
-            // Anti-sniping
+
+            // Anti-sniping (vẫn trong lock vì cần đọc/ghi endTime an toàn)
             if (endTime != null && java.time.LocalDateTime.now()
                     .isAfter(endTime.minusSeconds(SNIPE_WINDOW_SECONDS))) {
                 endTime = endTime.plusSeconds(EXTENSION_SECONDS);
@@ -93,85 +112,96 @@ public class Auction implements AuctionObservable {
         } finally {
             lock.unlock();
         }
+
+        // Notify và trigger auto-bids NGOÀI lock để tránh deadlock
+        notifyObservers(bid);
+        triggerAutoBids();
     }
 
     public void start() {
         if (status != Status.OPEN) {
-            System.out.println("Không thể bắt đầu: trạng thái hiện tại " + status);
+            System.out.println("Khong the bat dau: trang thai hien tai " + status);
             return;
         }
         this.status = Status.RUNNING;
-        System.out.println("▶ Phiên BẮT ĐẦU: " + item.getName());
+        System.out.println("Phien BAT DAU: " + item.getName());
     }
 
     public void finish() {
         if (status != Status.RUNNING) {
-            System.out.println("Không thể kết thúc: trạng thái hiện tại " + status);
+            System.out.println("Khong the ket thuc: trang thai hien tai " + status);
             return;
         }
         this.status = Status.FINISHED;
         if (winnerId != null) {
-            System.out.println("⏹ Phiên KẾT THÚC. Người thắng: " + winnerId
-                + " | Giá: $" + item.getCurrentPrice());
+            System.out.println("Phien KET THUC. Nguoi thang: " + winnerId
+                + " | Gia: $" + item.getCurrentPrice());
         } else {
-            System.out.println("⏹ Phiên KẾT THÚC. Không có ai đặt giá.");
+            System.out.println("Phien KET THUC. Khong co ai dat gia.");
         }
     }
 
     public void markPaid() {
         if (status != Status.FINISHED) {
-            System.out.println("Chưa thể thanh toán: phiên chưa kết thúc.");
+            System.out.println("Chua the thanh toan: phien chua ket thuc.");
             return;
         }
         this.status = Status.PAID;
-        System.out.println("✅ Thanh toán xong. Phiên hoàn tất.");
+        System.out.println("Thanh toan xong. Phien hoan tat.");
     }
 
     public void cancel() {
         if (status == Status.PAID) {
-            System.out.println("Không thể huỷ phiên đã thanh toán.");
+            System.out.println("Khong the huy phien da thanh toan.");
             return;
         }
         this.status = Status.CANCELED;
-        System.out.println("❌ Phiên bị HUỶ: " + item.getName());
+        System.out.println("Phien bi HUY: " + item.getName());
     }
 
     public String getId()                  { return id; }
     public Item getItem()                  { return item; }
-    public Status getStatus()             { return status; }
-    public String getWinnerId()           { return winnerId; }
-    public List<BidTransaction> getBids() { return bids; }
+    public Status getStatus()              { return status; }
+    public String getWinnerId()            { return winnerId; }
+    public List<BidTransaction> getBids()  { return bids; }
 
     public void registerAutoBid(String bidderId, double maxBid, double increment) {
         autoBidders.add(new AutoBidder(bidderId, maxBid, increment));
-        System.out.println("Đã đăng ký auto-bid cho " + bidderId + ": max=$" + maxBid + ", step=$" + increment);
+        System.out.println("Da dang ky auto-bid cho " + bidderId
+            + ": max=$" + maxBid + ", step=$" + increment);
     }
 
-    private synchronized void triggerAutoBids() {
+    /**
+     * Kích hoạt auto-bidder sau mỗi bid mới.
+     * KHÔNG dùng synchronized vì được gọi SAU KHI lock đã được giải phóng.
+     * Auto-bidder sẽ gọi placeBid() → tự acquire lock bình thường.
+     */
+    private void triggerAutoBids() {
         for (AutoBidder autoBidder : autoBidders) {
+            // Bỏ qua auto-bidder đang là người thắng hiện tại
             if (autoBidder.getBidderId().equals(winnerId)) {
                 continue;
             }
             double currentPrice = item.getCurrentPrice();
             if (autoBidder.getMaxBid() > currentPrice) {
-                double newBid = currentPrice + autoBidder.getIncrement();
-                if (newBid > autoBidder.getMaxBid()) {
-                    newBid = autoBidder.getMaxBid();
-                }
+                double newBid = Math.min(
+                    currentPrice + autoBidder.getIncrement(),
+                    autoBidder.getMaxBid()
+                );
                 try {
                     placeBid(autoBidder.getBidderId(), newBid);
-                    break;
+                    break; // Chỉ 1 auto-bidder phản ứng mỗi lần
                 } catch (AuctionClosedException | InvalidBidException e) {
-                    // ignore
+                    // ignore - phiên đóng hoặc bid không hợp lệ
                 }
             }
         }
     }
 
-    public class AutoBidder {
-        private String bidderId;
-        private double maxBid;
-        private double increment;
+    public static class AutoBidder {
+        private final String bidderId;
+        private final double maxBid;
+        private final double increment;
 
         public AutoBidder(String bidderId, double maxBid, double increment) {
             this.bidderId = bidderId;
@@ -179,18 +209,11 @@ public class Auction implements AuctionObservable {
             this.increment = increment;
         }
 
-        public String getBidderId() {
-            return bidderId;
-        }
-
-        public double getMaxBid() {
-            return maxBid;
-        }
-
-        public double getIncrement() {
-            return increment;
-        }
+        public String getBidderId() { return bidderId; }
+        public double getMaxBid()   { return maxBid; }
+        public double getIncrement() { return increment; }
     }
+
     public java.time.LocalDateTime getEndTime() { return endTime; }
     public void setEndTime(java.time.LocalDateTime endTime) { this.endTime = endTime; }
 }
