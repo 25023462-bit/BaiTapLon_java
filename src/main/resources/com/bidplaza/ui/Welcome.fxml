@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.bidplaza.ui.controller.WelcomeController">
+
+    <children>
+
+        <AnchorPane prefWidth="1200"
+                    prefHeight="700"
+
+                    style="-fx-background-image: url('/images/neon-welcome.png');
+                           -fx-background-size: cover;
+                           -fx-background-position: center;
+                           -fx-background-repeat: no-repeat;">
+
+
+            <!-- LEFT TOP CONTENT -->
+
+            <VBox spacing="14"
+                  AnchorPane.topAnchor="35"
+                  AnchorPane.leftAnchor="38">
+
+                <Label text="BidPlaza"
+                       style="
+                            -fx-font-size: 40px;
+                            -fx-font-weight: bold;
+                            -fx-text-fill: white;
+                       " />
+
+                <Label text="ONLINE AUCTION PLATFORM"
+                       style="
+                            -fx-font-size: 12px;
+                            -fx-text-fill: #d0d0d0;
+                       " />
+
+
+                <!-- START BUTTON -->
+
+                <Button text="START BIDDING"
+                        onAction="#goToLogin"
+
+                        prefWidth="190"
+                        prefHeight="48"
+
+                        style="
+
+                            -fx-background-color:
+                                rgba(25,12,50,0.90);
+
+                            -fx-border-color:
+                                #d000ff;
+
+                            -fx-border-width: 2px;
+
+                            -fx-background-radius: 16px;
+                            -fx-border-radius: 16px;
+
+                            -fx-font-size: 16px;
+                            -fx-font-weight: bold;
+
+                            -fx-text-fill: white;
+
+                            -fx-cursor: hand;
+                        " />
+
+            </VBox>
+
+        </AnchorPane>
+
+    </children>
+
+</StackPane>

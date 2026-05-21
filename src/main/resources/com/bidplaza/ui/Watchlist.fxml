@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootPane"
+            fx:controller="com.bidplaza.ui.controller.WatchlistController"
+
+            prefWidth="1500"
+            prefHeight="850"
+
+            style="
+                -fx-background-color: linear-gradient(
+                    to bottom,
+                    #050816,
+                    #0b1026
+                );
+
+                -fx-font-family: 'Segoe UI';
+            ">
+
+    <!-- TOP -->
+
+    <top>
+
+        <HBox alignment="CENTER_LEFT"
+
+              spacing="20"
+
+              prefHeight="80"
+
+              style="
+                -fx-background-color: rgba(10,10,35,0.92);
+
+                -fx-padding: 20;
+
+                -fx-border-color: #ff00ff;
+
+                -fx-border-width: 0 0 2 0;
+              ">
+
+            <Label text="WATCHLIST"
+
+                   style="
+                    -fx-text-fill: #ff00ff;
+
+                    -fx-font-size: 30;
+
+                    -fx-font-weight: bold;
+                   "/>
+
+        </HBox>
+
+    </top>
+
+    <!-- CENTER -->
+
+    <center>
+
+        <VBox spacing="25"
+
+              alignment="TOP_CENTER"
+
+              style="-fx-padding: 40;">
+
+            <!-- ITEM 1 -->
+
+            <HBox spacing="30"
+
+                  prefWidth="1100"
+                  prefHeight="140"
+
+                  style="
+                    -fx-background-color: rgba(20,20,45,0.85);
+
+                    -fx-background-radius: 20;
+
+                    -fx-border-color: #00e5ff;
+
+                    -fx-border-radius: 20;
+
+                    -fx-padding: 25;
+                  ">
+
+                <VBox spacing="12">
+
+                    <Label text="CYBER HELMET"
+
+                           style="
+                            -fx-text-fill: white;
+
+                            -fx-font-size: 28;
+
+                            -fx-font-weight: bold;
+                           "/>
+
+                    <Label text="Current Bid: 3,500 USD"
+
+                           style="
+                            -fx-text-fill: #00e5ff;
+
+                            -fx-font-size: 18;
+                           "/>
+
+                    <Label text="Ending In: 00:20:15"
+
+                           style="
+                            -fx-text-fill: #ff4dff;
+
+                            -fx-font-size: 18;
+                           "/>
+
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <VBox spacing="15"
+
+                      alignment="CENTER">
+
+                    <Button text="BID NOW"
+
+                            prefWidth="160"
+                            prefHeight="45"
+
+                            style="
+                                -fx-background-color: rgba(0,229,255,0.15);
+
+                                -fx-border-color: #00e5ff;
+
+                                -fx-text-fill: white;
+
+                                -fx-font-size: 15;
+
+                                -fx-background-radius: 15;
+
+                                -fx-border-radius: 15;
+                            "/>
+
+                    <Button text="REMOVE"
+
+                            prefWidth="160"
+                            prefHeight="45"
+
+                            style="
+                                -fx-background-color: rgba(255,0,255,0.15);
+
+                                -fx-border-color: #ff00ff;
+
+                                -fx-text-fill: white;
+
+                                -fx-font-size: 15;
+
+                                -fx-background-radius: 15;
+
+                                -fx-border-radius: 15;
+                            "/>
+
+                </VBox>
+
+            </HBox>
+
+            <!-- BACK BUTTON -->
+
+            <Button text="BACK"
+
+                    onAction="#goBack"
+
+                    prefWidth="180"
+                    prefHeight="50"
+
+                    style="
+                        -fx-background-color: rgba(255,0,255,0.15);
+
+                        -fx-border-color: #ff00ff;
+
+                        -fx-text-fill: white;
+
+                        -fx-font-size: 18;
+
+                        -fx-background-radius: 15;
+
+                        -fx-border-radius: 15;
+                    "/>
+
+        </VBox>
+
+    </center>
+
+</BorderPane>

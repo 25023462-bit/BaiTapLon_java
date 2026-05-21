@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bidplaza.ui.controller.AdminDashboardController"
+            style="-fx-background-color: #f0f4f8;">
+
+    <!-- ══ Header ══════════════════════════════════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #1a252f; -fx-padding: 14 20;">
+            <Label text="BidPlaza"
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="⚙ Quản trị hệ thống (Admin)"
+                   style="-fx-font-size: 13; -fx-text-fill: #aab7b8;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel"
+                   style="-fx-text-fill: white; -fx-font-size: 13;"/>
+            <Button text="Đăng xuất" onAction="#handleLogout"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;
+                           -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <!-- ══ Body ════════════════════════════════════════════════ -->
+    <center>
+        <VBox spacing="16">
+            <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+
+            <!-- Thống kê nhanh -->
+            <HBox spacing="16">
+                <VBox alignment="CENTER" prefWidth="160" prefHeight="80"
+                      style="-fx-background-color: #2980b9; -fx-background-radius: 8;
+                             -fx-padding: 12;">
+                    <Label text="TỔNG PHIÊN"
+                           style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label fx:id="totalLabel" text="0"
+                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="160" prefHeight="80"
+                      style="-fx-background-color: #27ae60; -fx-background-radius: 8;
+                             -fx-padding: 12;">
+                    <Label text="ĐANG CHẠY"
+                           style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label fx:id="runningLabel" text="0"
+                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="160" prefHeight="80"
+                      style="-fx-background-color: #8e44ad; -fx-background-radius: 8;
+                             -fx-padding: 12;">
+                    <Label text="ĐÃ KẾT THÚC"
+                           style="-fx-text-fill: white; -fx-font-size: 11;"/>
+                    <Label fx:id="finishedLabel" text="0"
+                           style="-fx-text-fill: white; -fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Toolbar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Danh sách phiên đấu giá"
+                       style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="🔄 Làm mới" onAction="#handleRefresh"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white;
+                               -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;
+                               -fx-padding: 6 14;"/>
+                <Button text="⛔ Kết thúc phiên đã chọn" onAction="#handleFinishSelected"
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white;
+                               -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;
+                               -fx-padding: 6 14;"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: white; -fx-border-radius: 8;
+                              -fx-background-radius: 8;">
+                <columns>
+                    <TableColumn fx:id="colId"     text="ID"           prefWidth="100"/>
+                    <TableColumn fx:id="colName"   text="Tên sản phẩm" prefWidth="200"/>
+                    <TableColumn fx:id="colStatus" text="Trạng thái"   prefWidth="100"/>
+                    <TableColumn fx:id="colPrice"  text="Giá hiện tại" prefWidth="110"/>
+                    <TableColumn fx:id="colWinner" text="Người dẫn đầu" prefWidth="150"/>
+                    <TableColumn fx:id="colBids"   text="Số bid"       prefWidth="70"/>
+                </columns>
+                <placeholder>
+                    <Label text="Chưa có phiên đấu giá nào."
+                           style="-fx-text-fill: #95a5a6;"/>
+                </placeholder>
+            </TableView>
+
+        </VBox>
+    </center>
+
+    <!-- ══ Status bar ══════════════════════════════════════════ -->
+    <bottom>
+        <HBox style="-fx-background-color: #ecf0f1; -fx-padding: 6 16;">
+            <Label fx:id="statusLabel" text="Đang tải..."
+                   style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
