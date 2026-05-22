@@ -8,6 +8,7 @@
 
     <AnchorPane prefWidth="1500"
                 prefHeight="850"
+
                 style="
                     -fx-background-image: url('/images/cyber-bg.png');
                     -fx-background-size: cover;
@@ -46,8 +47,6 @@
                    "/>
 
             <Region HBox.hgrow="ALWAYS"/>
-
-            <!-- WELCOME LABEL -->
 
             <Label fx:id="welcomeLabel"
                    text="WELCOME BIDDER"
@@ -174,136 +173,84 @@
                     -fx-font-weight: bold;
                    "/>
 
-            <!-- AUCTION CARDS -->
+            <!-- LIVE AUCTIONS CONTAINER -->
 
-            <VBox layoutX="35"
-                  layoutY="90"
+            <ScrollPane layoutX="30"
+                        layoutY="85"
 
-                  spacing="25">
+                        prefWidth="755"
+                        prefHeight="450"
 
-                <!-- CARD 1 -->
+                        fitToWidth="true"
 
-                <HBox spacing="25"
+                        hbarPolicy="NEVER"
 
-                      prefWidth="720"
-                      prefHeight="120"
+                        style="
+                            -fx-background: transparent;
+                            -fx-background-color: transparent;
+                        ">
 
-                      style="
-                        -fx-background-color: rgba(20,20,45,0.82);
+                <content>
 
-                        -fx-background-radius: 20;
+                    <VBox fx:id="liveAuctionContainer"
 
-                        -fx-border-color: #00e5ff;
+                          spacing="25"
 
-                        -fx-border-radius: 20;
+                          prefWidth="720"
 
-                        -fx-padding: 20;
-                       ">
+                          style="
+                            -fx-padding: 5;
+                          ">
 
-                    <VBox spacing="12">
+                        <!-- SAMPLE CARD -->
 
-                        <Label text="CYBER CAR"
-                               style="
-                                -fx-text-fill: white;
-                                -fx-font-size: 24;
-                                -fx-font-weight: bold;
-                               "/>
+                        <HBox spacing="25"
 
-                        <Label text="Current Bid: 12,450 USD"
-                               style="
-                                -fx-text-fill: #00e5ff;
-                                -fx-font-size: 16;
-                               "/>
+                              prefWidth="720"
+                              prefHeight="120"
 
-                        <Label text="Time Left: 00:05:32"
-                               style="
-                                -fx-text-fill: #ff4dff;
-                                -fx-font-size: 16;
-                               "/>
+                              style="
+                                -fx-background-color: rgba(20,20,45,0.82);
 
-                    </VBox>
+                                -fx-background-radius: 20;
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                                -fx-border-color: #00e5ff;
 
-                    <Button text="BID NOW"
+                                -fx-border-radius: 20;
 
-                            prefWidth="140"
-                            prefHeight="45"
+                                -fx-padding: 20;
+                               ">
 
-                            style="
-                              -fx-background-color: rgba(0,229,255,0.15);
+                            <VBox spacing="12">
 
-                              -fx-border-color: #00e5ff;
+                                <Label text="LOADING LIVE AUCTIONS..."
+                                       style="
+                                        -fx-text-fill: white;
+                                        -fx-font-size: 24;
+                                        -fx-font-weight: bold;
+                                       "/>
 
-                              -fx-border-radius: 15;
+                                <Label text="Connecting to server..."
+                                       style="
+                                        -fx-text-fill: #00e5ff;
+                                        -fx-font-size: 16;
+                                       "/>
 
-                              -fx-background-radius: 15;
-                            "/>
+                                <Label text="Please wait..."
+                                       style="
+                                        -fx-text-fill: #ff4dff;
+                                        -fx-font-size: 16;
+                                       "/>
 
-                </HBox>
+                            </VBox>
 
-                <!-- CARD 2 -->
-
-                <HBox spacing="25"
-
-                      prefWidth="720"
-                      prefHeight="120"
-
-                      style="
-                        -fx-background-color: rgba(20,20,45,0.82);
-
-                        -fx-background-radius: 20;
-
-                        -fx-border-color: #ff00ff;
-
-                        -fx-border-radius: 20;
-
-                        -fx-padding: 20;
-                       ">
-
-                    <VBox spacing="12">
-
-                        <Label text="NEON BIKE"
-                               style="
-                                -fx-text-fill: white;
-                                -fx-font-size: 24;
-                                -fx-font-weight: bold;
-                               "/>
-
-                        <Label text="Current Bid: 8,200 USD"
-                               style="
-                                -fx-text-fill: #00e5ff;
-                                -fx-font-size: 16;
-                               "/>
-
-                        <Label text="Time Left: 00:12:45"
-                               style="
-                                -fx-text-fill: #ff4dff;
-                                -fx-font-size: 16;
-                               "/>
+                        </HBox>
 
                     </VBox>
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                </content>
 
-                    <Button text="BID NOW"
-
-                            prefWidth="140"
-                            prefHeight="45"
-
-                            style="
-                              -fx-background-color: rgba(255,0,255,0.12);
-
-                              -fx-border-color: #ff00ff;
-
-                              -fx-border-radius: 15;
-
-                              -fx-background-radius: 15;
-                            "/>
-
-                </HBox>
-
-            </VBox>
+            </ScrollPane>
 
         </Pane>
 
@@ -313,69 +260,129 @@
               layoutY="90"
 
               prefWidth="260"
-              prefHeight="340"
+              prefHeight="500"
 
-              spacing="20"
+              spacing="22"
 
               style="
-                -fx-background-color: rgba(20,0,40,0.82);
+                -fx-background-color: rgba(20,0,40,0.85);
 
                 -fx-border-color: #ff00ff;
 
                 -fx-border-width: 2;
 
-                -fx-border-radius: 20;
+                -fx-border-radius: 25;
 
-                -fx-background-radius: 20;
+                -fx-background-radius: 25;
 
-                -fx-padding: 25;
+                -fx-padding: 28;
 
                 -fx-effect: dropshadow(
                     gaussian,
                     #ff00ff,
-                    25,
+                    30,
                     0.7,
                     0,
                     0
                 );
               ">
 
-            <Label text="LIVE AUCTION"
+            <!-- TITLE -->
+
+            <Label text="LIVE STATUS"
                    style="
                     -fx-text-fill: #ff4dff;
-                    -fx-font-size: 24;
+                    -fx-font-size: 26;
                     -fx-font-weight: bold;
                    "/>
 
             <Separator/>
 
-            <Label text="CURRENT BID"
-                   style="
-                    -fx-text-fill: white;
-                    -fx-font-size: 15;
-                   "/>
+            <!-- SERVER STATUS -->
 
-            <Label text="12,450 USD"
-                   style="
-                    -fx-text-fill: white;
-                    -fx-font-size: 38;
-                    -fx-font-weight: bold;
-                   "/>
+            <VBox spacing="8">
+
+                <Label text="SERVER STATUS"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="liveStatusLabel"
+                       text="ONLINE"
+                       style="
+                        -fx-text-fill: #00ff99;
+                        -fx-font-size: 34;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
 
             <Separator/>
 
-            <Label text="TIME LEFT"
-                   style="
-                    -fx-text-fill: white;
-                    -fx-font-size: 15;
-                   "/>
+            <!-- LIVE AUCTIONS -->
 
-            <Label text="00:05:32"
-                   style="
-                    -fx-text-fill: #00e5ff;
-                    -fx-font-size: 34;
-                    -fx-font-weight: bold;
-                   "/>
+            <VBox spacing="8">
+
+                <Label text="LIVE AUCTIONS"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="totalAuctionsLabel"
+                       text="0"
+                       style="
+                        -fx-text-fill: #00e5ff;
+                        -fx-font-size: 42;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+            <Separator/>
+
+            <!-- HIGHEST BID -->
+
+            <VBox spacing="8">
+
+                <Label text="HIGHEST BID"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="highestBidLabel"
+                       text="\$0"
+                       style="
+                        -fx-text-fill: #00ff99;
+                        -fx-font-size: 34;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+            <Separator/>
+
+            <!-- ENDING SOON -->
+
+            <VBox spacing="8">
+
+                <Label text="ENDING SOON"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="endingSoonLabel"
+                       text="--"
+                       style="
+                        -fx-text-fill: #ff4dff;
+                        -fx-font-size: 28;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
 
         </VBox>
 

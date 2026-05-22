@@ -3,6 +3,8 @@ package com.bidplaza.ui.controller;
 import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,8 +14,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class AuctionListController implements Initializable {
@@ -48,10 +53,12 @@ public class AuctionListController implements Initializable {
     private ObservableList<AuctionItem> auctionData =
             FXCollections.observableArrayList();
 
+    private Timeline timeline;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        // Hiển thị user
+        // User info
         UserSession session = UserSession.getInstance();
 
         userLabel.setText(
@@ -59,7 +66,7 @@ public class AuctionListController implements Initializable {
                         + " (" + session.getRole() + ")"
         );
 
-        // Mapping column
+        // Mapping columns
         colName.setCellValueFactory(
                 new PropertyValueFactory<>("name"));
 
@@ -78,20 +85,30 @@ public class AuctionListController implements Initializable {
         colEndTime.setCellValueFactory(
                 new PropertyValueFactory<>("endTime"));
 
-        // Load data
+        // Load auctions
         loadSampleData();
 
         auctionTable.setItems(auctionData);
 
+        // Start realtime countdown
+        startCountdown();
+
         javafx.application.Platform.runLater(() -> {
             try {
+
                 Scene scene = userLabel.getScene();
+
                 if (scene != null) {
+
                     scene.getStylesheets().add(
-                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                            getClass()
+                                    .getResource("/com/bidplaza/ui/style.css")
+                                    .toExternalForm()
                     );
                 }
-            } catch (Exception ignored) {}
+
+            } catch (Exception ignored) {
+            }
         });
     }
 
@@ -121,8 +138,8 @@ public class AuctionListController implements Initializable {
                         com.bidplaza.network.AuctionSnapshot s =
                                 (com.bidplaza.network.AuctionSnapshot) sObj;
 
-                        java.time.format.DateTimeFormatter dtf =
-                                java.time.format.DateTimeFormatter.ofPattern(
+                        DateTimeFormatter dtf =
+                                DateTimeFormatter.ofPattern(
                                         "yyyy-MM-dd HH:mm"
                                 );
 
@@ -133,7 +150,7 @@ public class AuctionListController implements Initializable {
                                         s.getCategory(),
                                         "$" + s.getStartingPrice(),
                                         "$" + s.getCurrentPrice(),
-                                        s.getStatus(),
+                                        "LIVE",
                                         s.getEndTime().format(dtf)
                                 )
                         );
@@ -161,6 +178,38 @@ public class AuctionListController implements Initializable {
     }
 
     @FXML
+    private void handleBack() {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/com/bidplaza/ui/BidderDashboard.fxml"
+                    )
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            AppStyles.applyTo(scene);
+
+            Stage stage =
+                    (Stage) auctionTable.getScene().getWindow();
+
+            stage.setTitle("BidPlaza - BIDDER");
+
+            stage.setMaximized(true);
+
+            stage.setScene(scene);
+
+            stage.show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleJoinAuction() {
 
         AuctionItem selected =
@@ -185,9 +234,9 @@ public class AuctionListController implements Initializable {
             );
 
             Scene scene = new Scene(loader.load());
+
             AppStyles.applyTo(scene);
 
-            // Truyền dữ liệu
             AuctionDetailController controller =
                     loader.getController();
 
@@ -231,6 +280,7 @@ public class AuctionListController implements Initializable {
             );
 
             Scene scene = new Scene(loader.load());
+
             AppStyles.applyTo(scene);
 
             Stage stage =
@@ -238,7 +288,6 @@ public class AuctionListController implements Initializable {
 
             stage.setTitle("BidPlaza - Login");
 
-            // Full màn hình
             stage.setMaximized(true);
 
             stage.setScene(scene);
@@ -249,6 +298,66 @@ public class AuctionListController implements Initializable {
 
             e.printStackTrace();
         }
+    }
+
+    private void startCountdown() {
+
+        timeline = new Timeline(
+
+                new KeyFrame(Duration.seconds(1), e -> {
+
+                    for (AuctionItem item : auctionData) {
+
+                        try {
+
+                            LocalDateTime endTime =
+                                    LocalDateTime.parse(
+                                            item.getEndTime(),
+                                            DateTimeFormatter.ofPattern(
+                                                    "yyyy-MM-dd HH:mm"
+                                            )
+                                    );
+
+                            java.time.Duration duration =
+                                    java.time.Duration.between(
+                                            LocalDateTime.now(),
+                                            endTime
+                                    );
+
+                            long seconds =
+                                    duration.getSeconds();
+
+                            if (seconds <= 0) {
+
+                                item.setStatus("ENDED");
+
+                            } else {
+
+                                long h = seconds / 3600;
+                                long m = (seconds % 3600) / 60;
+                                long s = seconds % 60;
+
+                                item.setStatus(
+                                        String.format(
+                                                "LIVE %02d:%02d:%02d",
+                                                h, m, s
+                                        )
+                                );
+                            }
+
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    auctionTable.refresh();
+                })
+        );
+
+        timeline.setCycleCount(
+                Timeline.INDEFINITE
+        );
+
+        timeline.play();
     }
 
     private void showAlert(String title, String message) {

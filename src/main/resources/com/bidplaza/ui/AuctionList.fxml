@@ -7,58 +7,218 @@
 <BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bidplaza.ui.controller.AuctionListController"
-            style="-fx-background-color: #f0f4f8;">
 
-    <!-- Header -->
+            style="
+                -fx-background-color: linear-gradient(
+                    to bottom right,
+                    #050816,
+                    #0a1931,
+                    #091540
+                );
+            ">
+
+    <!-- HEADER -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="16"
-              style="-fx-background-color: #2c3e50; -fx-padding: 16;">
-            <Label text="BidPlaza" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Label text="Danh sách đấu giá" style="-fx-font-size: 14; -fx-text-fill: #bdc3c7;"/>
+
+        <HBox alignment="CENTER_LEFT"
+              spacing="16"
+
+              style="
+                  -fx-background-color: rgba(5,5,30,0.95);
+                  -fx-padding: 16;
+                  -fx-border-color: #00e5ff;
+                  -fx-border-width: 0 0 2 0;
+              ">
+
+            <!-- BACK -->
+            <Button text="← BACK"
+                    onAction="#handleBack"
+
+                    style="
+                        -fx-background-color: #16213e;
+                        -fx-text-fill: #00e5ff;
+                        -fx-font-weight: bold;
+                        -fx-font-size: 13;
+                        -fx-background-radius: 8;
+                        -fx-border-color: #00e5ff;
+                        -fx-border-radius: 8;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 18;
+                    "/>
+
+            <!-- LOGO -->
+            <Label text="BIDPLAZA"
+
+                   style="
+                       -fx-font-size: 24;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: #00e5ff;
+                   "/>
+
+            <Label text="LIVE AUCTIONS"
+
+                   style="
+                       -fx-font-size: 14;
+                       -fx-text-fill: #ff00ff;
+                       -fx-font-weight: bold;
+                   "/>
+
             <HBox HBox.hgrow="ALWAYS"/>
-            <Label fx:id="userLabel" style="-fx-text-fill: #ecf0f1; -fx-font-size: 13;"/>
-            <Button text="Đăng xuất" onAction="#handleLogout"
-                    style="-fx-background-color: #e74c3c; -fx-text-fill: white;
-                           -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;"/>
+
+            <!-- USER -->
+            <Label fx:id="userLabel"
+
+                   style="
+                       -fx-text-fill: white;
+                       -fx-font-size: 14;
+                   "/>
+
+            <!-- LOGOUT -->
+            <Button text="LOGOUT"
+                    onAction="#handleLogout"
+
+                    style="
+                        -fx-background-color: #ff006e;
+                        -fx-text-fill: white;
+                        -fx-font-weight: bold;
+                        -fx-background-radius: 8;
+                        -fx-cursor: hand;
+                        -fx-padding: 8 18;
+                    "/>
+
         </HBox>
+
     </top>
 
-    <!-- Nội dung chính -->
+    <!-- CENTER -->
     <center>
-        <VBox spacing="12">
-            <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
 
-            <!-- Thanh tìm kiếm -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <TextField fx:id="searchField" promptText="Tìm kiếm sản phẩm..."
-                           prefWidth="300" style="-fx-padding: 8; -fx-border-radius: 4; -fx-background-radius: 4;"/>
-                <Button text="Làm mới" onAction="#handleRefresh"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white;
-                               -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand; -fx-padding: 8 16;"/>
+        <VBox spacing="20">
+
+            <padding>
+                <Insets top="25"
+                        right="30"
+                        bottom="25"
+                        left="30"/>
+            </padding>
+
+            <!-- SEARCH -->
+            <HBox spacing="12"
+                  alignment="CENTER_LEFT">
+
+                <TextField fx:id="searchField"
+                           promptText="Search auction..."
+                           prefWidth="320"
+
+                           style="
+                               -fx-background-color: rgba(15,15,40,0.92);
+                               -fx-text-fill: white;
+                               -fx-prompt-text-fill: #bbbbbb;
+                               -fx-border-color: #00e5ff;
+                               -fx-border-radius: 10;
+                               -fx-background-radius: 10;
+                               -fx-padding: 10;
+                               -fx-font-size: 14;
+                           "/>
+
+                <Button text="REFRESH"
+                        onAction="#handleRefresh"
+
+                        style="
+                            -fx-background-color: #00b4ff;
+                            -fx-text-fill: white;
+                            -fx-font-weight: bold;
+                            -fx-background-radius: 10;
+                            -fx-cursor: hand;
+                            -fx-padding: 10 22;
+                        "/>
+
             </HBox>
 
-            <!-- Bảng danh sách phiên đấu giá -->
-            <TableView fx:id="auctionTable" VBox.vgrow="ALWAYS"
-                       style="-fx-background-color: white; -fx-border-radius: 8; -fx-background-radius: 8;">
-                <columns>
-                    <TableColumn fx:id="colName" text="Sản phẩm" prefWidth="220"/>
-                    <TableColumn fx:id="colCategory" text="Loại" prefWidth="100"/>
-                    <TableColumn fx:id="colStartPrice" text="Giá khởi điểm" prefWidth="130"/>
-                    <TableColumn fx:id="colCurrentPrice" text="Giá hiện tại" prefWidth="130"/>
-                    <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="110"/>
-                    <TableColumn fx:id="colEndTime" text="Kết thúc lúc" prefWidth="160"/>
-                </columns>
-                <placeholder>
-                    <Label text="Chưa có phiên đấu giá nào" style="-fx-text-fill: #95a5a6;"/>
-                </placeholder>
-            </TableView>
+            <!-- TABLE -->
+            <StackPane VBox.vgrow="ALWAYS"
 
-            <!-- Nút tham gia -->
+                       style="
+                           -fx-background-color: rgba(10,20,45,0.85);
+                           -fx-background-radius: 20;
+                           -fx-border-color: #00e5ff;
+                           -fx-border-radius: 20;
+                           -fx-padding: 20;
+                       ">
+
+                <TableView fx:id="auctionTable"
+
+                           style="
+                               -fx-background-color: transparent;
+                               -fx-control-inner-background: rgba(20,30,60,0.92);
+                               -fx-table-cell-border-color: transparent;
+                               -fx-text-background-color: white;
+                               -fx-font-size: 14;
+                           ">
+
+                    <columns>
+
+                        <TableColumn fx:id="colName"
+                                     text="ITEM"
+                                     prefWidth="240"/>
+
+                        <TableColumn fx:id="colCategory"
+                                     text="CATEGORY"
+                                     prefWidth="140"/>
+
+                        <TableColumn fx:id="colStartPrice"
+                                     text="START PRICE"
+                                     prefWidth="150"/>
+
+                        <TableColumn fx:id="colCurrentPrice"
+                                     text="CURRENT BID"
+                                     prefWidth="150"/>
+
+                        <TableColumn fx:id="colStatus"
+                                     text="LIVE STATUS"
+                                     prefWidth="180"/>
+
+                        <TableColumn fx:id="colEndTime"
+                                     text="END TIME"
+                                     prefWidth="220"/>
+
+                    </columns>
+
+                    <placeholder>
+
+                        <Label text="NO LIVE AUCTIONS"
+
+                               style="
+                                   -fx-text-fill: #bbbbbb;
+                                   -fx-font-size: 16;
+                               "/>
+
+                    </placeholder>
+
+                </TableView>
+
+            </StackPane>
+
+            <!-- JOIN -->
             <HBox alignment="CENTER_RIGHT">
-                <Button text="Tham gia đấu giá →" onAction="#handleJoinAuction"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;
-                               -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 20;"/>
+
+                <Button text="JOIN AUCTION →"
+                        onAction="#handleJoinAuction"
+
+                        style="
+                            -fx-background-color: #00e5ff;
+                            -fx-text-fill: #081120;
+                            -fx-font-weight: bold;
+                            -fx-font-size: 14;
+                            -fx-background-radius: 12;
+                            -fx-cursor: hand;
+                            -fx-padding: 12 24;
+                        "/>
+
             </HBox>
+
         </VBox>
+
     </center>
+
 </BorderPane>
