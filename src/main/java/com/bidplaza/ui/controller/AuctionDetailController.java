@@ -1,6 +1,7 @@
 package com.bidplaza.ui.controller;
 
 import com.bidplaza.network.AuctionSnapshot;
+import com.bidplaza.network.BidTransactionInfo;
 import com.bidplaza.network.Message;
 import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
@@ -21,8 +22,11 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Controller màn hình đấu giá realtime.
@@ -64,6 +68,7 @@ public class AuctionDetailController implements Initializable {
 
     // ── State ────────────────────────────────────────────────────
     private AuctionItem auction;
+    private AuctionSnapshot currentSnapshot;
     private final ObservableList<String> bidHistory = FXCollections.observableArrayList();
 
     private Socket socket;
@@ -71,8 +76,10 @@ public class AuctionDetailController implements Initializable {
     private ObjectInputStream in;
     private boolean connected = false;
 
-    private final AtomicInteger bidTick = new AtomicInteger(0);
+    private int chartTick = 0;
     private XYChart.Series<Number, Number> priceSeries;
+
+    private static final Map<String, List<double[]>> chartCache = new ConcurrentHashMap<>();
 
     private static final String SERVER_HOST = "localhost";
     private static final int    SERVER_PORT = 8080;
@@ -110,7 +117,12 @@ public class AuctionDetailController implements Initializable {
     // ── Public API ───────────────────────────────────────────────
 
     public void setAuction(AuctionItem auction) {
+        setAuction(auction, null);
+    }
+
+    public void setAuction(AuctionItem auction, AuctionSnapshot snapshot) {
         this.auction = auction;
+        this.currentSnapshot = snapshot;
 
         titleLabel.setText(auction.getName());
         itemNameLabel.setText(auction.getName());
@@ -119,11 +131,68 @@ public class AuctionDetailController implements Initializable {
         endTimeLabel.setText(auction.getEndTime());
         currentPriceLabel.setText(auction.getCurrentPrice());
 
-        // Điểm dữ liệu đầu tiên trên chart = giá khởi điểm
-        addChartPoint(parsePrice(auction.getCurrentPrice()));
+        loadExistingBidHistory();
 
         connectToServer();
         startCountdown(auction.getEndTime());
+    }
+
+    private AuctionSnapshot getCurrentSnapshot() {
+        return currentSnapshot;
+    }
+
+    private void loadExistingBidHistory() {
+        if (priceSeries != null) {
+            priceSeries.getData().clear();
+        }
+        bidHistory.clear();
+        chartTick = 0;
+
+        String auctionId = auction != null ? auction.getId() : null;
+        if (auctionId != null && chartCache.containsKey(auctionId)) {
+            for (double[] point : chartCache.get(auctionId)) {
+                bidHistory.add(String.format("Giá $%.2f", point[1]));
+                if (priceSeries != null) {
+                    priceSeries.getData().add(new XYChart.Data<>(point[0], point[1]));
+                }
+                chartTick = (int) point[0] + 1;
+            }
+            return;
+        }
+
+        AuctionSnapshot snapshot = getCurrentSnapshot();
+        if (snapshot == null) {
+            if (auction != null) {
+                addChartPoint(parsePrice(auction.getCurrentPrice()));
+            }
+            return;
+        }
+
+        List<BidTransactionInfo> history = snapshot.getBidHistory();
+        if (history == null || history.isEmpty()) {
+            addChartPoint(parsePrice(auction.getCurrentPrice()));
+            return;
+        }
+
+        for (BidTransactionInfo tx : history) {
+            bidHistory.add(tx.getAuctionName() + " đặt $" + tx.getAmount());
+            if (priceSeries != null) {
+                priceSeries.getData().add(new XYChart.Data<>(chartTick, tx.getAmount()));
+            }
+            chartTick++;
+        }
+        saveChartCache();
+    }
+
+    private void saveChartCache() {
+        if (auction == null || priceSeries == null) {
+            return;
+        }
+        List<double[]> points = new ArrayList<>();
+        for (XYChart.Data<Number, Number> d : priceSeries.getData()) {
+            points.add(new double[] { d.getXValue().doubleValue(), d.getYValue().doubleValue() });
+        }
+        chartCache.put(auction.getId(), points);
     }
 
     // ── Networking ───────────────────────────────────────────────
@@ -174,6 +243,7 @@ public class AuctionDetailController implements Initializable {
 
             case AUCTION_UPDATE -> {
                 if (msg.getPayload() instanceof AuctionSnapshot snap) {
+                    currentSnapshot = snap;
                     updatePrice(snap.getCurrentPrice(),
                         snap.getWinnerId() != null ? snap.getWinnerId() : "?");
                 } else {
@@ -202,6 +272,7 @@ public class AuctionDetailController implements Initializable {
                     for (Object o : list) {
                         if (o instanceof AuctionSnapshot s
                                 && auction != null && s.getId().equals(auction.getId())) {
+                            currentSnapshot = s;
                             updatePrice(s.getCurrentPrice(),
                                 s.getWinnerId() != null ? s.getWinnerId() : "Chưa có");
                         }
@@ -330,12 +401,11 @@ public class AuctionDetailController implements Initializable {
 
     private void addChartPoint(double price) {
         if (priceSeries == null) return;
-        int tick = bidTick.incrementAndGet();
-        priceSeries.getData().add(new XYChart.Data<>(tick, price));
-        // Giữ tối đa 50 điểm để chart không quá dày
+        priceSeries.getData().add(new XYChart.Data<>(chartTick++, price));
         if (priceSeries.getData().size() > 50) {
             priceSeries.getData().remove(0);
         }
+        saveChartCache();
     }
 
     private void showBidResult(String message, boolean success) {

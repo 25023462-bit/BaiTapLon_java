@@ -22,7 +22,14 @@ public class Message implements Serializable {
         FINISH_AUCTION,
         REGISTER_AUTO_BID,      // Phase 3: yêu cầu đăng ký auto-bid
         AUTO_BID_SUCCESS,       // Phase 3: server xác nhận đăng ký thành công
-        AUTO_BID_FAILED         // Phase 3: server báo lỗi
+        AUTO_BID_FAILED,        // Phase 3: server báo lỗi
+        DEPOSIT,
+        DEPOSIT_SUCCESS,
+        DEPOSIT_FAILED,
+        GET_MY_BIDS,
+        MY_BIDS_RESPONSE,
+        GET_AUCTION_HISTORY,
+        AUCTION_HISTORY_RESPONSE
     }
 
     private final Type type;
@@ -121,7 +128,8 @@ public class Message implements Serializable {
     public Object getPayload()   { return payload; }
 
     public boolean isSuccess() {
-        if (type == Type.ERROR || type == Type.BID_FAILED || type == Type.AUTO_BID_FAILED) {
+        if (type == Type.ERROR || type == Type.BID_FAILED || type == Type.AUTO_BID_FAILED
+                || type == Type.DEPOSIT_FAILED) {
             return false;
         }
         if (payload instanceof LoginResponse) {
@@ -137,7 +145,14 @@ public class Message implements Serializable {
         if (payload instanceof LoginResponse) {
             return ((LoginResponse) payload).getUser();
         }
+        if (type == Type.DEPOSIT_SUCCESS) {
+            return amount;
+        }
         return payload;
+    }
+
+    public String getMessage() {
+        return info;
     }
 
     @Override

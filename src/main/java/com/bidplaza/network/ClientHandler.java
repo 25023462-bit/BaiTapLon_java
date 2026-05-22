@@ -6,7 +6,13 @@ import com.bidplaza.exception.InvalidBidException;
 import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.manager.UserManager;
 import com.bidplaza.model.Auction;
+import com.bidplaza.model.BidTransaction;
+import com.bidplaza.model.user.Bidder;
 import com.bidplaza.model.user.User;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -66,6 +72,9 @@ public class ClientHandler implements Runnable {
             case FINISH_AUCTION    -> handleFinishAuction(message.getAuctionId());
             case REGISTER_AUTO_BID -> handleRegisterAutoBid(       // Phase 3
                                         (AutoBidRequest) message.getPayload());
+            case DEPOSIT           -> handleDeposit(message);
+            case GET_MY_BIDS       -> handleGetMyBids(message);
+            case GET_AUCTION_HISTORY -> handleGetAuctionHistory();
             default                -> sendMessage(
                                         Message.error("Loai message khong hop le: "
                                             + message.getType()));
@@ -195,6 +204,64 @@ public class ClientHandler implements Runnable {
         sendMessage(new Message(Message.Type.AUTO_BID_SUCCESS,
             null, null, req.getMaxBid(),
             "Da kich hoat auto-bid den $" + req.getMaxBid()));
+    }
+
+    private void handleDeposit(Message message) {
+        if (!(message.getPayload() instanceof DepositRequest req)) {
+            sendMessage(new Message(Message.Type.DEPOSIT_FAILED, null, null, 0,
+                "Thieu thong tin nap tien"));
+            return;
+        }
+        User user = userManager.findById(req.getUserId());
+        if (user instanceof Bidder bidder) {
+            if (req.getAmount() <= 0) {
+                sendMessage(new Message(Message.Type.DEPOSIT_FAILED, null, null, 0,
+                    "So tien phai lon hon 0"));
+                return;
+            }
+            bidder.deposit(req.getAmount());
+            saveData();
+            sendMessage(new Message(Message.Type.DEPOSIT_SUCCESS, null, null,
+                bidder.getBalance(), "Nap tien thanh cong"));
+        } else {
+            sendMessage(new Message(Message.Type.DEPOSIT_FAILED, null, null, 0,
+                "Chi tai khoan Bidder moi nap tien duoc"));
+        }
+    }
+
+    private void handleGetMyBids(Message message) {
+        String bidderId = message.getBidderId();
+        List<BidTransactionInfo> result = new ArrayList<>();
+        for (Auction auction : auctionManager.getAllAuctions()) {
+            for (BidTransaction tx : auction.getBids()) {
+                if (tx.getBidderId().equals(bidderId)) {
+                    String status = "ACTIVE";
+                    if (auction.getStatus() == Auction.Status.FINISHED
+                            || auction.getStatus() == Auction.Status.PAID) {
+                        status = bidderId.equals(auction.getWinnerId()) ? "WON" : "LOST";
+                    }
+                    result.add(new BidTransactionInfo(
+                        auction.getId(),
+                        auction.getItem().getName(),
+                        tx.getAmount(),
+                        tx.getTimestamp(),
+                        status
+                    ));
+                }
+            }
+        }
+        result.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        sendMessage(new Message(Message.Type.MY_BIDS_RESPONSE, new BidHistoryResponse(result)));
+    }
+
+    private void handleGetAuctionHistory() {
+        List<AuctionSnapshot> finished = auctionManager.getAllAuctions().stream()
+            .filter(a -> a.getStatus() == Auction.Status.FINISHED
+                      || a.getStatus() == Auction.Status.PAID)
+            .map(AuctionSnapshot::from)
+            .sorted((a, b) -> b.getEndTime().compareTo(a.getEndTime()))
+            .collect(Collectors.toList());
+        sendMessage(new Message(Message.Type.AUCTION_HISTORY_RESPONSE, finished));
     }
 
     // ── Utilities ─────────────────────────────────────────────────

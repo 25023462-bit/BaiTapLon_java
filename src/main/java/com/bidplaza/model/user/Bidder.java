@@ -15,6 +15,10 @@ public class Bidder extends User {
 
     public double getBalance() { return balance; }
 
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
     // Nạp tiền vào tài khoản
     public void deposit(double amount) {
         this.balance += amount;

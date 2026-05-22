@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.bidplaza.ui.controller.DepositController"
+            style="-fx-background-color: linear-gradient(to bottom, #050816, #0b1026);">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: rgba(10,10,35,0.92); -fx-padding: 20;
+                     -fx-border-color: #00e5ff; -fx-border-width: 0 0 2 0;">
+            <Label text="Nạp Tiền"
+                   style="-fx-text-fill: #00e5ff; -fx-font-size: 30; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 40;">
+            <Label fx:id="balanceLabel" text="Số dư: $0.00"
+                   style="-fx-text-fill: white; -fx-font-size: 18;"/>
+            <Label text="Số tiền nạp:" style="-fx-text-fill: #aaa; -fx-font-size: 14;"/>
+            <TextField fx:id="amountField" promptText="VD: 100" prefWidth="300"/>
+            <Button text="Nạp Tiền" onAction="#handleDeposit" prefWidth="150" prefHeight="40"/>
+            <Label fx:id="resultLabel" style="-fx-text-fill: white; -fx-font-size: 14;"/>
+            <Button text="Quay lại" onAction="#handleBack" prefWidth="150" prefHeight="40"
+                    style="-fx-background-color: rgba(255,0,255,0.12); -fx-border-color: #ff00ff;
+                           -fx-text-fill: white; -fx-background-radius: 15; -fx-border-radius: 15;"/>
+        </VBox>
+    </center>
+
+</BorderPane>

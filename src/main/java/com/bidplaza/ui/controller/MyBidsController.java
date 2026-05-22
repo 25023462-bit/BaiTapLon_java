@@ -1,134 +1,114 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.network.BidHistoryResponse;
+import com.bidplaza.network.BidTransactionInfo;
+import com.bidplaza.network.Message;
 import com.bidplaza.ui.AppStyles;
-import com.bidplaza.ui.model.AuctionItem;
-
+import com.bidplaza.ui.model.UserSession;
+import com.bidplaza.ui.net.ServerClient;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
-import javafx.scene.control.cell.PropertyValueFactory;
-
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class MyBidsController {
+import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
 
-    @FXML
-    private TableView<AuctionItem> bidsTable;
+public class MyBidsController implements Initializable {
 
-    @FXML
-    private TableColumn<AuctionItem, String> nameColumn;
+    @FXML private TableView<BidTransactionInfo> bidsTable;
+    @FXML private TableColumn<BidTransactionInfo, String> colAuction;
+    @FXML private TableColumn<BidTransactionInfo, Double> colAmount;
+    @FXML private TableColumn<BidTransactionInfo, String> colTime;
+    @FXML private TableColumn<BidTransactionInfo, String> colStatus;
 
-    @FXML
-    private TableColumn<AuctionItem, String> categoryColumn;
+    private static final DateTimeFormatter DTF =
+        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    @FXML
-    private TableColumn<AuctionItem, String> currentBidColumn;
-
-    @FXML
-    private TableColumn<AuctionItem, String> statusColumn;
-
-    @FXML
-    private TableColumn<AuctionItem, String> endTimeColumn;
-
-    @FXML
-    public void initialize() {
-
-        // MAP COLUMN
-
-        nameColumn.setCellValueFactory(
-                new PropertyValueFactory<>("name")
-        );
-
-        categoryColumn.setCellValueFactory(
-                new PropertyValueFactory<>("category")
-        );
-
-        currentBidColumn.setCellValueFactory(
-                new PropertyValueFactory<>("currentPrice")
-        );
-
-        statusColumn.setCellValueFactory(
-                new PropertyValueFactory<>("status")
-        );
-
-        endTimeColumn.setCellValueFactory(
-                new PropertyValueFactory<>("endTime")
-        );
-
-        // SAMPLE DATA
-
-        ObservableList<AuctionItem> data =
-                FXCollections.observableArrayList(
-
-                        new AuctionItem(
-                                "1",
-                                "Cyber Car",
-                                "Vehicle",
-                                "5000",
-                                "12450 USD",
-                                "WINNING",
-                                "00:05:32"
-                        ),
-
-                        new AuctionItem(
-                                "2",
-                                "Neon Bike",
-                                "Vehicle",
-                                "3000",
-                                "8200 USD",
-                                "OUTBID",
-                                "00:12:45"
-                        )
-                );
-
-        bidsTable.setItems(data);
-
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        setupColumns();
         javafx.application.Platform.runLater(() -> {
-            try {
-                Scene scene = bidsTable.getScene();
-                if (scene != null) {
-                    scene.getStylesheets().add(
-                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
-                    );
-                }
-            } catch (Exception ignored) {}
+            if (bidsTable.getScene() != null) {
+                AppStyles.applyTo(bidsTable.getScene());
+            }
+            loadBidHistory();
         });
     }
 
-    @FXML
-    private void goBack() {
+    private void setupColumns() {
+        colAuction.setCellValueFactory(c ->
+            new javafx.beans.property.SimpleStringProperty(c.getValue().getAuctionName()));
+        colAmount.setCellValueFactory(c ->
+            new javafx.beans.property.SimpleObjectProperty<>(c.getValue().getAmount()));
+        colAmount.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : String.format("$%.2f", item));
+            }
+        });
+        colTime.setCellValueFactory(c ->
+            new javafx.beans.property.SimpleStringProperty(
+                c.getValue().getTimestamp().format(DTF)));
+        colStatus.setCellValueFactory(c ->
+            new javafx.beans.property.SimpleStringProperty(c.getValue().getStatus()));
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                setText(item);
+                switch (item) {
+                    case "WON" -> setTextFill(Color.web("#27ae60"));
+                    case "LOST" -> setTextFill(Color.web("#e74c3c"));
+                    default -> setTextFill(Color.web("#3498db"));
+                }
+            }
+        });
+    }
 
+    private void loadBidHistory() {
         try {
-
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(
-                            "/com/bidplaza/ui/BidderDashboard.fxml"
-                    )
-            );
-
-            Scene scene = new Scene(loader.load());
-
-            AppStyles.applyTo(scene);
-
-            Stage stage =
-                    (Stage) bidsTable.getScene().getWindow();
-
-            stage.setScene(scene);
-
-            stage.setTitle("BidPlaza - Bidder Dashboard");
-
-            stage.show();
-
+            String bidderId = UserSession.getInstance().getUserId();
+            Message response = ServerClient.request(
+                new Message(Message.Type.GET_MY_BIDS, null, bidderId, 0, null));
+            if (response.isSuccess() && response.getPayload() instanceof BidHistoryResponse data) {
+                bidsTable.setItems(FXCollections.observableArrayList(data.getBids()));
+            }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    @FXML
+    private void handleRefresh() {
+        loadBidHistory();
+    }
+
+    @FXML
+    private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/BidderDashboard.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) bidsTable.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Bidder Dashboard");
+            stage.show();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

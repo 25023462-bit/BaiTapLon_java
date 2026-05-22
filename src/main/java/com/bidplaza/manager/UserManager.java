@@ -47,6 +47,16 @@ public class UserManager {
         return users.get(username);
     }
 
+    public User findById(String userId) {
+        if (userId == null) {
+            return null;
+        }
+        return users.values().stream()
+            .filter(u -> u.getId().equals(userId))
+            .findFirst()
+            .orElse(null);
+    }
+
     private User createUser(String username, String password, String role)
             throws AuthenticationException {
         String email = username + "@bidplaza.local";

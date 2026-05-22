@@ -55,6 +55,14 @@
                     -fx-font-size: 16;
                    "/>
 
+            <Label fx:id="balanceLabel"
+                   text="Số dư: $0.00"
+                   style="
+                    -fx-text-fill: #00e5ff;
+                    -fx-font-size: 16;
+                    -fx-font-weight: bold;
+                   "/>
+
         </HBox>
 
         <!-- SIDEBAR -->
@@ -101,6 +109,11 @@
 
             <Button text="AUCTIONS"
                     onAction="#openAuctions"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="NẠP TIỀN"
+                    onAction="#openDeposit"
                     prefWidth="140"
                     prefHeight="45"/>
 

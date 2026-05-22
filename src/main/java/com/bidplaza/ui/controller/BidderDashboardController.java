@@ -1,5 +1,7 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.model.user.Bidder;
+import com.bidplaza.model.user.User;
 import com.bidplaza.network.AuctionSnapshot;
 import com.bidplaza.network.Message;
 import com.bidplaza.ui.AppStyles;
@@ -38,9 +40,10 @@ public class BidderDashboardController {
     private Label welcomeLabel;
 
     @FXML
-    private VBox liveAuctionContainer;
+    private Label balanceLabel;
 
-    // RIGHT PANEL LABELS
+    @FXML
+    private VBox liveAuctionContainer;
 
     @FXML
     private Label liveStatusLabel;
@@ -68,6 +71,8 @@ public class BidderDashboardController {
                     "Welcome back, " + username + "!"
             );
         }
+
+        updateBalanceLabel();
 
         javafx.application.Platform.runLater(() -> {
 
@@ -380,7 +385,7 @@ public class BidderDashboardController {
                                 snapshot.getEndTime().toString()
                         );
 
-                controller.setAuction(item);
+                controller.setAuction(item, snapshot);
 
                 Stage stage =
                         (Stage) welcomeLabel
@@ -475,6 +480,34 @@ public class BidderDashboardController {
         refreshTimeline.play();
     }
 
+    private void updateBalanceLabel() {
+        if (balanceLabel == null) {
+            return;
+        }
+        User user = UserSession.getCurrentUser();
+        if (user instanceof Bidder bidder) {
+            balanceLabel.setText("Số dư: $" + String.format("%.2f", bidder.getBalance()));
+        } else {
+            balanceLabel.setText("");
+        }
+    }
+
+    @FXML
+    private void openDeposit() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/Deposit.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Nạp Tiền");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // AUCTIONS
 
     @FXML
@@ -508,17 +541,82 @@ public class BidderDashboardController {
     }
 
     @FXML
-    private void openMyBids() {}
+    private void openMyBids() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/MyBids.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - My Bids");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
-    private void openWatchlist() {}
+    private void openWatchlist() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/Watchlist.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Watchlist");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
-    private void openHistory() {}
+    private void openHistory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/History.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - History");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
-    private void openProfile() {}
+    private void openProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/Profile.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Profile");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
-    private void handleLogout() {}
+    private void handleLogout() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/Login.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Login");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

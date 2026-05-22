@@ -54,6 +54,8 @@ public class AuctionListController implements Initializable {
             FXCollections.observableArrayList();
 
     private Timeline timeline;
+    private final java.util.Map<String, com.bidplaza.network.AuctionSnapshot> snapshotById =
+            new java.util.HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -113,6 +115,7 @@ public class AuctionListController implements Initializable {
     }
 
     private void loadSampleData() {
+        snapshotById.clear();
 
         try {
 
@@ -143,6 +146,7 @@ public class AuctionListController implements Initializable {
                                         "yyyy-MM-dd HH:mm"
                                 );
 
+                        snapshotById.put(s.getId(), s);
                         auctionData.add(
                                 new AuctionItem(
                                         s.getId(),
@@ -240,7 +244,7 @@ public class AuctionListController implements Initializable {
             AuctionDetailController controller =
                     loader.getController();
 
-            controller.setAuction(selected);
+            controller.setAuction(selected, snapshotById.get(selected.getId()));
 
             Stage stage =
                     (Stage) auctionTable.getScene().getWindow();
