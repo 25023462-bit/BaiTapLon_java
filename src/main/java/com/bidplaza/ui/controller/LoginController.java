@@ -43,6 +43,17 @@ public class LoginController implements Initializable {
         roleCombo.setItems(FXCollections.observableArrayList("BIDDER", "SELLER", "ADMIN"));
         roleCombo.setValue("BIDDER");
         errorLabel.setText("");
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = usernameField.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @FXML
@@ -103,7 +114,12 @@ public class LoginController implements Initializable {
                     : null;
 
                 // Set session đầy đủ
-                UserSession.getInstance().login(username, resolvedRole, userId);
+                com.bidplaza.model.user.User user = loginResponse.getUser();
+                if (user != null) {
+                    UserSession.setCurrentUser(user);
+                } else {
+                    UserSession.getInstance().login(username, resolvedRole, userId);
+                }
 
                 chuyenManHinh(resolvedRole);
 

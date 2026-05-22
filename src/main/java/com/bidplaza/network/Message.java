@@ -15,6 +15,7 @@ public class Message implements Serializable {
         AUCTION_UPDATE,
         ERROR,
         GET_AUCTION_LIST,
+        GET_AUCTIONS,
         AUCTION_LIST_RESPONSE,
         LIST_AUCTIONS,
         CREATE_AUCTION,
@@ -118,6 +119,26 @@ public class Message implements Serializable {
     public double getAmount()    { return amount; }
     public String getInfo()      { return info; }
     public Object getPayload()   { return payload; }
+
+    public boolean isSuccess() {
+        if (type == Type.ERROR || type == Type.BID_FAILED || type == Type.AUTO_BID_FAILED) {
+            return false;
+        }
+        if (payload instanceof LoginResponse) {
+            return ((LoginResponse) payload).isSuccess();
+        }
+        if (type == Type.LOGIN_RESPONSE) {
+            return amount == 1;
+        }
+        return true;
+    }
+
+    public Object getData() {
+        if (payload instanceof LoginResponse) {
+            return ((LoginResponse) payload).getUser();
+        }
+        return payload;
+    }
 
     @Override
     public String toString() {

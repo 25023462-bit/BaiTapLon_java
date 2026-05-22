@@ -62,6 +62,17 @@ public class SellerDashboardController implements Initializable {
 
         // Load danh sách phiên của Seller từ Server
         loadSellerAuctions();
+
+        Platform.runLater(() -> {
+            try {
+                Scene scene = userLabel.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     private void loadSellerAuctions() {

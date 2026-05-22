@@ -9,6 +9,23 @@ import javafx.stage.Stage;
 
 public class WelcomeController {
 
+    @javafx.fxml.FXML
+    private javafx.scene.layout.StackPane rootPane;
+
+    @javafx.fxml.FXML
+    public void initialize() {
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = rootPane.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
+    }
+
     public void goToLogin(ActionEvent event) {
 
         try {

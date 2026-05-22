@@ -95,6 +95,17 @@ public class HistoryController {
                 );
 
         historyTable.setItems(data);
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = historyTable.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @FXML

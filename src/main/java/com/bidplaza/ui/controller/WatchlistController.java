@@ -24,6 +24,17 @@ public class WatchlistController {
         rootPane.setStyle(
                 "-fx-font-family: 'Segoe UI';"
         );
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = rootPane.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @FXML

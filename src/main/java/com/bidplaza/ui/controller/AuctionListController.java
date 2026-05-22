@@ -82,6 +82,17 @@ public class AuctionListController implements Initializable {
         loadSampleData();
 
         auctionTable.setItems(auctionData);
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = userLabel.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     private void loadSampleData() {

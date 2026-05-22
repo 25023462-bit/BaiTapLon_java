@@ -28,6 +28,17 @@ public class BidderDashboardController {
                     "Welcome back, " + username + "!"
             );
         }
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = welcomeLabel.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     // AUCTIONS

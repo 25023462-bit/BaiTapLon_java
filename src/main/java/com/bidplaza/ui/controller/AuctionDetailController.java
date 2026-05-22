@@ -83,6 +83,17 @@ public class AuctionDetailController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         bidHistoryList.setItems(bidHistory);
         setupChart();
+
+        Platform.runLater(() -> {
+            try {
+                Scene scene = bidHistoryList.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     private void setupChart() {

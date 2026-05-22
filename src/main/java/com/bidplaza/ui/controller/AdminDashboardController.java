@@ -58,6 +58,17 @@ public class AdminDashboardController implements Initializable {
 
         auctionTable.setItems(rows);
         loadAuctions();
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = userLabel.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @FXML

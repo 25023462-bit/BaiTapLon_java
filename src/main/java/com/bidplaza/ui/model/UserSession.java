@@ -13,9 +13,24 @@ public class UserSession {
 
     private static UserSession instance;
 
+    private static com.bidplaza.model.user.User currentUser;
+
     private String username;
     private String role;
     private String userId;  // userId thực từ server
+
+    public static void setCurrentUser(com.bidplaza.model.user.User user) {
+        currentUser = user;
+        if (user != null) {
+            getInstance().login(user.getUsername(), user.getRole(), user.getId());
+        } else {
+            getInstance().logout();
+        }
+    }
+
+    public static com.bidplaza.model.user.User getCurrentUser() {
+        return currentUser;
+    }
 
     private UserSession() {}
 

@@ -59,6 +59,7 @@ public class ClientHandler implements Runnable {
             case LOGIN             -> handleLogin((LoginRequest) message.getPayload());
             case PLACE_BID         -> handlePlaceBid(message);
             case LIST_AUCTIONS,
+                 GET_AUCTIONS,
                  GET_AUCTION_LIST  -> handleListAuctions();
             case CREATE_AUCTION    -> handleCreateAuction(
                                         (CreateAuctionRequest) message.getPayload());

@@ -37,6 +37,17 @@ public class RegisterController {
         );
 
         roleCombo.setValue("BIDDER");
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Scene scene = usernameField.getScene();
+                if (scene != null) {
+                    scene.getStylesheets().add(
+                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                    );
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @FXML
