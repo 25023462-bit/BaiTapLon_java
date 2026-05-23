@@ -5,11 +5,13 @@ import com.bidplaza.model.item.Item;
 import com.bidplaza.model.user.User;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * AuctionManager applies the Singleton pattern for shared auction state.
  */
-public class AuctionManager {
+public class AuctionManager implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static AuctionManager instance;
 
