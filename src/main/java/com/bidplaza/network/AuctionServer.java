@@ -3,6 +3,7 @@ package com.bidplaza.network;
 import com.bidplaza.factory.ItemFactory;
 import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.model.Auction;
+import com.bidplaza.model.Notification;
 import com.bidplaza.model.item.Item;
 import com.bidplaza.storage.DataStorage;
 
@@ -55,6 +56,13 @@ public class AuctionServer {
 
     public static ClientHandler findClientByUserId(String userId) {
         return userClientMap.get(userId);
+    }
+
+    public static void pushNotification(String userId, Notification notification) {
+        ClientHandler handler = findClientByUserId(userId);
+        if (handler != null && notification != null) {
+            handler.sendMessage(new Message(Message.Type.PUSH_NOTIFICATION, notification));
+        }
     }
 
     public static void main(String[] args) throws IOException {

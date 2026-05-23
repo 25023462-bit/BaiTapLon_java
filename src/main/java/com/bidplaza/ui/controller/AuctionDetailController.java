@@ -3,6 +3,7 @@ package com.bidplaza.ui.controller;
 import com.bidplaza.network.AuctionSnapshot;
 import com.bidplaza.network.BidTransactionInfo;
 import com.bidplaza.network.Message;
+import com.bidplaza.model.Notification;
 import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
@@ -327,6 +328,11 @@ public class AuctionDetailController implements Initializable {
                 alert.setContentText(msg.getInfo());
                 alert.show();
             });
+            case PUSH_NOTIFICATION -> {
+                if (msg.getPayload() instanceof Notification notification) {
+                    UserSession.addNotification(notification);
+                }
+            }
             default -> { /* ignore */ }
         }
     }
