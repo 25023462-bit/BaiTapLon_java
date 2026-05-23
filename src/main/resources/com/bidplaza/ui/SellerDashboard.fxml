@@ -17,6 +17,8 @@
             <Label text="Quản lý sản phẩm (Seller)" style="-fx-font-size: 14; -fx-text-fill: #d7bde2;"/>
             <HBox />
             <Label fx:id="userLabel" style="-fx-text-fill: white; -fx-font-size: 13;"/>
+            <Button fx:id="bellButton" text="Bell (0)" onAction="#handleOpenNotifications"/>
+            <Button text="Profile" onAction="#openProfile"/>
             <Button text="Đăng xuất" onAction="#handleLogout"
                     style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                            -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;"/>

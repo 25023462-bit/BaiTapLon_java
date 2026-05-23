@@ -3,6 +3,7 @@ package com.bidplaza.network;
 import com.bidplaza.factory.ItemFactory;
 import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.model.Auction;
+import com.bidplaza.model.Notification;
 import com.bidplaza.model.item.Item;
 import com.bidplaza.storage.DataStorage;
 
@@ -19,7 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import com.bidplaza.storage.AppData;
+import com.bidplaza.manager.UserManager;
 /**
  * Server chính - lắng nghe kết nối từ nhiều Client đồng thời.
  *
@@ -57,9 +59,31 @@ public class AuctionServer {
         return userClientMap.get(userId);
     }
 
+    public static void pushNotification(String userId, Notification notification) {
+        ClientHandler handler = findClientByUserId(userId);
+        if (handler != null && notification != null) {
+            handler.sendMessage(new Message(Message.Type.PUSH_NOTIFICATION, notification));
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         // Load data từ storage
-        auctionManager = DataStorage.load();
+        AppData appData = DataStorage.load();
+        if (appData != null) {
+            auctionManager = appData.getAuctionManager();
+            AuctionManager.setInstance(auctionManager);
+            UserManager.setInstance(appData.getUserManager());
+            System.out.println("[Server] Loaded existing data.");
+        } else {
+            auctionManager = AuctionManager.getInstance();
+            try {
+                UserManager.getInstance().register("admin", "admin123", "ADMIN");
+                System.out.println("[Server] Default admin created: admin/admin123");
+            } catch (Exception e) {
+                // Already exists
+            }
+            System.out.println("[Server] Fresh start.");
+        }
 
         // Đồng bộ Singleton với instance vừa load
         try {

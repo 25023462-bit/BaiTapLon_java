@@ -1,5 +1,6 @@
 package com.bidplaza.ui.controller;
 
+import com.bidplaza.model.Notification;
 import com.bidplaza.network.AuctionSnapshot;
 import com.bidplaza.network.CreateAuctionRequest;
 import com.bidplaza.network.Message;
@@ -38,6 +39,7 @@ public class SellerDashboardController implements Initializable {
     @FXML private TableColumn<AuctionItem, String> colPrice;
     @FXML private TableColumn<AuctionItem, String> colStatus;
     @FXML private TableColumn<AuctionItem, String> colBids;
+    @FXML private Button bellButton;
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -62,6 +64,7 @@ public class SellerDashboardController implements Initializable {
 
         // Load danh sách phiên của Seller từ Server
         loadSellerAuctions();
+        syncNotifications();
 
         Platform.runLater(() -> {
             try {
@@ -76,7 +79,8 @@ public class SellerDashboardController implements Initializable {
     }
 
     private void loadSellerAuctions() {
-        String sellerId = UserSession.getInstance().getUsername();
+        String sellerId = UserSession.getInstance().getUserId();
+        String sellerUsername = UserSession.getInstance().getUsername();
         new Thread(() -> {
             try {
                 Message response = ServerClient.request(
@@ -87,7 +91,8 @@ public class SellerDashboardController implements Initializable {
                         items.clear();
                         for (Object obj : list) {
                             if (obj instanceof AuctionSnapshot snap) {
-                                if (sellerId.equals(snap.getSellerId())) {
+                                if (sellerId.equals(snap.getSellerId())
+                                        || sellerUsername.equals(snap.getSellerId())) {
                                     items.add(snapshotToItem(snap));
                                 }
                             }
@@ -122,7 +127,7 @@ public class SellerDashboardController implements Initializable {
             return;
         }
 
-        String sellerId = UserSession.getInstance().getUsername();
+        String sellerId = UserSession.getInstance().getUserId();
         CreateAuctionRequest req = new CreateAuctionRequest(
                 name, desc, category, price, duration, sellerId);
 
@@ -185,6 +190,22 @@ public class SellerDashboardController implements Initializable {
     }
 
     @FXML
+    private void openProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/bidplaza/ui/Profile.fxml"));
+            Scene scene = new Scene(loader.load());
+            AppStyles.applyTo(scene);
+            Stage stage = (Stage) userLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("BidPlaza - Profile");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleLogout() {
         UserSession.getInstance().logout();
         try {
@@ -225,5 +246,72 @@ public class SellerDashboardController implements Initializable {
         if (descField != null) descField.clear();
         startPriceField.clear();
         categoryCombo.setValue("electronics");
+    }
+
+    private void syncNotifications() {
+        new Thread(() -> {
+            try {
+                Message response = ServerClient.request(new Message(
+                    Message.Type.GET_NOTIFICATIONS, null,
+                    UserSession.getInstance().getUserId(), 0, null));
+                if (response.getPayload() instanceof List<?> list) {
+                    java.util.List<Notification> notifications = new java.util.ArrayList<>();
+                    for (Object object : list) {
+                        if (object instanceof Notification notification) {
+                            notifications.add(notification);
+                        }
+                    }
+                    UserSession.setNotifications(notifications);
+                    Platform.runLater(this::updateBellBadge);
+                }
+            } catch (Exception ignored) {
+                Platform.runLater(this::updateBellBadge);
+            }
+        }, "seller-notifications-load").start();
+    }
+
+    private void updateBellBadge() {
+        if (bellButton != null) {
+            bellButton.setText("Bell (" + UserSession.getUnreadCount() + ")");
+        }
+    }
+
+    @FXML
+    private void handleOpenNotifications() {
+        syncNotifications();
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Thong bao");
+        ListView<Notification> listView = new ListView<>();
+        listView.setItems(FXCollections.observableArrayList(
+            UserSession.getNotifications()));
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Notification notification, boolean empty) {
+                super.updateItem(notification, empty);
+                if (empty || notification == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                setText((notification.isRead() ? "" : "* ")
+                    + notification.getTitle()
+                    + "\n" + notification.getMessage()
+                    + "\n" + notification.getTimestamp().format(
+                        DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+                setStyle(notification.isRead()
+                    ? "-fx-text-fill: #666;"
+                    : "-fx-font-weight: bold;");
+            }
+        });
+        dialog.getDialogPane().setContent(listView);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+
+        UserSession.getNotifications().forEach(notification -> notification.setRead(true));
+        updateBellBadge();
+        ServerClient.sendAsync(new Message(
+            Message.Type.MARK_NOTIFICATIONS_READ, null,
+            UserSession.getInstance().getUserId(), 0, null));
     }
 }

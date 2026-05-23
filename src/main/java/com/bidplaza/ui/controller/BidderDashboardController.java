@@ -1,6 +1,7 @@
 package com.bidplaza.ui.controller;
 
 import com.bidplaza.model.user.Bidder;
+import com.bidplaza.model.Notification;
 import com.bidplaza.model.user.User;
 import com.bidplaza.network.AuctionSnapshot;
 import com.bidplaza.network.Message;
@@ -18,7 +19,11 @@ import javafx.geometry.Pos;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -29,6 +34,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 import java.util.ArrayList;
@@ -57,6 +63,9 @@ public class BidderDashboardController {
     @FXML
     private Label endingSoonLabel;
 
+    @FXML
+    private Button bellButton;
+
     private Timeline refreshTimeline;
 
     @FXML
@@ -73,6 +82,7 @@ public class BidderDashboardController {
         }
 
         updateBalanceLabel();
+        syncNotifications();
 
         javafx.application.Platform.runLater(() -> {
 
@@ -490,6 +500,73 @@ public class BidderDashboardController {
         } else {
             balanceLabel.setText("");
         }
+    }
+
+    private void syncNotifications() {
+        new Thread(() -> {
+            try {
+                Message response = com.bidplaza.ui.net.ServerClient.request(
+                    new Message(Message.Type.GET_NOTIFICATIONS, null,
+                        UserSession.getInstance().getUserId(), 0, null));
+                if (response.getPayload() instanceof List<?> list) {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (Object object : list) {
+                        if (object instanceof Notification notification) {
+                            notifications.add(notification);
+                        }
+                    }
+                    UserSession.setNotifications(notifications);
+                    javafx.application.Platform.runLater(this::updateBellBadge);
+                }
+            } catch (Exception ignored) {
+                javafx.application.Platform.runLater(this::updateBellBadge);
+            }
+        }, "notifications-load").start();
+    }
+
+    private void updateBellBadge() {
+        if (bellButton != null) {
+            bellButton.setText("Bell (" + UserSession.getUnreadCount() + ")");
+        }
+    }
+
+    @FXML
+    private void handleOpenNotifications() {
+        syncNotifications();
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Thong bao");
+        ListView<Notification> listView = new ListView<>();
+        listView.setItems(javafx.collections.FXCollections.observableArrayList(
+            UserSession.getNotifications()));
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Notification notification, boolean empty) {
+                super.updateItem(notification, empty);
+                if (empty || notification == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                setText((notification.isRead() ? "" : "* ")
+                    + notification.getTitle()
+                    + "\n" + notification.getMessage()
+                    + "\n" + notification.getTimestamp().format(
+                        DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+                setStyle(notification.isRead()
+                    ? "-fx-text-fill: #666;"
+                    : "-fx-font-weight: bold;");
+            }
+        });
+        dialog.getDialogPane().setContent(listView);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+
+        UserSession.getNotifications().forEach(notification -> notification.setRead(true));
+        updateBellBadge();
+        com.bidplaza.ui.net.ServerClient.sendAsync(new Message(
+            Message.Type.MARK_NOTIFICATIONS_READ, null,
+            UserSession.getInstance().getUserId(), 0, null));
     }
 
     @FXML

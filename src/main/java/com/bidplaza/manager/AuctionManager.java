@@ -65,4 +65,8 @@ public class AuctionManager {
     public List<User> getAllUsers() {
         return users;
     }
+
+    public static synchronized void setInstance(AuctionManager manager) {
+        instance = manager;
+    }
 }
