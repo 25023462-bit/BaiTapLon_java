@@ -52,6 +52,7 @@ public class AuctionListController implements Initializable {
 
     private ObservableList<AuctionItem> auctionData =
             FXCollections.observableArrayList();
+    private javafx.collections.transformation.FilteredList<AuctionItem> filteredData;
 
     private Timeline timeline;
     private final java.util.Map<String, com.bidplaza.network.AuctionSnapshot> snapshotById =
@@ -90,7 +91,26 @@ public class AuctionListController implements Initializable {
         // Load auctions
         loadSampleData();
 
-        auctionTable.setItems(auctionData);
+        filteredData = new javafx.collections.transformation.FilteredList<>(
+                auctionData,
+                p -> true
+        );
+        javafx.collections.transformation.SortedList<AuctionItem> sortedData =
+                new javafx.collections.transformation.SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(auctionTable.comparatorProperty());
+        auctionTable.setItems(sortedData);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(item -> {
+                if (newValue == null || newValue.isBlank()) {
+                    return true;
+                }
+
+                String lower = newValue.toLowerCase().trim();
+                return item.getName().toLowerCase().contains(lower)
+                        || item.getCategory().toLowerCase().contains(lower);
+            });
+        });
 
         // Start realtime countdown
         startCountdown();

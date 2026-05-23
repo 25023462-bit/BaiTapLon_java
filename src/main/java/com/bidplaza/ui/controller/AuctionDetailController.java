@@ -52,6 +52,7 @@ public class AuctionDetailController implements Initializable {
     @FXML private Label bidResultLabel;
     @FXML private Label statusLabel;
     @FXML private Label countdownLabel;   // Phase 3: đếm ngược
+    private javafx.animation.Timeline countdownTimeline;
 
     // ── Manual bid ───────────────────────────────────────────────
     @FXML private TextField bidAmountField;
@@ -577,13 +578,16 @@ public class AuctionDetailController implements Initializable {
     }
 
     private void startCountdown(String endTimeStr) {
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+        }
         if (countdownLabel == null || endTimeStr == null || endTimeStr.isBlank()) return;
         try {
             java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             java.time.LocalDateTime endTime =
                 java.time.LocalDateTime.parse(endTimeStr.trim(), formatter);
 
-            javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+            countdownTimeline = new javafx.animation.Timeline(
                 new javafx.animation.KeyFrame(
                     javafx.util.Duration.seconds(1),
                     e -> {
@@ -605,8 +609,8 @@ public class AuctionDetailController implements Initializable {
                     }
                 )
             );
-            timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
-            timeline.play();
+            countdownTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+            countdownTimeline.play();
         } catch (Exception ignored) {}
     }
 
@@ -640,6 +644,10 @@ public class AuctionDetailController implements Initializable {
                 ));
             }
         } catch (IOException ignored) {}
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
         try { if (socket != null) socket.close(); }
         catch (IOException ignored) {}
     }
