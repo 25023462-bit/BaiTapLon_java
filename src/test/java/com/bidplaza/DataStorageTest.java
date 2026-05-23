@@ -1,6 +1,8 @@
 package com.bidplaza;
 
 import com.bidplaza.manager.AuctionManager;
+import com.bidplaza.manager.UserManager;
+import com.bidplaza.storage.AppData;
 import com.bidplaza.storage.DataStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,25 +28,28 @@ class DataStorageTest {
     @Test
     void save_thenLoad_returnsManager() {
         AuctionManager manager = AuctionManager.getInstance();
-        DataStorage.save(manager);
+        UserManager userManager = UserManager.getInstance();
+        DataStorage.save(manager, userManager);
 
-        AuctionManager loaded = DataStorage.load();
+        AppData loaded = DataStorage.load();
         assertNotNull(loaded);
+        assertNotNull(loaded.getAuctionManager());
     }
 
     @Test
-    void load_noFile_returnsNewManager() {
+    void load_noFile_returnsNull() {
         DataStorage.clear();
-        AuctionManager loaded = DataStorage.load();
-        assertNotNull(loaded);
+        AppData loaded = DataStorage.load();
+        assertTrue(loaded == null);
     }
 
     @Test
     void save_writesFileToDisk() {
         AuctionManager manager = AuctionManager.getInstance();
-        DataStorage.save(manager);
+        UserManager userManager = UserManager.getInstance();
+        DataStorage.save(manager, userManager);
 
-        File file = new File("data/auction_data.dat");
+        File file = new File("data/app_data.dat");
         assertTrue(file.exists());
     }
 }
