@@ -102,38 +102,56 @@
                         left="30"/>
             </padding>
 
+
             <!-- SEARCH -->
-            <HBox spacing="12"
-                  alignment="CENTER_LEFT">
+            <HBox spacing="12" alignment="CENTER_LEFT">
 
                 <TextField fx:id="searchField"
                            promptText="Search auction..."
                            prefWidth="320"
-
                            style="
-                               -fx-background-color: rgba(15,15,40,0.92);
-                               -fx-text-fill: white;
-                               -fx-prompt-text-fill: #bbbbbb;
-                               -fx-border-color: #00e5ff;
-                               -fx-border-radius: 10;
-                               -fx-background-radius: 10;
-                               -fx-padding: 10;
-                               -fx-font-size: 14;
-                           "/>
+                   -fx-background-color: rgba(15,15,40,0.92);
+                   -fx-text-fill: white;
+                   -fx-prompt-text-fill: #bbbbbb;
+                   -fx-border-color: #00e5ff;
+                   -fx-border-radius: 10;
+                   -fx-background-radius: 10;
+                   -fx-padding: 10;
+                   -fx-font-size: 14;
+               "/>
+
+                <ComboBox fx:id="categoryFilter"
+                          promptText="Category"
+                          prefWidth="150"/>
+
+                <ComboBox fx:id="statusFilter"
+                          promptText="Status"
+                          prefWidth="130"/>
 
                 <Button text="REFRESH"
                         onAction="#handleRefresh"
-
                         style="
-                            -fx-background-color: #00b4ff;
-                            -fx-text-fill: white;
-                            -fx-font-weight: bold;
-                            -fx-background-radius: 10;
-                            -fx-cursor: hand;
-                            -fx-padding: 10 22;
-                        "/>
+                -fx-background-color: #00b4ff;
+                -fx-text-fill: white;
+                -fx-font-weight: bold;
+                -fx-background-radius: 10;
+                -fx-cursor: hand;
+                -fx-padding: 10 22;
+            "/>
+
+                <Button text="CLEAR"
+                        onAction="#handleClearFilter"
+                        style="
+                -fx-background-color: #ff006e;
+                -fx-text-fill: white;
+                -fx-font-weight: bold;
+                -fx-background-radius: 10;
+                -fx-cursor: hand;
+                -fx-padding: 10 22;
+            "/>
 
             </HBox>
+
 
             <!-- TABLE -->
             <StackPane VBox.vgrow="ALWAYS"

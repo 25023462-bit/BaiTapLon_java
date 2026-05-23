@@ -53,6 +53,11 @@ public class AuctionListController implements Initializable {
     private ObservableList<AuctionItem> auctionData =
             FXCollections.observableArrayList();
 
+    private javafx.collections.transformation.FilteredList<AuctionItem> filteredData;
+
+    @FXML private ComboBox<String> categoryFilter;
+    @FXML private ComboBox<String> statusFilter;
+
     private Timeline timeline;
     private final java.util.Map<String, com.bidplaza.network.AuctionSnapshot> snapshotById =
             new java.util.HashMap<>();
@@ -89,8 +94,24 @@ public class AuctionListController implements Initializable {
 
         // Load auctions
         loadSampleData();
+        // Setup filters
+        categoryFilter.setItems(FXCollections.observableArrayList(
+                "All", "electronics", "art", "vehicle"));
+        categoryFilter.setValue("All");
 
-        auctionTable.setItems(auctionData);
+        statusFilter.setItems(FXCollections.observableArrayList(
+                "All", "RUNNING", "OPEN", "FINISHED"));
+        statusFilter.setValue("All");
+
+// FilteredList
+        filteredData = new javafx.collections.transformation.FilteredList<>(auctionData, p -> true);
+        auctionTable.setItems(filteredData);
+
+// Listeners
+        searchField.textProperty().addListener((obs, old, val) -> applyFilter());
+        categoryFilter.valueProperty().addListener((obs, old, val) -> applyFilter());
+        statusFilter.valueProperty().addListener((obs, old, val) -> applyFilter());
+
 
         // Start realtime countdown
         startCountdown();
@@ -376,5 +397,29 @@ public class AuctionListController implements Initializable {
         alert.setContentText(message);
 
         alert.showAndWait();
+    }
+
+    private void applyFilter() {
+        filteredData.setPredicate(item -> {
+            String search   = searchField.getText().toLowerCase().trim();
+            String category = categoryFilter.getValue();
+            String status   = statusFilter.getValue();
+
+            boolean matchSearch   = search.isEmpty()
+                    || item.getName().toLowerCase().contains(search);
+            boolean matchCategory = "All".equals(category) || category == null
+                    || item.getCategory().equalsIgnoreCase(category);
+            boolean matchStatus   = "All".equals(status) || status == null
+                    || item.getStatus().contains(status);
+
+            return matchSearch && matchCategory && matchStatus;
+        });
+    }
+
+    @FXML
+    private void handleClearFilter() {
+        searchField.clear();
+        categoryFilter.setValue("All");
+        statusFilter.setValue("All");
     }
 }
