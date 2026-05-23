@@ -98,6 +98,28 @@ public class MyBidsController implements Initializable {
     }
 
     @FXML
+    private void handleExportCSV() {
+        try {
+            String path = com.bidplaza.util.CsvExporter.buildDefaultPath("MyBids");
+            String[] headers = {"Sản phẩm", "Giá đặt ($)", "Thời gian", "Trạng thái"};
+            java.util.List<String[]> rows = bidsTable.getItems().stream()
+                .map(b -> new String[]{
+                    b.getAuctionName(),
+                    String.format("%.2f", b.getAmount()),
+                    b.getTimestamp().format(DTF),
+                    b.getStatus()
+                }).collect(java.util.stream.Collectors.toList());
+            com.bidplaza.util.CsvExporter.export(headers, rows, path);
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION, "Export thành công: " + path);
+            alert.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Lỗi export: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(

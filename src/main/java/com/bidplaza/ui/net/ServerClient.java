@@ -63,4 +63,18 @@ public final class ServerClient {
             + "Vui long kiem tra server dang chay.", lastException
         );
     }
+
+    public static void sendAsync(Message msg) {
+        new Thread(() -> {
+            try {
+                Socket socket = new Socket("localhost", ServerPort.get());
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(msg);
+                out.flush();
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("[ServerClient] sendAsync failed: " + e.getMessage());
+            }
+        }).start();
+    }
 }

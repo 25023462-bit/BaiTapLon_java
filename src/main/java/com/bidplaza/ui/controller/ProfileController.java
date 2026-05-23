@@ -29,6 +29,12 @@ public class ProfileController {
     private Label emailLabel;
 
     @FXML
+    private Label ratingLabel;
+
+    @FXML
+    private Label reviewCount;
+
+    @FXML
     public void initialize() {
 
         String username =
@@ -46,6 +52,15 @@ public class ProfileController {
         emailLabel.setText(
                 username.toLowerCase() + "@bidplaza.com"
         );
+
+        com.bidplaza.model.user.User user = UserSession.getCurrentUser();
+        if (user instanceof com.bidplaza.model.user.Seller seller) {
+            if (ratingLabel != null) ratingLabel.setText(seller.getRatingBadge());
+            if (reviewCount != null) reviewCount.setText("(" + seller.getReviews().size() + " đánh giá)");
+        } else {
+            if (ratingLabel != null) ratingLabel.setVisible(false);
+            if (reviewCount != null) reviewCount.setVisible(false);
+        }
 
         javafx.application.Platform.runLater(() -> {
             try {

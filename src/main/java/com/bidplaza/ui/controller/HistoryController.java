@@ -91,6 +91,30 @@ public class HistoryController implements Initializable {
     }
 
     @FXML
+    private void handleExportCSV() {
+        try {
+            String path = com.bidplaza.util.CsvExporter.buildDefaultPath("AuctionHistory");
+            String[] headers = {"Tên sản phẩm", "Giá khởi điểm", "Giá cuối", "Người thắng", "Kết thúc lúc", "Trạng thái"};
+            java.util.List<String[]> rows = historyTable.getItems().stream()
+                .map(s -> new String[]{
+                    s.getName(),
+                    String.format("$%.2f", s.getStartingPrice()),
+                    String.format("$%.2f", s.getCurrentPrice()),
+                    s.getWinnerUsername() != null ? s.getWinnerUsername() : (s.getWinnerId() != null ? s.getWinnerId() : "—"),
+                    s.getEndTime() != null ? s.getEndTime().format(DTF) : "—",
+                    s.getStatus()
+                }).collect(java.util.stream.Collectors.toList());
+            com.bidplaza.util.CsvExporter.export(headers, rows, path);
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION, "Export thành công: " + path);
+            alert.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Lỗi export: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(

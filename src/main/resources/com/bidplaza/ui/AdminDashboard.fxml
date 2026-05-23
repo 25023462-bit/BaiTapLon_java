@@ -68,6 +68,10 @@
                         style="-fx-background-color: #3498db; -fx-text-fill: white;
                                -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;
                                -fx-padding: 6 14;"/>
+                <Button text="📥 Export CSV" onAction="#handleExportCSV"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white;
+                               -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;
+                               -fx-padding: 6 14;"/>
                 <Button text="⛔ Kết thúc phiên đã chọn" onAction="#handleFinishSelected"
                         style="-fx-background-color: #e74c3c; -fx-text-fill: white;
                                -fx-border-radius: 4; -fx-background-radius: 4; -fx-cursor: hand;
