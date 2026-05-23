@@ -216,4 +216,10 @@ public class Auction implements AuctionObservable {
 
     public java.time.LocalDateTime getEndTime() { return endTime; }
     public void setEndTime(java.time.LocalDateTime endTime) { this.endTime = endTime; }
+
+    public String getPreviousHighestBidder() {
+        List<BidTransaction> bids = getBids();
+        if (bids.size() < 2) return null;
+        return bids.get(bids.size() - 2).getBidderId();
+    }
 }

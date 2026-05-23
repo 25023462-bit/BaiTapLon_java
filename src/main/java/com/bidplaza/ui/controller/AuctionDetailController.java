@@ -282,6 +282,13 @@ public class AuctionDetailController implements Initializable {
 
             case ERROR -> showBidResult("Lỗi Server: " + msg.getInfo(), false);
 
+            case OUTBID -> Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Bi vuot gia!");
+                alert.setHeaderText("Ban vua bi vuot gia!");
+                alert.setContentText(msg.getInfo());
+                alert.show();
+            });
             default -> { /* ignore */ }
         }
     }

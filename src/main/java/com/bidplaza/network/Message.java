@@ -29,7 +29,10 @@ public class Message implements Serializable {
         GET_MY_BIDS,
         MY_BIDS_RESPONSE,
         GET_AUCTION_HISTORY,
-        AUCTION_HISTORY_RESPONSE
+        AUCTION_HISTORY_RESPONSE,
+        OUTBID,
+        TOGGLE_WATCHLIST,
+        WATCHLIST_RESPONSE
     }
 
     private final Type type;
