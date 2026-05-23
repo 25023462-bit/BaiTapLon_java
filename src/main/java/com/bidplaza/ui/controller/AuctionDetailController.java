@@ -17,6 +17,9 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -65,6 +68,16 @@ public class AuctionDetailController implements Initializable {
     @FXML private LineChart<Number, Number> priceChart;
     @FXML private NumberAxis xAxis;
     @FXML private NumberAxis yAxis;
+
+    // Chat room
+    @FXML private ListView<String> chatListView;
+    @FXML private TextField chatInput;
+
+    // Review panel
+    @FXML private VBox ratingSection;
+    @FXML private Spinner<Integer> ratingSpinner;
+    @FXML private TextArea reviewCommentField;
+    @FXML private Label reviewResultLabel;
 
     // ── State ────────────────────────────────────────────────────
     private AuctionItem auction;
@@ -130,6 +143,7 @@ public class AuctionDetailController implements Initializable {
         startPriceLabel.setText(auction.getStartPrice());
         endTimeLabel.setText(auction.getEndTime());
         currentPriceLabel.setText(auction.getCurrentPrice());
+        updateRatingVisibility();
 
         loadExistingBidHistory();
 
@@ -207,8 +221,14 @@ public class AuctionDetailController implements Initializable {
 
                 Platform.runLater(() -> statusLabel.setText("Đã kết nối đến server"));
 
-                out.writeObject(new Message(Message.Type.LIST_AUCTIONS, null));
-                out.flush();
+                sendToServer(new Message(
+                    Message.Type.JOIN_AUCTION,
+                    auction.getId(),
+                    UserSession.getInstance().getUserId(),
+                    0,
+                    null
+                ));
+                sendToServer(new Message(Message.Type.GET_AUCTION_LIST, null));
 
                 listenForUpdates();
             } catch (IOException e) {
@@ -267,6 +287,23 @@ public class AuctionDetailController implements Initializable {
                     autoBidStatusLabel.setText("Lỗi: " + msg.getInfo());
             }
 
+            case CHAT_MESSAGE -> {
+                if (chatListView != null && msg.getPayload() instanceof com.bidplaza.network.ChatMessage chat) {
+                    chatListView.getItems().add(
+                        chat.getSenderUsername() + ": " + chat.getContent()
+                    );
+                }
+            }
+
+            case REVIEW_RESPONSE -> {
+                if (reviewResultLabel != null) {
+                    reviewResultLabel.setText(msg.getInfo());
+                    reviewResultLabel.setStyle(msg.isSuccess()
+                        ? "-fx-text-fill: #27ae60;"
+                        : "-fx-text-fill: #e74c3c;");
+                }
+            }
+
             case LIST_AUCTIONS -> {
                 if (msg.getPayload() instanceof java.util.List<?> list) {
                     for (Object o : list) {
@@ -316,8 +353,7 @@ public class AuctionDetailController implements Initializable {
         if (connected && out != null) {
             new Thread(() -> {
                 try {
-                    out.writeObject(Message.placeBid(auctionId, bidderId, amount));
-                    out.flush();
+                    sendToServer(Message.placeBid(auctionId, bidderId, amount));
                     Platform.runLater(() -> {
                         bidHistory.add(0, "Bạn đặt $" + amount);
                         bidAmountField.clear();
@@ -377,9 +413,8 @@ public class AuctionDetailController implements Initializable {
         if (connected && out != null) {
             new Thread(() -> {
                 try {
-                    out.writeObject(Message.registerAutoBid(
+                    sendToServer(Message.registerAutoBid(
                         auctionId, bidderId, maxBid, increment));
-                    out.flush();
                 } catch (IOException e) {
                     Platform.runLater(() -> {
                         if (autoBidStatusLabel != null)
@@ -398,12 +433,100 @@ public class AuctionDetailController implements Initializable {
     /**
      * Cập nhật giá hiện tại trên UI và thêm điểm lên chart.
      */
+    @FXML
+    private void handleChatKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            handleSendChat();
+            event.consume();
+        }
+    }
+
+    @FXML
+    private void handleSendChat() {
+        if (chatInput == null || auction == null) return;
+
+        String content = chatInput.getText().trim();
+        if (content.isEmpty()) return;
+
+        if (!connected || out == null) {
+            showBidResult("Chua ket noi server nen khong gui duoc chat.", false);
+            return;
+        }
+
+        com.bidplaza.network.ChatMessage chat =
+            new com.bidplaza.network.ChatMessage(
+                auction.getId(),
+                UserSession.getInstance().getUserId(),
+                UserSession.getInstance().getUsername(),
+                content
+            );
+
+        new Thread(() -> {
+            try {
+                sendToServer(new Message(Message.Type.CHAT_MESSAGE, chat));
+                Platform.runLater(chatInput::clear);
+            } catch (IOException e) {
+                Platform.runLater(() ->
+                    showBidResult("Loi gui chat: " + e.getMessage(), false));
+            }
+        }, "chat-send").start();
+    }
+
+    @FXML
+    private void handleSubmitReview() {
+        if (auction == null || ratingSpinner == null) return;
+
+        AuctionSnapshot snapshot = getCurrentSnapshot();
+        if (snapshot == null || snapshot.getSellerId() == null) {
+            if (reviewResultLabel != null) {
+                reviewResultLabel.setText("Khong tim thay thong tin nguoi ban.");
+                reviewResultLabel.setStyle("-fx-text-fill: #e74c3c;");
+            }
+            return;
+        }
+
+        if (!connected || out == null) {
+            if (reviewResultLabel != null) {
+                reviewResultLabel.setText("Chua ket noi server.");
+                reviewResultLabel.setStyle("-fx-text-fill: #e74c3c;");
+            }
+            return;
+        }
+
+        String comment = reviewCommentField != null
+            ? reviewCommentField.getText().trim()
+            : "";
+
+        com.bidplaza.network.ReviewRequest request =
+            new com.bidplaza.network.ReviewRequest(
+                UserSession.getInstance().getUserId(),
+                snapshot.getSellerId(),
+                auction.getId(),
+                ratingSpinner.getValue(),
+                comment
+            );
+
+        new Thread(() -> {
+            try {
+                sendToServer(new Message(Message.Type.SUBMIT_REVIEW, request));
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    if (reviewResultLabel != null) {
+                        reviewResultLabel.setText("Loi gui danh gia: " + e.getMessage());
+                        reviewResultLabel.setStyle("-fx-text-fill: #e74c3c;");
+                    }
+                });
+            }
+        }, "review-submit").start();
+    }
+
     private void updatePrice(double price, String leaderId) {
         currentPriceLabel.setText("$" + price);
         leaderLabel.setText("Người dẫn đầu: " + (leaderId != null ? leaderId : "?"));
         bidHistory.add(0, (leaderId != null ? leaderId : "?") + " đặt $" + price);
         if (auction != null) auction.setCurrentPrice("$" + price);
         addChartPoint(price);
+        updateRatingVisibility();
     }
 
     private void addChartPoint(double price) {
@@ -433,6 +556,26 @@ public class AuctionDetailController implements Initializable {
     /**
      * Đếm ngược đến endTime bằng JavaFX Timeline (chạy trên UI thread).
      */
+    private void updateRatingVisibility() {
+        if (ratingSection == null || currentSnapshot == null) return;
+
+        String currentUserId = UserSession.getInstance().getUserId();
+        boolean canReview =
+            "FINISHED".equals(currentSnapshot.getStatus())
+                && currentUserId != null
+                && currentUserId.equals(currentSnapshot.getWinnerId());
+
+        ratingSection.setVisible(canReview);
+    }
+
+    private synchronized void sendToServer(Message message) throws IOException {
+        if (out == null) {
+            throw new IOException("Chua co ket noi server");
+        }
+        out.writeObject(message);
+        out.flush();
+    }
+
     private void startCountdown(String endTimeStr) {
         if (countdownLabel == null || endTimeStr == null || endTimeStr.isBlank()) return;
         try {
@@ -486,6 +629,17 @@ public class AuctionDetailController implements Initializable {
 
     private void closeSocket() {
         connected = false;
+        try {
+            if (out != null && auction != null) {
+                sendToServer(new Message(
+                    Message.Type.LEAVE_AUCTION,
+                    auction.getId(),
+                    UserSession.getInstance().getUserId(),
+                    0,
+                    null
+                ));
+            }
+        } catch (IOException ignored) {}
         try { if (socket != null) socket.close(); }
         catch (IOException ignored) {}
     }
