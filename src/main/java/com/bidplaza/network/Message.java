@@ -32,7 +32,10 @@ public class Message implements Serializable {
         AUCTION_HISTORY_RESPONSE,
         OUTBID,
         TOGGLE_WATCHLIST,
-        WATCHLIST_RESPONSE
+        WATCHLIST_RESPONSE,
+        CHAT_MESSAGE,
+        REVIEW_REQUEST,
+        REVIEW_RESPONSE
     }
 
     private final Type type;
