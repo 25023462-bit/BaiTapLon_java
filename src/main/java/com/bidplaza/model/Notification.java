@@ -3,6 +3,7 @@ package com.bidplaza.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.io.Serializable;
 
 public class Notification implements Serializable {
     private static final long serialVersionUID = 1L;

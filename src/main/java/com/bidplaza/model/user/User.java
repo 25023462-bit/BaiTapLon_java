@@ -5,6 +5,7 @@ import com.bidplaza.model.Notification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * Lớp User trừu tượng - kế thừa Entity.

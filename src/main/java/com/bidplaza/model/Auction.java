@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+import java.io.Serializable;
 
 /**
  * Một phiên đấu giá - trung tâm của hệ thống.
@@ -22,7 +23,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *   placeBid() unlock trước khi gọi triggerAutoBids() (lock đã giải phóng).
  * - FIX: double-check status sau khi acquire lock để tránh lost-update giữa 2 thread.
  */
-public class Auction implements AuctionObservable {
+public class Auction implements AuctionObservable, Serializable {
+    private static final long serialVersionUID = 1L;
 
     public enum Status {
         OPEN, RUNNING, FINISHED, PAID, CANCELED
