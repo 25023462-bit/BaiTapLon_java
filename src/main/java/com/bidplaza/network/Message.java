@@ -29,7 +29,12 @@ public class Message implements Serializable {
         GET_MY_BIDS,
         MY_BIDS_RESPONSE,
         GET_AUCTION_HISTORY,
-        AUCTION_HISTORY_RESPONSE
+        AUCTION_HISTORY_RESPONSE,
+        CHAT_MESSAGE,           // Phase 3: client -> server -> broadcast to auction room
+        JOIN_AUCTION,           // Phase 3: notify joining auction room
+        LEAVE_AUCTION,          // Phase 3: notify leaving auction room
+        SUBMIT_REVIEW,          // Phase 3: submit seller rating
+        REVIEW_RESPONSE         // Phase 3: server response for review
     }
 
     private final Type type;

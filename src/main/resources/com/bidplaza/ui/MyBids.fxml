@@ -31,6 +31,8 @@
             </TableView>
             <HBox spacing="15">
                 <Button text="Làm mới" onAction="#handleRefresh" prefWidth="120" prefHeight="40"/>
+                <Button text="📥 Export CSV" onAction="#handleExportCSV" prefWidth="120" prefHeight="40"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 15; -fx-border-radius: 15;"/>
                 <Button text="Quay lại" onAction="#handleBack" prefWidth="120" prefHeight="40"
                         style="-fx-background-color: rgba(255,0,255,0.12); -fx-border-color: #ff00ff;
                                -fx-text-fill: white; -fx-background-radius: 15; -fx-border-radius: 15;"/>

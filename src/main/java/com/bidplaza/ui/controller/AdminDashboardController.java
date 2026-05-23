@@ -77,6 +77,28 @@ public class AdminDashboardController implements Initializable {
     }
 
     @FXML
+    private void handleExportCSV() {
+        try {
+            String path = com.bidplaza.util.CsvExporter.buildDefaultPath("AdminAuctions");
+            String[] headers = {"ID", "Tên sản phẩm", "Trạng thái", "Giá hiện tại", "Người dẫn đầu", "Số bid"};
+            java.util.List<String[]> rows = auctionTable.getItems().stream()
+                .map(r -> new String[]{
+                    r.getId(),
+                    r.getName(),
+                    r.getStatus(),
+                    r.getPrice(),
+                    r.getWinner(),
+                    r.getBids()
+                }).collect(java.util.stream.Collectors.toList());
+            com.bidplaza.util.CsvExporter.export(headers, rows, path);
+            showStatus("Đã export CSV: " + path, true);
+        } catch (Exception e) {
+            showStatus("Lỗi export CSV: " + e.getMessage(), false);
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleFinishSelected() {
         AuctionRow selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected == null) {

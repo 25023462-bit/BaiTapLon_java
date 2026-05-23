@@ -60,6 +60,17 @@ public class AuctionDetailController implements Initializable {
     @FXML private Button autoBidButton;
     @FXML private Label autoBidStatusLabel;
 
+    // ── Chat panel ───────────────────────────────────────────────
+    @FXML private ListView<String> chatListView;
+    @FXML private TextField chatInput;
+    private final ObservableList<String> chatMessages = FXCollections.observableArrayList();
+
+    // ── Rating panel ─────────────────────────────────────────────
+    @FXML private javafx.scene.layout.VBox ratingSection;
+    @FXML private Spinner<Integer> ratingSpinner;
+    @FXML private TextArea reviewCommentField;
+    @FXML private Label reviewResultLabel;
+
     // ── History + Chart ──────────────────────────────────────────
     @FXML private ListView<String> bidHistoryList;
     @FXML private LineChart<Number, Number> priceChart;
@@ -135,6 +146,29 @@ public class AuctionDetailController implements Initializable {
 
         connectToServer();
         startCountdown(auction.getEndTime());
+        initChat();
+        checkShowRatingSection(snapshot);
+    }
+
+    private void initChat() {
+        if (chatListView != null) {
+            chatListView.setItems(chatMessages);
+        }
+        if (currentSnapshot != null) {
+            com.bidplaza.ui.net.ServerClient.sendAsync(new Message(
+                Message.Type.JOIN_AUCTION,
+                currentSnapshot.getId(), null, 0, null));
+        }
+    }
+
+    private void checkShowRatingSection(AuctionSnapshot snapshot) {
+        if (ratingSection == null || snapshot == null) return;
+        String userId = UserSession.getInstance().getUserId();
+        boolean isWinner = userId.equals(snapshot.getWinnerId());
+        boolean isFinished = "FINISHED".equals(snapshot.getStatus())
+                          || "PAID".equals(snapshot.getStatus());
+
+        Platform.runLater(() -> ratingSection.setVisible(isWinner && isFinished));
     }
 
     private AuctionSnapshot getCurrentSnapshot() {
@@ -282,6 +316,36 @@ public class AuctionDetailController implements Initializable {
 
             case ERROR -> showBidResult("Lỗi Server: " + msg.getInfo(), false);
 
+            case CHAT_MESSAGE -> {
+                if (msg.getPayload() instanceof com.bidplaza.network.ChatMessage chat) {
+                    Platform.runLater(() -> {
+                        String time = chat.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+                        String display = "[" + time + "] " + chat.getSenderUsername() + ": " + chat.getContent();
+                        chatMessages.add(display);
+                        if (chatListView != null) {
+                            chatListView.scrollTo(chatMessages.size() - 1);
+                        }
+                    });
+                }
+            }
+
+            case REVIEW_RESPONSE -> {
+                Platform.runLater(() -> {
+                    if (msg.getAmount() > 0) {
+                        if (reviewResultLabel != null) {
+                            reviewResultLabel.setText("✅ " + msg.getInfo() + " Rating TB: " + String.format("%.1f", msg.getAmount()));
+                            reviewResultLabel.setStyle("-fx-text-fill: #28a745;");
+                        }
+                        if (ratingSection != null) ratingSection.setDisable(true);
+                    } else {
+                        if (reviewResultLabel != null) {
+                            reviewResultLabel.setText("❌ " + msg.getInfo());
+                            reviewResultLabel.setStyle("-fx-text-fill: #dc3545;");
+                        }
+                    }
+                });
+            }
+
             default -> { /* ignore */ }
         }
     }
@@ -386,6 +450,53 @@ public class AuctionDetailController implements Initializable {
         }
     }
 
+    // ── Chat ─────────────────────────────────────────────────────
+
+    @FXML
+    private void handleSendChat() {
+        if (chatInput == null) return;
+        String content = chatInput.getText().trim();
+        if (content.isEmpty()) return;
+        if (content.length() > 200) {
+            content = content.substring(0, 200);
+        }
+
+        com.bidplaza.network.ChatMessage chat = new com.bidplaza.network.ChatMessage(
+            currentSnapshot.getId(),
+            UserSession.getInstance().getUserId(),
+            UserSession.getInstance().getUsername(),
+            content
+        );
+
+        com.bidplaza.ui.net.ServerClient.sendAsync(new Message(Message.Type.CHAT_MESSAGE, chat));
+        chatInput.clear();
+    }
+
+    @FXML
+    private void handleChatKeyPress(javafx.scene.input.KeyEvent event) {
+        if (event.getCode() == javafx.scene.input.KeyCode.ENTER) handleSendChat();
+    }
+
+    // ── Rating ───────────────────────────────────────────────────
+
+    @FXML
+    private void handleSubmitReview() {
+        if (ratingSpinner == null || reviewCommentField == null) return;
+        int stars = ratingSpinner.getValue();
+        String comment = reviewCommentField.getText().trim();
+        String userId = UserSession.getInstance().getUserId();
+
+        com.bidplaza.network.ReviewRequest req = new com.bidplaza.network.ReviewRequest(
+            userId,
+            currentSnapshot.getSellerId(),
+            currentSnapshot.getId(),
+            stars,
+            comment
+        );
+
+        com.bidplaza.ui.net.ServerClient.sendAsync(new Message(Message.Type.SUBMIT_REVIEW, req));
+    }
+
     // ── Helpers ──────────────────────────────────────────────────
 
     /**
@@ -397,6 +508,9 @@ public class AuctionDetailController implements Initializable {
         bidHistory.add(0, (leaderId != null ? leaderId : "?") + " đặt $" + price);
         if (auction != null) auction.setCurrentPrice("$" + price);
         addChartPoint(price);
+        if (currentSnapshot != null) {
+            checkShowRatingSection(currentSnapshot);
+        }
     }
 
     private void addChartPoint(double price) {
@@ -464,6 +578,11 @@ public class AuctionDetailController implements Initializable {
 
     @FXML
     private void handleBack() {
+        if (currentSnapshot != null) {
+            com.bidplaza.ui.net.ServerClient.sendAsync(new Message(
+                Message.Type.LEAVE_AUCTION,
+                currentSnapshot.getId(), null, 0, null));
+        }
         closeSocket();
         try {
             FXMLLoader loader = new FXMLLoader(

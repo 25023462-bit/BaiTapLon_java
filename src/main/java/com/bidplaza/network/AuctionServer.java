@@ -9,7 +9,11 @@ import com.bidplaza.storage.DataStorage;
 import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,6 +36,9 @@ public class AuctionServer {
 
     // Thread-safe list: đọc nhiều, ghi ít
     private static final List<ClientHandler> connectedClients = new CopyOnWriteArrayList<>();
+
+    // Map: auctionId -> set of ClientHandlers currently viewing that auction
+    private static final Map<String, Set<ClientHandler>> auctionRooms = new ConcurrentHashMap<>();
 
     private static AuctionManager auctionManager;
 
@@ -127,6 +134,26 @@ public class AuctionServer {
     public static void removeClient(ClientHandler handler) {
         connectedClients.remove(handler);
         System.out.println("Client ngat ket noi. Con lai: " + connectedClients.size());
+    }
+
+    public static void joinRoom(String auctionId, ClientHandler client) {
+        auctionRooms.computeIfAbsent(auctionId,
+            k -> Collections.newSetFromMap(new ConcurrentHashMap<>())
+        ).add(client);
+    }
+
+    public static void leaveRoom(String auctionId, ClientHandler client) {
+        Set<ClientHandler> room = auctionRooms.get(auctionId);
+        if (room != null) room.remove(client);
+    }
+
+    public static void broadcastToRoom(String auctionId, Message msg) {
+        Set<ClientHandler> room = auctionRooms.getOrDefault(
+            auctionId, Collections.emptySet());
+        for (ClientHandler client : room) {
+            try { client.sendMessage(msg); }
+            catch (Exception e) { room.remove(client); }
+        }
     }
 
     public static AuctionManager getAuctionManager() {

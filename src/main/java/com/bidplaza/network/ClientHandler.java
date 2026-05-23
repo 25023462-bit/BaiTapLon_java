@@ -32,6 +32,7 @@ public class ClientHandler implements Runnable {
     private final UserManager userManager;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private String currentAuctionId;
 
     public ClientHandler(Socket socket, AuctionManager auctionManager) {
         this.socket = socket;
@@ -75,6 +76,13 @@ public class ClientHandler implements Runnable {
             case DEPOSIT           -> handleDeposit(message);
             case GET_MY_BIDS       -> handleGetMyBids(message);
             case GET_AUCTION_HISTORY -> handleGetAuctionHistory();
+            case JOIN_AUCTION      -> {
+                AuctionServer.joinRoom(message.getAuctionId(), this);
+                this.currentAuctionId = message.getAuctionId();
+            }
+            case LEAVE_AUCTION     -> AuctionServer.leaveRoom(message.getAuctionId(), this);
+            case CHAT_MESSAGE      -> handleChatMessage(message);
+            case SUBMIT_REVIEW     -> handleSubmitReview(message);
             default                -> sendMessage(
                                         Message.error("Loai message khong hop le: "
                                             + message.getType()));
@@ -264,6 +272,52 @@ public class ClientHandler implements Runnable {
         sendMessage(new Message(Message.Type.AUCTION_HISTORY_RESPONSE, finished));
     }
 
+    private void handleChatMessage(Message message) {
+        ChatMessage chat = (ChatMessage) message.getPayload();
+
+        // Validate: not empty, not too long
+        if (chat.getContent() == null || chat.getContent().isBlank()) return;
+        if (chat.getContent().length() > 200) return;
+
+        // Broadcast to everyone in the same auction room
+        Message broadcast = new Message(Message.Type.CHAT_MESSAGE, chat);
+        AuctionServer.broadcastToRoom(chat.getAuctionId(), broadcast);
+    }
+
+    private void handleSubmitReview(Message message) {
+        ReviewRequest req = (ReviewRequest) message.getPayload();
+
+        // Verify: reviewer must have WON that auction
+        Auction auction = AuctionServer.getAuctionManager().findById(req.getAuctionId());
+        if (auction == null || !req.getReviewerId().equals(auction.getWinnerId())) {
+            sendMessage(new Message(Message.Type.REVIEW_RESPONSE,
+                null, null, 0, "Chỉ người thắng cuộc mới có thể đánh giá"));
+            return;
+        }
+
+        // Validate rating
+        if (req.getRating() < 1 || req.getRating() > 5) {
+            sendMessage(new Message(Message.Type.REVIEW_RESPONSE,
+                null, null, 0, "Đánh giá phải từ 1–5 sao"));
+            return;
+        }
+
+        User seller = UserManager.getInstance().findById(req.getSellerId());
+        if (seller instanceof com.bidplaza.model.user.Seller s) {
+            com.bidplaza.model.Review review = new com.bidplaza.model.Review(
+                req.getReviewerId(),
+                UserManager.getInstance().findById(req.getReviewerId()).getUsername(),
+                req.getRating(),
+                req.getComment(),
+                req.getAuctionId()
+            );
+            s.addReview(review);
+            saveData();
+            sendMessage(new Message(Message.Type.REVIEW_RESPONSE,
+                null, null, s.getAverageRating(), "Đánh giá thành công!"));
+        }
+    }
+
     // ── Utilities ─────────────────────────────────────────────────
 
     public synchronized void sendMessage(Message message) {
@@ -276,6 +330,9 @@ public class ClientHandler implements Runnable {
     }
 
     private void closeConnection() {
+        if (currentAuctionId != null) {
+            AuctionServer.leaveRoom(currentAuctionId, this);
+        }
         try {
             if (in  != null) in.close();
             if (out != null) out.close();
