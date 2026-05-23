@@ -37,7 +37,8 @@ public class Message implements Serializable {
         REVIEW_REQUEST,
         REVIEW_RESPONSE,
         JOIN_AUCTION,
-        LEAVE_AUCTION
+        LEAVE_AUCTION,
+        SUBMIT_REVIEW
     }
 
     private final Type type;
