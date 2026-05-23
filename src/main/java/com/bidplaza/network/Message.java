@@ -35,7 +35,9 @@ public class Message implements Serializable {
         WATCHLIST_RESPONSE,
         CHAT_MESSAGE,
         REVIEW_REQUEST,
-        REVIEW_RESPONSE
+        REVIEW_RESPONSE,
+        JOIN_AUCTION,
+        LEAVE_AUCTION
     }
 
     private final Type type;
