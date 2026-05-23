@@ -42,6 +42,21 @@ public class AuctionServer {
 
     private static AuctionManager auctionManager;
 
+    private static final java.util.Map<String, ClientHandler> userClientMap =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static void registerClient(String userId, ClientHandler handler) {
+        userClientMap.put(userId, handler);
+    }
+
+    public static void unregisterClient(String userId) {
+        userClientMap.remove(userId);
+    }
+
+    public static ClientHandler findClientByUserId(String userId) {
+        return userClientMap.get(userId);
+    }
+
     public static void main(String[] args) throws IOException {
         // Load data từ storage
         auctionManager = DataStorage.load();

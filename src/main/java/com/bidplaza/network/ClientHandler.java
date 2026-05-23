@@ -131,6 +131,19 @@ public class ClientHandler implements Runnable {
                     AuctionSnapshot.from(auction)),
                 null
             );
+            // Outbid notification
+            String previousBidder = auction.getPreviousHighestBidder();
+            String currentBidder = message.getBidderId();
+            if (previousBidder != null && !previousBidder.equals(currentBidder)) {
+                ClientHandler target = AuctionServer.findClientByUserId(previousBidder);
+                if (target != null) {
+                    target.sendMessage(new Message(
+                            Message.Type.OUTBID,
+                            auction.getId(), previousBidder, 0,
+                            "Ban vua bi vuot gia tai phien: " + auction.getItem().getName()
+                    ));
+                }
+            }
             saveData();
         } catch (InvalidBidException e) {
             sendMessage(Message.bidFailed(auction.getId(), e.getMessage()));
