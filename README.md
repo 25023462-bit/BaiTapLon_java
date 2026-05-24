@@ -1,3 +1,4 @@
+
 # BidPlaza - Hệ thống đấu giá trực tuyến
 
 BidPlaza là hệ thống đấu giá trực tuyến mô phỏng quy trình tạo phiên đấu giá, quản lý người dùng, đặt giá, cập nhật giá theo thời gian thực và xử lý nhiều client kết nối đồng thời qua Socket. Project được xây dựng theo hướng hướng đối tượng, có tách lớp model, manager, network, observer và factory để dễ mở rộng.
@@ -17,67 +18,172 @@ BidPlaza là hệ thống đấu giá trực tuyến mô phỏng quy trình tạ
 ```text
 BidPlaza/
 ├── pom.xml
+├── .github/workflows/ci.yml
 ├── src/
 │   ├── main/java/com/bidplaza/
-│   │   ├── Main.java
-│   │   ├── exception/
-│   │   ├── factory/
-│   │   ├── manager/
-│   │   ├── model/
-│   │   │   ├── item/
-│   │   │   └── user/
-│   │   ├── network/
-│   │   └── observer/
-│   ├── java/com/bidplaza/ui/
-│   │   ├── controller/
-│   │   └── model/
-│   ├── resources/com/bidplaza/ui/
+│   │   ├── exception/         (InvalidBidException, AuctionClosedException, AuthenticationException)
+│   │   ├── factory/           (ItemFactory – Factory Method)
+│   │   ├── manager/           (AuctionManager – Singleton, UserManager)
+│   │   ├── model/             (Auction, BidTransaction, Entity, Review)
+│   │   │   ├── item/          (Item, Electronics, Vehicle, Art)
+│   │   │   └── user/          (User, Bidder, Seller, Admin)
+│   │   ├── network/           (AuctionServer, ClientHandler, AuctionClient,
+│   │   │                       Message, AuctionSnapshot, AuctionTimer,
+│   │   │                       ChatMessage, DepositRequest, ReviewRequest, ...)
+│   │   ├── observer/          (BidObserver, AuctionObservable, ConsoleNotifier)
+│   │   ├── storage/           (DataStorage – Serialization)
+│   │   └── util/              (CsvExporter)
+│   ├── main/java/com/bidplaza/ui/
+│   │   ├── controller/        (12 controllers: Login, Welcome, AuctionList,
+│   │   │                       AuctionDetail, BidderDashboard, SellerDashboard,
+│   │   │                       AdminDashboard, Profile, MyBids, History,
+│   │   │                       Watchlist, Deposit)
+│   │   ├── model/             (UserSession, AuctionItem)
+│   │   └── net/               (ServerClient)
+│   ├── main/resources/com/bidplaza/ui/
+│   │   ├── *.fxml             (13 FXML screens)
+│   │   └── style.css
 │   └── test/java/com/bidplaza/
-└── target/
+│       ├── AuctionTest.java            (12 tests)
+│       ├── AuctionConcurrencyTest.java  (2 tests)
+│       ├── AuctionExceptionTest.java    (5 tests)
+│       ├── BidderTest.java              (6 tests)
+│       ├── BidderExtendedTest.java      (7 tests)
+│       ├── ItemFactoryTest.java         (5 tests)
+│       ├── ServerIntegrationTest.java   (3 tests)
+│       ├── UserManagerTest.java         (7 tests)
+│       ├── CsvExporterTest.java         (5 tests)
+│       ├── ObserverTest.java            (3 tests)
+│       ├── DataStorageTest.java         (3 tests)
+│       ├── NetworkDtoTest.java
+│       ├── ManagerExtendedTest.java
+│       ├── SellerReviewTest.java
+│       └── ui/FxmlLoadTest.java         (@Disabled)
 ```
 
-### Các package chính
+## Tính năng
 
-| Package | Chức năng |
-| --- | --- |
-| `com.bidplaza` | Entry point demo nghiệp vụ đấu giá |
-| `com.bidplaza.exception` | Chứa các exception nghiệp vụ như phiên đã đóng hoặc giá đặt không hợp lệ |
-| `com.bidplaza.factory` | Tạo các loại sản phẩm đấu giá thông qua Factory Method |
-| `com.bidplaza.manager` | Quản lý danh sách phiên đấu giá, sử dụng Singleton cho `AuctionManager` |
-| `com.bidplaza.model` | Các entity cốt lõi như `Auction`, `BidTransaction`, `Entity` |
-| `com.bidplaza.model.item` | Các loại sản phẩm đấu giá như điện tử, phương tiện, tác phẩm nghệ thuật |
-| `com.bidplaza.model.user` | Các loại người dùng như Admin, Seller, Bidder |
-| `com.bidplaza.network` | Server, Client, message và handler xử lý kết nối Socket |
-| `com.bidplaza.observer` | Cơ chế thông báo khi phiên đấu giá có thay đổi |
-| `com.bidplaza.ui` | JavaFX Client, controller, model giao diện và file FXML |
-| `com.bidplaza` trong `src/test` | Unit test cho auction, bidder và factory |
+### Tính năng bắt buộc
+| Tính năng | Mô tả |
+|---|---|
+| Quản lý người dùng | Đăng ký / đăng nhập với 3 vai trò: Bidder, Seller, Admin |
+| Quản lý sản phẩm | Seller tạo, sửa, xóa sản phẩm đấu giá |
+| Đấu giá realtime | Đặt giá, kiểm tra hợp lệ, cập nhật ngay cho tất cả client |
+| State machine | Phiên đấu giá chuyển trạng thái: OPEN → RUNNING → FINISHED → PAID/CANCELED |
+| Tự động kết thúc | AuctionTimer kiểm tra mỗi 10 giây, tự đóng phiên hết hạn |
+| Xử lý lỗi | Custom exceptions: InvalidBidException, AuctionClosedException, AuthenticationException |
+| Concurrency | ReentrantLock + synchronized tránh race condition khi nhiều client bid cùng lúc |
+| Giao diện JavaFX | 13 màn hình FXML với CSS styling |
+
+### Tính năng nâng cao
+| Tính năng | Mô tả |
+|---|---|
+| Anti-sniping | Tự động gia hạn phiên 60 giây nếu có bid trong 30 giây cuối |
+| Auto-bidding | Đặt maxBid + increment, hệ thống tự đặt giá thay người dùng |
+| LineChart | Biểu đồ đường giá realtime cập nhật sau mỗi bid |
+| Countdown timer | Đếm ngược thời gian còn lại, đổi màu khi gần kết thúc |
+| Chat trong phòng | Bidder nhắn tin realtime trong cùng phiên đấu giá |
+| Outbid notification | Popup cảnh báo khi bị người khác vượt giá |
+| Tìm kiếm & lọc | Tìm theo tên sản phẩm, lọc theo danh mục và trạng thái |
+| Watchlist | Bookmark phiên đấu giá yêu thích |
+| Export CSV | Xuất lịch sử đấu giá/giao dịch ra file CSV |
+| Rating seller | Người thắng đánh giá 1–5 sao sau phiên kết thúc |
+| Nạp tiền | Bidder nạp tiền vào tài khoản qua giao diện |
+| Lịch sử giao dịch | Xem tất cả lịch sử bid cá nhân |
 
 ## Cài đặt
 
 ### Yêu cầu môi trường
-
 - Cài đặt JDK 17.
 - Cài đặt Maven.
 - Cài đặt JavaFX SDK 21 nếu chạy Client JavaFX.
 
 Kiểm tra phiên bản:
-
 ```bash
 java -version
 mvn -version
 ```
 
 Build project:
-
 ```bash
 mvn clean compile
 ```
 
 Chạy test:
-
 ```bash
 mvn test
 ```
+
+## Hướng dẫn chạy Client JavaFX
+
+- Chạy server: chạy class `AuctionServer` trong `com.bidplaza.network`.
+- Chạy client: chạy class `Main` trong `com.bidplaza` hoặc chạy file `run-client.bat`.
+- Nếu đã cấu hình đúng pom.xml, có thể chạy bằng Maven:
+```bash
+mvn javafx:run
+```
+
+## Design Patterns
+
+- Singleton: `AuctionManager` quản lý duy nhất một danh sách phiên đấu giá.
+- Factory: `ItemFactory` tạo các loại sản phẩm đấu giá.
+- Observer: `BidObserver`, `AuctionObservable` cập nhật realtime cho client.
+- MVC: Tách Controller / Model / View trong JavaFX client.
+- Strategy: Xử lý auto-bidding với maxBid và increment.
+
+## Unit Tests
+
+Dự án có **74 unit tests** chia thành nhiều test class:
+
+| Test Class | Tests | Nội dung |
+|---|---|---|
+| AuctionTest | 12 | Logic đấu giá, state machine, anti-sniping |
+| AuctionConcurrencyTest | 2 | 5–10 threads bid đồng thời |
+| AuctionExceptionTest | 5 | InvalidBidException, AuctionClosedException |
+| BidderTest | 6 | Thông tin bidder, balance |
+| BidderExtendedTest | 7 | Watchlist, deposit, canBid |
+| ItemFactoryTest | 5 | Tạo Electronics, Vehicle, Art |
+| ServerIntegrationTest | 3 | Client–Server communication |
+| UserManagerTest | 7 | Đăng ký, đăng nhập, duplicate, role |
+| CsvExporterTest | 5 | Xuất file CSV, special chars |
+| ObserverTest | 3 | Add/remove observer, notify |
+| DataStorageTest | 3 | Save/load serialization |
+| NetworkDtoTest | ? | Network data objects |
+| ManagerExtendedTest | ? | AuctionManager, UserManager |
+| SellerReviewTest | ? | Rating, review validation |
+
+Tổng: **74 tests, 0 failures**
+JaCoCo instruction coverage: *61.84%* (UI packages excluded)
+
+Chạy toàn bộ test:
+```bash
+mvn test
+```
+
+## CI/CD
+
+Project sử dụng GitHub Actions để tự động build và test mỗi khi push code.
+
+File cấu hình: `.github/workflows/ci.yml`
+
+Các bước tự động:
+1. Checkout code
+2. Setup JDK 17
+3. mvn clean compile
+4. mvn test
+
+Badge CI/CD sẽ hiển thị trạng thái build trên GitHub.
+
+## Thành viên & Đóng góp
+
+| Thành viên | MSSV | Phần phụ trách |
+|---|---|---|
+| [Tên 1] | [MSSV] | Backend: Server, concurrency, business logic |
+| [Tên 2] | [MSSV] | Frontend: JavaFX UI, controllers, FXML |
+| [Tên 3] | [MSSV] | Testing, integration, CI/CD |
+| [Tên 4] | [MSSV] | Advanced features, documentation |
+
+(Điền thông tin thực tế của nhóm vào bảng trên)
 
 ## Hướng dẫn chạy Server
 
