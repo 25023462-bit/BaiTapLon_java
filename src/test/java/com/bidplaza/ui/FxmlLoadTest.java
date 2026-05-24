@@ -3,7 +3,7 @@ package com.bidplaza.ui;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;:
+import org.junit.jupiter.api.Disabled;
 
 import java.net.URL;
 import java.util.ArrayList;
