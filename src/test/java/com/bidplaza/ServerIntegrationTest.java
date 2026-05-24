@@ -6,11 +6,14 @@ import com.bidplaza.network.LoginRequest;
 import com.bidplaza.model.user.User;
 import com.bidplaza.ui.net.ServerClient;
 import com.bidplaza.manager.UserManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,14 +21,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServerIntegrationTest {
 
     private static Thread serverThread;
+    private static Path tempDataDir;
 
     @BeforeAll
     public static void setUp() throws Exception {
-        // Pre-register "admin" with "admin" password and "ADMIN" role
-        try {
-            UserManager.getInstance().register("admin", "admin", "ADMIN");
-        } catch (Exception ignored) {
-            // Already registered or error, which is fine
+        tempDataDir = Files.createTempDirectory("bidplaza-server-test");
+        System.setProperty("bidplaza.data.dir", tempDataDir.resolve("data").toString());
+
+        User admin = UserManager.getInstance().findByUsername("admin");
+        if (admin == null) {
+            UserManager.getInstance().register("admin", "admin123", "ADMIN");
+        } else {
+            admin.setPassword("admin123");
         }
 
         // Start server in a background thread if port 8080 is not in use
@@ -52,6 +59,12 @@ public class ServerIntegrationTest {
         }
     }
 
+    @AfterAll
+    public static void tearDown() {
+        // The server thread is daemon-backed and can keep saving until the test JVM exits.
+        // Keep it pointed at the temp directory instead of restoring the real data path.
+    }
+
     @Test
     public void testGetAuctions_shouldReturnList() throws Exception {
         Message message = new Message(Message.Type.GET_AUCTIONS, null);
@@ -64,7 +77,7 @@ public class ServerIntegrationTest {
 
     @Test
     public void testLoginWithValidCredentials_shouldSucceed() throws Exception {
-        LoginRequest req = new LoginRequest("admin", "admin", "ADMIN", false);
+        LoginRequest req = new LoginRequest("admin", "admin123", "ADMIN", false);
         Message message = new Message(Message.Type.LOGIN, req);
         Message response = ServerClient.request(message);
 

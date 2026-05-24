@@ -19,36 +19,43 @@ import java.net.Socket;
  */
 public final class ServerClient {
 
-    private static final int MAX_ATTEMPTS = 3;
-    private static final long RETRY_DELAY_MS = 2000;
-    private static final int CONNECT_TIMEOUT_MS = 3000;
+    private static final int DEFAULT_MAX_ATTEMPTS = 3;
+    private static final long DEFAULT_RETRY_DELAY_MS = 2000;
+    private static final int DEFAULT_CONNECT_TIMEOUT_MS = 3000;
+    private static final int DEFAULT_READ_TIMEOUT_MS = 15000;
 
     private ServerClient() {}
 
     public static Message request(Message request) throws IOException, ClassNotFoundException {
         IOException lastException = null;
+        int maxAttempts = intProperty("bidplaza.client.maxAttempts", DEFAULT_MAX_ATTEMPTS);
+        long retryDelayMs = longProperty("bidplaza.client.retryDelayMs", DEFAULT_RETRY_DELAY_MS);
+        int connectTimeoutMs = intProperty(
+            "bidplaza.client.connectTimeoutMs", DEFAULT_CONNECT_TIMEOUT_MS);
+        int readTimeoutMs = intProperty("bidplaza.client.readTimeoutMs", DEFAULT_READ_TIMEOUT_MS);
 
-        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try (Socket socket = new Socket()) {
+                socket.setSoTimeout(readTimeoutMs);
                 socket.connect(
                     new InetSocketAddress("localhost", ServerPort.get()),
-                    CONNECT_TIMEOUT_MS
+                    connectTimeoutMs
                 );
-                try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                     ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
-
+                try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
                     out.writeObject(request);
                     out.flush();
-                    return (Message) in.readObject();
+                    try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+                        return (Message) in.readObject();
+                    }
                 }
             } catch (IOException e) {
                 lastException = e;
                 System.err.println("[ServerClient] Lan thu " + attempt
-                    + "/" + MAX_ATTEMPTS + " that bai: " + e.getMessage());
+                    + "/" + maxAttempts + " that bai: " + e.getMessage());
 
-                if (attempt < MAX_ATTEMPTS) {
+                if (attempt < maxAttempts) {
                     try {
-                        Thread.sleep(RETRY_DELAY_MS);
+                        Thread.sleep(retryDelayMs);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         throw new IOException("Bi ngat khi cho reconnect", ie);
@@ -59,7 +66,7 @@ public final class ServerClient {
 
         // Hết lần thử → ném lỗi để controller hiện error dialog
         throw new IOException(
-            "Khong the ket noi Server sau " + MAX_ATTEMPTS + " lan thu. "
+            "Khong the ket noi Server sau " + maxAttempts + " lan thu. "
             + "Vui long kiem tra server dang chay.", lastException
         );
     }
@@ -76,5 +83,29 @@ public final class ServerClient {
                 System.err.println("[ServerClient] sendAsync failed: " + e.getMessage());
             }
         }).start();
+    }
+
+    private static int intProperty(String key, int defaultValue) {
+        String value = System.getProperty(key);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            return Math.max(1, Integer.parseInt(value));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static long longProperty(String key, long defaultValue) {
+        String value = System.getProperty(key);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            return Math.max(0, Long.parseLong(value));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

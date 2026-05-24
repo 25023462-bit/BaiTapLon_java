@@ -94,7 +94,7 @@ public class AuctionListController implements Initializable {
                 new PropertyValueFactory<>("endTime"));
 
         // Load auctions
-        loadSampleData();
+        loadSampleDataAsync();
 
         // Setup filters
         categoryFilter.setItems(FXCollections.observableArrayList(
@@ -138,6 +138,60 @@ public class AuctionListController implements Initializable {
             } catch (Exception ignored) {
             }
         });
+    }
+
+    private void loadSampleDataAsync() {
+        new Thread(() -> {
+            java.util.List<AuctionItem> loadedItems = new java.util.ArrayList<>();
+            java.util.Map<String, com.bidplaza.network.AuctionSnapshot> loadedSnapshots =
+                    new java.util.HashMap<>();
+
+            try {
+                com.bidplaza.network.Message request =
+                        new com.bidplaza.network.Message(
+                                com.bidplaza.network.Message.Type.GET_AUCTION_LIST,
+                                null
+                        );
+                com.bidplaza.network.Message response =
+                        com.bidplaza.ui.net.ServerClient.request(request);
+
+                if (response.getType()
+                        == com.bidplaza.network.Message.Type.LIST_AUCTIONS) {
+                    java.util.List<?> snapshots =
+                            (java.util.List<?>) response.getPayload();
+                    DateTimeFormatter dtf =
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+                    for (Object object : snapshots) {
+                        if (object instanceof com.bidplaza.network.AuctionSnapshot snapshot) {
+                            loadedSnapshots.put(snapshot.getId(), snapshot);
+                            loadedItems.add(
+                                    new AuctionItem(
+                                            snapshot.getId(),
+                                            snapshot.getName(),
+                                            snapshot.getCategory(),
+                                            "$" + snapshot.getStartingPrice(),
+                                            "$" + snapshot.getCurrentPrice(),
+                                            "LIVE",
+                                            snapshot.getEndTime().format(dtf)
+                                    )
+                            );
+                        }
+                    }
+                }
+
+                javafx.application.Platform.runLater(() -> {
+                    snapshotById.clear();
+                    snapshotById.putAll(loadedSnapshots);
+                    auctionData.setAll(loadedItems);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                javafx.application.Platform.runLater(() ->
+                        showAlert("Loi ket noi",
+                                "Khong the tai danh sach phien dau gia tu Server!"));
+            }
+        }, "auction-list-loader").start();
     }
 
     private void loadSampleData() {
@@ -204,7 +258,7 @@ public class AuctionListController implements Initializable {
 
         auctionData.clear();
 
-        loadSampleData();
+        loadSampleDataAsync();
     }
 
     @FXML
@@ -401,7 +455,34 @@ public class AuctionListController implements Initializable {
 
         alert.setContentText(message);
 
-        alert.showAndWait();
+        alert.show();
+    }
+
+    private void applyFilter() {
+        filteredData.setPredicate(item -> {
+            String search = searchField.getText() == null
+                    ? ""
+                    : searchField.getText().toLowerCase().trim();
+            String category = categoryFilter.getValue();
+            String status = statusFilter.getValue();
+
+            boolean matchSearch = search.isEmpty()
+                    || item.getName().toLowerCase().contains(search)
+                    || item.getCategory().toLowerCase().contains(search);
+            boolean matchCategory = "All".equals(category) || category == null
+                    || item.getCategory().equalsIgnoreCase(category);
+            boolean matchStatus = "All".equals(status) || status == null
+                    || item.getStatus().contains(status);
+
+            return matchSearch && matchCategory && matchStatus;
+        });
+    }
+
+    @FXML
+    private void handleClearFilter() {
+        searchField.clear();
+        categoryFilter.setValue("All");
+        statusFilter.setValue("All");
     }
 
     private void applyFilter() {
