@@ -7,6 +7,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -52,6 +54,10 @@ public class AuctionListController implements Initializable {
 
     private ObservableList<AuctionItem> auctionData =
             FXCollections.observableArrayList();
+    private FilteredList<AuctionItem> filteredData;
+
+    @FXML private ComboBox<String> categoryFilter;
+    @FXML private ComboBox<String> statusFilter;
 
     private Timeline timeline;
     private final java.util.Map<String, com.bidplaza.network.AuctionSnapshot> snapshotById =
@@ -90,7 +96,27 @@ public class AuctionListController implements Initializable {
         // Load auctions
         loadSampleData();
 
-        auctionTable.setItems(auctionData);
+        // Setup filters
+        categoryFilter.setItems(FXCollections.observableArrayList(
+                "All", "electronics", "art", "vehicle"));
+        categoryFilter.setValue("All");
+
+        statusFilter.setItems(FXCollections.observableArrayList(
+                "All", "LIVE", "ENDED"));
+        statusFilter.setValue("All");
+
+        filteredData = new FilteredList<>(
+                auctionData,
+                p -> true
+        );
+        SortedList<AuctionItem> sortedData =
+                new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(auctionTable.comparatorProperty());
+        auctionTable.setItems(sortedData);
+
+        searchField.textProperty().addListener((obs, old, val) -> applyFilter());
+        categoryFilter.valueProperty().addListener((obs, old, val) -> applyFilter());
+        statusFilter.valueProperty().addListener((obs, old, val) -> applyFilter());
 
         // Start realtime countdown
         startCountdown();
@@ -376,5 +402,32 @@ public class AuctionListController implements Initializable {
         alert.setContentText(message);
 
         alert.showAndWait();
+    }
+
+    private void applyFilter() {
+        filteredData.setPredicate(item -> {
+            String search = searchField.getText() == null
+                    ? ""
+                    : searchField.getText().toLowerCase().trim();
+            String category = categoryFilter.getValue();
+            String status = statusFilter.getValue();
+
+            boolean matchSearch = search.isEmpty()
+                    || item.getName().toLowerCase().contains(search)
+                    || item.getCategory().toLowerCase().contains(search);
+            boolean matchCategory = "All".equals(category) || category == null
+                    || item.getCategory().equalsIgnoreCase(category);
+            boolean matchStatus = "All".equals(status) || status == null
+                    || item.getStatus().contains(status);
+
+            return matchSearch && matchCategory && matchStatus;
+        });
+    }
+
+    @FXML
+    private void handleClearFilter() {
+        searchField.clear();
+        categoryFilter.setValue("All");
+        statusFilter.setValue("All");
     }
 }

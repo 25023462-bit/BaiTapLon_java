@@ -5,9 +5,13 @@ import com.bidplaza.model.user.Admin;
 import com.bidplaza.model.user.Bidder;
 import com.bidplaza.model.user.Seller;
 import com.bidplaza.model.user.User;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.io.Serializable;
 
-public class UserManager {
+public class UserManager implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static UserManager instance;
 
@@ -40,6 +44,9 @@ public class UserManager {
         if (user == null || !user.checkPassword(password)) {
             throw new AuthenticationException("Invalid username or password");
         }
+        if (user.isBanned()) {
+            throw new AuthenticationException("Tai khoan da bi khoa");
+        }
         return user;
     }
 
@@ -55,6 +62,10 @@ public class UserManager {
             .filter(u -> u.getId().equals(userId))
             .findFirst()
             .orElse(null);
+    }
+
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     private User createUser(String username, String password, String role)
@@ -76,4 +87,7 @@ public class UserManager {
                 throw new AuthenticationException("Invalid role");
         }
     }
+        public static synchronized void setInstance(UserManager manager) {
+            instance = manager;
+        }
 }

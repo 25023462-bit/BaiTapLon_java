@@ -2,6 +2,7 @@ package com.bidplaza.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.io.Serializable;
 
 /**
  * Ghi lại một lần đặt giá.
@@ -9,7 +10,8 @@ import java.util.UUID;
  * Mỗi khi ai đó đặt giá thành công → tạo 1 BidTransaction mới.
  * Không thay đổi được sau khi tạo (final fields).
  */
-public class BidTransaction {
+public class BidTransaction implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final String id;
     private final String bidderId;  // ai đặt

@@ -63,6 +63,12 @@
                     -fx-font-weight: bold;
                    "/>
 
+            <Button fx:id="bellButton"
+                    text="Bell (0)"
+                    onAction="#handleOpenNotifications"
+                    prefWidth="95"
+                    prefHeight="34"/>
+
         </HBox>
 
         <!-- SIDEBAR -->

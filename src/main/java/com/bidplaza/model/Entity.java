@@ -3,6 +3,7 @@ package com.bidplaza.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.io.Serializable;
 
 /**
  * Lớp cha gốc của toàn bộ hệ thống.

@@ -1,6 +1,7 @@
 package com.bidplaza.storage;
 
 import com.bidplaza.manager.AuctionManager;
+import com.bidplaza.manager.UserManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,33 +14,34 @@ import java.nio.file.Path;
 
 public class DataStorage {
 
-    private static final String DATA_DIR = "data";
-    private static final String DATA_FILE = DATA_DIR + "/auction_data.dat";
+    private static final String DATA_DIR  = "data";
+    private static final String DATA_FILE = DATA_DIR + "/app_data.dat";
 
-    public static AuctionManager load() {
+    public static AppData load() {
         File file = new File(DATA_FILE);
         if (!file.exists()) {
-            System.out.println("[Storage] No data file found, creating a new manager.");
-            return AuctionManager.getInstance();
+            System.out.println("[Storage] No data file found, fresh start.");
+            return null;
         }
-
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(DATA_FILE))) {
-            AuctionManager manager = (AuctionManager) in.readObject();
+        try (ObjectInputStream in = new ObjectInputStream(
+                new FileInputStream(DATA_FILE))) {
+            AppData data = (AppData) in.readObject();
             System.out.println("[Storage] Data loaded successfully.");
-            return manager;
-        } catch (IOException | ClassNotFoundException e) {
+            return data;
+        } catch (Exception e) {
             System.err.println("[Storage] Load failed: " + e.getMessage());
-            return AuctionManager.getInstance();
+            return null;
         }
     }
 
-    public static void save(AuctionManager manager) {
+    public static void save(AuctionManager am, UserManager um) {
         try {
             Files.createDirectories(Path.of(DATA_DIR));
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(DATA_FILE))) {
-                out.writeObject(manager);
+            try (ObjectOutputStream out = new ObjectOutputStream(
+                    new FileOutputStream(DATA_FILE))) {
+                out.writeObject(new AppData(am, um));
             }
-            System.out.println("[Storage] Data saved successfully.");
+            System.out.println("[Storage] Data saved.");
         } catch (IOException e) {
             System.err.println("[Storage] Save failed: " + e.getMessage());
         }

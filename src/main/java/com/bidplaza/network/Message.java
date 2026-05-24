@@ -38,7 +38,22 @@ public class Message implements Serializable {
         REVIEW_RESPONSE,
         JOIN_AUCTION,
         LEAVE_AUCTION,
-        SUBMIT_REVIEW
+        SUBMIT_REVIEW,
+        GET_SYSTEM_STATS,
+        SYSTEM_STATS_RESPONSE,
+        GET_ALL_USERS,
+        ALL_USERS_RESPONSE,
+        BAN_USER,
+        BAN_USER_RESPONSE,
+        ADMIN_FORCE_CLOSE,
+        GET_PROFILE,
+        PROFILE_RESPONSE,
+        UPDATE_PASSWORD,
+        UPDATE_PASSWORD_RESPONSE,
+        PUSH_NOTIFICATION,
+        GET_NOTIFICATIONS,
+        NOTIFICATIONS_RESPONSE,
+        MARK_NOTIFICATIONS_READ
     }
 
     private final Type type;

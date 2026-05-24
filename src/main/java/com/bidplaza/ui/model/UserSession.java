@@ -1,5 +1,10 @@
 package com.bidplaza.ui.model;
 
+import com.bidplaza.model.Notification;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Lưu thông tin user đang đăng nhập - Singleton.
  *
@@ -14,6 +19,7 @@ public class UserSession {
     private static UserSession instance;
 
     private static com.bidplaza.model.user.User currentUser;
+    private static final List<Notification> notifications = new ArrayList<>();
 
     private String username;
     private String role;
@@ -61,10 +67,32 @@ public class UserSession {
         this.username = null;
         this.role     = null;
         this.userId   = null;
+        notifications.clear();
     }
 
     public String getUsername() { return username; }
     public String getRole()     { return role; }
     public String getUserId()   { return userId; }
     public boolean isLoggedIn() { return username != null; }
+
+    public static void addNotification(Notification notification) {
+        if (notification != null) {
+            notifications.add(0, notification);
+        }
+    }
+
+    public static void setNotifications(List<Notification> newNotifications) {
+        notifications.clear();
+        if (newNotifications != null) {
+            notifications.addAll(newNotifications);
+        }
+    }
+
+    public static List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public static long getUnreadCount() {
+        return notifications.stream().filter(n -> !n.isRead()).count();
+    }
 }

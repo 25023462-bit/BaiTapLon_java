@@ -7,7 +7,9 @@ import com.bidplaza.manager.AuctionManager;
 import com.bidplaza.manager.UserManager;
 import com.bidplaza.model.Auction;
 import com.bidplaza.model.BidTransaction;
+import com.bidplaza.model.Notification;
 import com.bidplaza.model.user.Bidder;
+import com.bidplaza.model.user.Seller;
 import com.bidplaza.model.user.User;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private String currentAuctionId;
+    private String currentUserId;
 
     public ClientHandler(Socket socket, AuctionManager auctionManager) {
         this.socket = socket;
@@ -79,10 +82,22 @@ public class ClientHandler implements Runnable {
             case JOIN_AUCTION      -> {
                 AuctionServer.joinRoom(message.getAuctionId(), this);
                 this.currentAuctionId = message.getAuctionId();
+                this.currentUserId = message.getBidderId();
+                if (currentUserId != null) {
+                    AuctionServer.registerClient(currentUserId, this);
+                }
             }
             case LEAVE_AUCTION     -> AuctionServer.leaveRoom(message.getAuctionId(), this);
             case CHAT_MESSAGE      -> handleChatMessage(message);
             case SUBMIT_REVIEW     -> handleSubmitReview(message);
+            case GET_SYSTEM_STATS  -> handleGetSystemStats();
+            case GET_ALL_USERS     -> handleGetAllUsers();
+            case BAN_USER          -> handleBanUser(message);
+            case ADMIN_FORCE_CLOSE -> handleForceClose(message);
+            case GET_PROFILE       -> handleGetProfile(message);
+            case UPDATE_PASSWORD   -> handleUpdatePassword(message);
+            case GET_NOTIFICATIONS -> handleGetNotifications(message);
+            case MARK_NOTIFICATIONS_READ -> handleMarkNotificationsRead(message);
             default                -> sendMessage(
                                         Message.error("Loai message khong hop le: "
                                             + message.getType()));
@@ -106,6 +121,8 @@ public class ClientHandler implements Runnable {
                 sendMessage(Message.loginResponse(true, "Dang ky thanh cong!", user));
             } else {
                 user = userManager.login(request.getUsername(), request.getPassword());
+                currentUserId = user.getId();
+                AuctionServer.registerClient(currentUserId, this);
                 sendMessage(Message.loginResponse(true, "Dang nhap thanh cong!", user));
             }
         } catch (AuthenticationException e) {
@@ -135,14 +152,10 @@ public class ClientHandler implements Runnable {
             String previousBidder = auction.getPreviousHighestBidder();
             String currentBidder = message.getBidderId();
             if (previousBidder != null && !previousBidder.equals(currentBidder)) {
-                ClientHandler target = AuctionServer.findClientByUserId(previousBidder);
-                if (target != null) {
-                    target.sendMessage(new Message(
-                            Message.Type.OUTBID,
-                            auction.getId(), previousBidder, 0,
-                            "Ban vua bi vuot gia tai phien: " + auction.getItem().getName()
-                    ));
-                }
+                notifyUser(previousBidder, new Notification(
+                    "Ban bi vuot gia",
+                    "Ban vua bi vuot gia tai phien: " + auction.getItem().getName(),
+                    "OUTBID"));
             }
             saveData();
         } catch (InvalidBidException e) {
@@ -189,6 +202,7 @@ public class ClientHandler implements Runnable {
         }
         auction.finish();
         saveData();
+        notifyAuctionWinner(auction);
         AuctionServer.broadcast(
             new Message(Message.Type.AUCTION_UPDATE, AuctionSnapshot.from(auction)),
             this
@@ -333,6 +347,176 @@ public class ClientHandler implements Runnable {
 
     // ── Utilities ─────────────────────────────────────────────────
 
+    private void handleGetSystemStats() {
+        List<User> users = userManager.getAllUsers();
+        long bidders = users.stream().filter(u -> u instanceof Bidder).count();
+        long sellers = users.stream().filter(u -> u instanceof Seller).count();
+        long running = auctionManager.getAllAuctions().stream()
+            .filter(a -> a.getStatus() == Auction.Status.RUNNING).count();
+        long finished = auctionManager.getAllAuctions().stream()
+            .filter(a -> a.getStatus() == Auction.Status.FINISHED
+                      || a.getStatus() == Auction.Status.PAID).count();
+        double total = auctionManager.getAllAuctions().stream()
+            .filter(a -> a.getStatus() == Auction.Status.FINISHED
+                      || a.getStatus() == Auction.Status.PAID)
+            .mapToDouble(a -> a.getItem().getCurrentPrice())
+            .sum();
+
+        sendMessage(new Message(Message.Type.SYSTEM_STATS_RESPONSE,
+            new SystemStats(users.size(), (int) bidders, (int) sellers,
+                (int) running, (int) finished, total)));
+    }
+
+    private void handleGetAllUsers() {
+        List<UserInfo> result = new ArrayList<>();
+        for (User user : userManager.getAllUsers()) {
+            double balance = user instanceof Bidder bidder ? bidder.getBalance() : 0;
+            result.add(new UserInfo(
+                user.getId(),
+                user.getUsername(),
+                user.getRole(),
+                user.getEmail(),
+                user.isBanned(),
+                balance
+            ));
+        }
+        sendMessage(new Message(Message.Type.ALL_USERS_RESPONSE, result));
+    }
+
+    private void handleBanUser(Message message) {
+        String userId = message.getBidderId();
+        User user = userManager.findById(userId);
+        if (user == null) {
+            sendMessage(Message.error("User not found"));
+            return;
+        }
+
+        user.setBanned(true);
+        saveData();
+        sendMessage(new Message(Message.Type.BAN_USER_RESPONSE,
+            null, userId, 0, "User banned"));
+    }
+
+    private void handleForceClose(Message message) {
+        Auction auction = auctionManager.findById(message.getAuctionId());
+        if (auction == null) {
+            sendMessage(Message.error("Khong tim thay phien: " + message.getAuctionId()));
+            return;
+        }
+        if (auction.getStatus() != Auction.Status.RUNNING) {
+            sendMessage(Message.error("Chi co the dong phien RUNNING"));
+            return;
+        }
+
+        auction.finish();
+        saveData();
+        notifyAuctionWinner(auction);
+        AuctionSnapshot snapshot = AuctionSnapshot.from(auction);
+        AuctionServer.broadcast(new Message(Message.Type.AUCTION_UPDATE, snapshot), this);
+        sendMessage(new Message(Message.Type.ADMIN_FORCE_CLOSE, snapshot));
+    }
+
+    private void handleGetProfile(Message message) {
+        String userId = message.getBidderId();
+        User user = userManager.findById(userId);
+        if (user == null) {
+            sendMessage(Message.error("User not found"));
+            return;
+        }
+
+        int totalBids = 0;
+        int totalWon = 0;
+        int totalCreated = 0;
+        int totalSold = 0;
+        double balance = 0;
+
+        if (user instanceof Bidder bidder) {
+            balance = bidder.getBalance();
+            for (Auction auction : auctionManager.getAllAuctions()) {
+                totalBids += (int) auction.getBids().stream()
+                    .filter(tx -> tx.getBidderId().equals(userId)).count();
+                if (userId.equals(auction.getWinnerId())) {
+                    totalWon++;
+                }
+            }
+        } else if (user instanceof Seller) {
+            for (Auction auction : auctionManager.getAllAuctions()) {
+                String sellerId = auction.getItem().getSellerId();
+                if (userId.equals(sellerId) || user.getUsername().equals(sellerId)) {
+                    totalCreated++;
+                    if (auction.getStatus() == Auction.Status.FINISHED
+                            || auction.getStatus() == Auction.Status.PAID) {
+                        totalSold++;
+                    }
+                }
+            }
+        }
+
+        ProfileData profile = new ProfileData(
+            user.getUsername(), user.getEmail(), user.getRole(),
+            balance, totalBids, totalWon, totalCreated, totalSold);
+        sendMessage(new Message(Message.Type.PROFILE_RESPONSE, profile));
+    }
+
+    private void handleUpdatePassword(Message message) {
+        String[] parts = message.getInfo() != null
+            ? message.getInfo().split(":", 2)
+            : new String[0];
+        String userId = message.getBidderId();
+        User user = userManager.findById(userId);
+
+        if (parts.length == 2 && user != null && user.checkPassword(parts[0])) {
+            user.setPassword(parts[1]);
+            saveData();
+            sendMessage(new Message(Message.Type.UPDATE_PASSWORD_RESPONSE,
+                null, userId, 0, "SUCCESS"));
+        } else {
+            sendMessage(new Message(Message.Type.UPDATE_PASSWORD_RESPONSE,
+                null, userId, 0, "WRONG_PASSWORD"));
+        }
+    }
+
+    private void handleGetNotifications(Message message) {
+        User user = userManager.findById(message.getBidderId());
+        if (user == null) {
+            sendMessage(Message.error("User not found"));
+            return;
+        }
+        sendMessage(new Message(Message.Type.NOTIFICATIONS_RESPONSE,
+            new ArrayList<>(user.getNotifications())));
+    }
+
+    private void handleMarkNotificationsRead(Message message) {
+        User user = userManager.findById(message.getBidderId());
+        if (user == null) {
+            sendMessage(Message.error("User not found"));
+            return;
+        }
+        user.getNotifications().forEach(n -> n.setRead(true));
+        saveData();
+        sendMessage(new Message(Message.Type.NOTIFICATIONS_RESPONSE,
+            new ArrayList<>(user.getNotifications())));
+    }
+
+    private void notifyAuctionWinner(Auction auction) {
+        if (auction.getWinnerId() == null) {
+            return;
+        }
+        notifyUser(auction.getWinnerId(), new Notification(
+            "Ban thang phien dau gia",
+            "Ban da thang phien: " + auction.getItem().getName(),
+            "WON"));
+    }
+
+    private void notifyUser(String userId, Notification notification) {
+        User user = userManager.findById(userId);
+        if (user != null) {
+            user.addNotification(notification);
+            saveData();
+        }
+        AuctionServer.pushNotification(userId, notification);
+    }
+
     public synchronized void sendMessage(Message message) {
         try {
             out.writeObject(message);
@@ -346,6 +530,9 @@ public class ClientHandler implements Runnable {
         if (currentAuctionId != null) {
             AuctionServer.leaveRoom(currentAuctionId, this);
         }
+        if (currentUserId != null) {
+            AuctionServer.unregisterClient(currentUserId);
+        }
         try {
             if (in  != null) in.close();
             if (out != null) out.close();
@@ -354,9 +541,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void saveData() {
-        try {
-            Class<?> ds = Class.forName("com.bidplaza.storage.DataStorage");
-            ds.getMethod("save", AuctionManager.class).invoke(null, auctionManager);
-        } catch (ReflectiveOperationException ignored) {}
+        com.bidplaza.storage.DataStorage.save(
+                auctionManager, UserManager.getInstance());
     }
 }

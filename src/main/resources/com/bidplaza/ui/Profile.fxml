@@ -1,182 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:id="rootPane"
             fx:controller="com.bidplaza.ui.controller.ProfileController"
-
-            style="
-                -fx-background-color: linear-gradient(
-                    to bottom,
-                    #050816,
-                    #0b1026
-                );
-            ">
-
-    <!-- TOP BAR -->
-
-    <top>
-
-        <HBox alignment="CENTER_LEFT"
-
-              spacing="20"
-
-              style="
-                -fx-background-color: rgba(10,10,35,0.92);
-
-                -fx-padding: 20;
-
-                -fx-border-color: #00e5ff;
-
-                -fx-border-width: 0 0 2 0;
-              ">
-
-            <Label text="PROFILE"
-
-                   style="
-                    -fx-text-fill: #00e5ff;
-
-                    -fx-font-size: 30;
-
-                    -fx-font-weight: bold;
-                   "/>
-
-        </HBox>
-
-    </top>
-
-    <!-- CENTER -->
+            style="-fx-background-color: #f4f7fb;">
 
     <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
 
-        <VBox alignment="CENTER"
+            <Label text="Thong tin ca nhan"
+                   style="-fx-font-size: 26; -fx-font-weight: bold;"/>
 
-              spacing="25"
+            <HBox spacing="20">
+                <VBox spacing="8" prefWidth="320"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label text="Username:"/>
+                    <Label fx:id="usernameLabel" text="-"
+                           style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Label text="Email:"/>
+                    <Label fx:id="emailLabel" text="-"
+                           style="-fx-font-size: 16;"/>
+                    <Label text="Vai tro:"/>
+                    <Label fx:id="roleLabel" text="-"
+                           style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                </VBox>
 
-              style="-fx-padding: 40;">
+                <VBox spacing="8" prefWidth="320"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 20;">
+                    <Label fx:id="statsTitle" text="Thong ke"
+                           style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    <Label fx:id="stat1Label" text="-"/>
+                    <Label fx:id="stat2Label" text="-"/>
+                    <Label fx:id="stat3Label" text="-"/>
+                </VBox>
+            </HBox>
 
-            <VBox alignment="CENTER"
+            <TitledPane text="Doi mat khau" expanded="true">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="12" right="12" bottom="12" left="12"/>
+                    </padding>
+                    <PasswordField fx:id="oldPasswordField" promptText="Mat khau cu"/>
+                    <PasswordField fx:id="newPasswordField" promptText="Mat khau moi"/>
+                    <Button text="Xac nhan" onAction="#handleChangePassword"/>
+                    <Label fx:id="passwordResultLabel"/>
+                </VBox>
+            </TitledPane>
 
-                  spacing="20"
-
-                  prefWidth="450"
-
-                  prefHeight="420"
-
-                  style="
-                    -fx-background-color: rgba(20,20,45,0.85);
-
-                    -fx-background-radius: 25;
-
-                    -fx-border-color: #00e5ff;
-
-                    -fx-border-radius: 25;
-
-                    -fx-padding: 40;
-                  ">
-
-                <Label text="USER PROFILE"
-
-                       style="
-                        -fx-text-fill: white;
-
-                        -fx-font-size: 28;
-
-                        -fx-font-weight: bold;
-                       "/>
-
-                <Separator/>
-
-                <Label text="USERNAME"
-
-                       style="
-                        -fx-text-fill: #ff4dff;
-
-                        -fx-font-size: 16;
-                       "/>
-
-                <Label fx:id="usernameLabel"
-
-                       text="USERNAME"
-
-                       style="
-                        -fx-text-fill: white;
-
-                        -fx-font-size: 24;
-
-                        -fx-font-weight: bold;
-                       "/>
-
-                <Label text="ROLE"
-
-                       style="
-                        -fx-text-fill: #ff4dff;
-
-                        -fx-font-size: 16;
-                       "/>
-
-                <Label fx:id="roleLabel"
-
-                       text="BIDDER"
-
-                       style="
-                        -fx-text-fill: #00e5ff;
-
-                        -fx-font-size: 22;
-
-                        -fx-font-weight: bold;
-                       "/>
-
-                <Label text="EMAIL"
-
-                       style="
-                        -fx-text-fill: #ff4dff;
-
-                        -fx-font-size: 16;
-                       "/>
-
-                <Label fx:id="emailLabel"
-
-                       text="example@gmail.com"
-
-                       style="
-                        -fx-text-fill: white;
-
-                        -fx-font-size: 18;
-                       "/>
-
-                <HBox alignment="CENTER" spacing="10">
-                    <Label fx:id="ratingLabel" style="-fx-text-fill: #ffcc00; -fx-font-size: 18; -fx-font-weight: bold;"/>
-                    <Label fx:id="reviewCount" style="-fx-text-fill: white; -fx-font-size: 14;"/>
-                </HBox>
-
-                <Button text="BACK"
-
-                        onAction="#goBack"
-
-                        prefWidth="170"
-                        prefHeight="45"
-
-                        style="
-                            -fx-background-color: rgba(255,0,255,0.15);
-
-                            -fx-border-color: #ff00ff;
-
-                            -fx-text-fill: white;
-
-                            -fx-font-size: 16;
-
-                            -fx-background-radius: 15;
-
-                            -fx-border-radius: 15;
-                        "/>
-
-            </VBox>
-
+            <Button text="Quay lai" onAction="#handleBack"/>
         </VBox>
-
     </center>
-
 </BorderPane>

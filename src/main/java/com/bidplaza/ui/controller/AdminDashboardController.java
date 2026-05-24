@@ -2,64 +2,62 @@ package com.bidplaza.ui.controller;
 
 import com.bidplaza.network.AuctionSnapshot;
 import com.bidplaza.network.Message;
+import com.bidplaza.network.SystemStats;
+import com.bidplaza.network.UserInfo;
 import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.UserSession;
 import com.bidplaza.ui.net.ServerClient;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Controller màn hình Admin.
- *
- * Chức năng:
- * - Xem danh sách tất cả phiên đấu giá + trạng thái
- * - Kết thúc phiên bất kỳ (FINISH_AUCTION)
- * - Xem thống kê: tổng phiên, đang chạy, đã kết thúc
- */
 public class AdminDashboardController implements Initializable {
 
     @FXML private Label userLabel;
-    @FXML private Label totalLabel;
+    @FXML private Label totalUsersLabel;
+    @FXML private Label totalBiddersLabel;
+    @FXML private Label totalSellersLabel;
     @FXML private Label runningLabel;
-    @FXML private Label finishedLabel;
+    @FXML private Label revenueLabel;
     @FXML private Label statusLabel;
+    @FXML private TableView<UserInfo> usersTable;
+    @FXML private TableView<AuctionSnapshot> auctionsTable;
 
-    @FXML private TableView<AuctionRow> auctionTable;
-    @FXML private TableColumn<AuctionRow, String> colId;
-    @FXML private TableColumn<AuctionRow, String> colName;
-    @FXML private TableColumn<AuctionRow, String> colStatus;
-    @FXML private TableColumn<AuctionRow, String> colPrice;
-    @FXML private TableColumn<AuctionRow, String> colWinner;
-    @FXML private TableColumn<AuctionRow, String> colBids;
-
-    private final ObservableList<AuctionRow> rows = FXCollections.observableArrayList();
+    private final ObservableList<UserInfo> users = FXCollections.observableArrayList();
+    private final ObservableList<AuctionSnapshot> auctions = FXCollections.observableArrayList();
+    private static final DateTimeFormatter DATE_FORMAT =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        userLabel.setText("Admin: " + UserSession.getInstance().getUsername());
+        if (userLabel != null) {
+            userLabel.setText("Admin: " + UserSession.getInstance().getUsername());
+        }
+        setupTables();
+        loadStats();
+        loadUsers();
+        loadRunningAuctions();
 
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
-        colWinner.setCellValueFactory(new PropertyValueFactory<>("winner"));
-        colBids.setCellValueFactory(new PropertyValueFactory<>("bids"));
-
-        auctionTable.setItems(rows);
-        loadAuctions();
-
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             try {
                 Scene scene = userLabel.getScene();
                 if (scene != null) {
@@ -71,52 +69,180 @@ public class AdminDashboardController implements Initializable {
         });
     }
 
+    private void setupTables() {
+        usersTable.setItems(users);
+        usersTable.getColumns().clear();
+        usersTable.getColumns().add(textColumn("Username", UserInfo::getUsername, 150));
+        usersTable.getColumns().add(textColumn("Role", UserInfo::getRole, 90));
+        usersTable.getColumns().add(textColumn("Email", UserInfo::getEmail, 190));
+        usersTable.getColumns().add(textColumn("Balance",
+            u -> "$" + String.format("%.2f", u.getBalance()), 95));
+        usersTable.getColumns().add(textColumn("Banned",
+            u -> u.isBanned() ? "Yes" : "No", 80));
+        usersTable.getColumns().add(userActionColumn());
+
+        auctionsTable.setItems(auctions);
+        auctionsTable.getColumns().clear();
+        auctionsTable.getColumns().add(auctionColumn("Name", AuctionSnapshot::getName, 190));
+        auctionsTable.getColumns().add(auctionColumn("Current Price",
+            a -> "$" + String.format("%.2f", a.getCurrentPrice()), 110));
+        auctionsTable.getColumns().add(auctionColumn("Bids",
+            a -> String.valueOf(a.getBidCount()), 70));
+        auctionsTable.getColumns().add(auctionColumn("End Time",
+            a -> a.getEndTime() != null ? a.getEndTime().format(DATE_FORMAT) : "", 145));
+        auctionsTable.getColumns().add(auctionActionColumn());
+    }
+
+    private TableColumn<UserInfo, String> textColumn(
+            String title, java.util.function.Function<UserInfo, String> mapper,
+            double width) {
+        TableColumn<UserInfo, String> column = new TableColumn<>(title);
+        column.setPrefWidth(width);
+        column.setCellValueFactory(data ->
+            new ReadOnlyStringWrapper(mapper.apply(data.getValue())));
+        return column;
+    }
+
+    private TableColumn<AuctionSnapshot, String> auctionColumn(
+            String title, java.util.function.Function<AuctionSnapshot, String> mapper,
+            double width) {
+        TableColumn<AuctionSnapshot, String> column = new TableColumn<>(title);
+        column.setPrefWidth(width);
+        column.setCellValueFactory(data ->
+            new ReadOnlyStringWrapper(mapper.apply(data.getValue())));
+        return column;
+    }
+
+    private TableColumn<UserInfo, UserInfo> userActionColumn() {
+        TableColumn<UserInfo, UserInfo> column = new TableColumn<>("Actions");
+        column.setPrefWidth(100);
+        column.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
+        column.setCellFactory(col -> new TableCell<>() {
+            private final Button button = new Button("Ban");
+
+            @Override
+            protected void updateItem(UserInfo user, boolean empty) {
+                super.updateItem(user, empty);
+                if (empty || user == null) {
+                    setGraphic(null);
+                    return;
+                }
+                button.setDisable(user.isBanned());
+                button.setOnAction(e -> handleBanUser(user));
+                setGraphic(button);
+            }
+        });
+        return column;
+    }
+
+    private TableColumn<AuctionSnapshot, AuctionSnapshot> auctionActionColumn() {
+        TableColumn<AuctionSnapshot, AuctionSnapshot> column = new TableColumn<>("Actions");
+        column.setPrefWidth(120);
+        column.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
+        column.setCellFactory(col -> new TableCell<>() {
+            private final Button button = new Button("Force Close");
+
+            @Override
+            protected void updateItem(AuctionSnapshot auction, boolean empty) {
+                super.updateItem(auction, empty);
+                if (empty || auction == null) {
+                    setGraphic(null);
+                    return;
+                }
+                button.setOnAction(e -> handleForceClose(auction));
+                setGraphic(button);
+            }
+        });
+        return column;
+    }
+
+    private void loadStats() {
+        try {
+            Message response = ServerClient.request(
+                new Message(Message.Type.GET_SYSTEM_STATS, null));
+            if (response.getPayload() instanceof SystemStats stats) {
+                totalUsersLabel.setText(String.valueOf(stats.getTotalUsers()));
+                totalBiddersLabel.setText(String.valueOf(stats.getTotalBidders()));
+                totalSellersLabel.setText(String.valueOf(stats.getTotalSellers()));
+                runningLabel.setText(String.valueOf(stats.getRunningAuctions()));
+                revenueLabel.setText("$" + String.format("%.2f",
+                    stats.getTotalTransactionValue()));
+            }
+        } catch (Exception e) {
+            showStatus("Khong tai duoc thong ke: " + e.getMessage(), false);
+        }
+    }
+
+    private void loadUsers() {
+        try {
+            Message response = ServerClient.request(
+                new Message(Message.Type.GET_ALL_USERS, null));
+            users.clear();
+            if (response.getPayload() instanceof List<?> list) {
+                for (Object object : list) {
+                    if (object instanceof UserInfo user) {
+                        users.add(user);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            showStatus("Khong tai duoc users: " + e.getMessage(), false);
+        }
+    }
+
+    private void loadRunningAuctions() {
+        try {
+            Message response = ServerClient.request(
+                new Message(Message.Type.LIST_AUCTIONS, null));
+            auctions.clear();
+            if (response.getPayload() instanceof List<?> list) {
+                for (Object object : list) {
+                    if (object instanceof AuctionSnapshot auction
+                            && "RUNNING".equals(auction.getStatus())) {
+                        auctions.add(auction);
+                    }
+                }
+            }
+            showStatus("Dashboard da cap nhat.", true);
+        } catch (Exception e) {
+            showStatus("Khong tai duoc phien dau gia: " + e.getMessage(), false);
+        }
+    }
+
     @FXML
     private void handleRefresh() {
-        loadAuctions();
+        loadStats();
+        loadUsers();
+        loadRunningAuctions();
     }
 
-    @FXML
-    private void handleExportCSV() {
-        try {
-            String path = com.bidplaza.util.CsvExporter.buildDefaultPath("AdminAuctions");
-            String[] headers = {"ID", "Tên sản phẩm", "Trạng thái", "Giá hiện tại", "Người dẫn đầu", "Số bid"};
-            java.util.List<String[]> rows = auctionTable.getItems().stream()
-                .map(r -> new String[]{
-                    r.getId(),
-                    r.getName(),
-                    r.getStatus(),
-                    r.getPrice(),
-                    r.getWinner(),
-                    r.getBids()
-                }).collect(java.util.stream.Collectors.toList());
-            com.bidplaza.util.CsvExporter.export(headers, rows, path);
-            showStatus("Đã export CSV: " + path, true);
-        } catch (Exception e) {
-            showStatus("Lỗi export CSV: " + e.getMessage(), false);
-            e.printStackTrace();
-        }
+    private void handleBanUser(UserInfo userInfo) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+            "Khoa tai khoan " + userInfo.getUsername() + "?");
+        confirm.showAndWait().ifPresent(button -> {
+            if (button == ButtonType.OK) {
+                try {
+                    ServerClient.request(new Message(
+                        Message.Type.BAN_USER, null, userInfo.getId(), 0, null));
+                    loadUsers();
+                    loadStats();
+                    showStatus("Da khoa user " + userInfo.getUsername(), true);
+                } catch (Exception e) {
+                    showStatus("Khong khoa duoc user: " + e.getMessage(), false);
+                }
+            }
+        });
     }
 
-    @FXML
-    private void handleFinishSelected() {
-        AuctionRow selected = auctionTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showStatus("Vui lòng chọn 1 phiên để kết thúc!", false);
-            return;
-        }
-        if (!"RUNNING".equals(selected.getStatus())) {
-            showStatus("Chỉ có thể kết thúc phiên đang RUNNING!", false);
-            return;
-        }
+    private void handleForceClose(AuctionSnapshot auction) {
         try {
-            Message req = new Message(Message.Type.FINISH_AUCTION,
-                selected.getId(), null, 0, null);
-            ServerClient.request(req);
-            showStatus("Đã kết thúc phiên: " + selected.getName(), true);
-            loadAuctions();
+            ServerClient.request(new Message(
+                Message.Type.ADMIN_FORCE_CLOSE, auction.getId(), null, 0, null));
+            loadStats();
+            loadRunningAuctions();
+            showStatus("Da dong phien " + auction.getName(), true);
         } catch (Exception e) {
-            showStatus("Lỗi: " + e.getMessage(), false);
+            showStatus("Khong dong duoc phien: " + e.getMessage(), false);
         }
     }
 
@@ -132,80 +258,15 @@ public class AdminDashboardController implements Initializable {
             stage.setScene(scene);
             stage.setTitle("BidPlaza - Login");
         } catch (Exception e) {
-            showStatus("Lỗi đăng xuất: " + e.getMessage(), false);
+            showStatus("Loi dang xuat: " + e.getMessage(), false);
         }
     }
 
-    private void loadAuctions() {
-        try {
-            Message req = new Message(Message.Type.LIST_AUCTIONS, null);
-            Message res = ServerClient.request(req);
-
-            if (res.getPayload() instanceof List<?> list) {
-                rows.clear();
-                for (Object o : list) {
-                    if (o instanceof AuctionSnapshot s) {
-                        rows.add(new AuctionRow(
-                            s.getId().substring(0, 8) + "...",
-                            s.getId(),
-                            s.getName(),
-                            s.getStatus(),
-                            "$" + s.getCurrentPrice(),
-                            s.getWinnerId() != null ? s.getWinnerId() : "—",
-                            String.valueOf(s.getBidCount())
-                        ));
-                    }
-                }
-                updateStats();
-                showStatus("Đã tải " + rows.size() + " phiên.", true);
-            }
-        } catch (Exception e) {
-            showStatus("Không kết nối được server: " + e.getMessage(), false);
+    private void showStatus(String message, boolean success) {
+        if (statusLabel != null) {
+            statusLabel.setStyle(success
+                ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+            statusLabel.setText(message);
         }
-    }
-
-    private void updateStats() {
-        totalLabel.setText(String.valueOf(rows.size()));
-        long running  = rows.stream().filter(r -> "RUNNING".equals(r.getStatus())).count();
-        long finished = rows.stream().filter(r -> "FINISHED".equals(r.getStatus())
-                                              || "PAID".equals(r.getStatus())).count();
-        runningLabel.setText(String.valueOf(running));
-        finishedLabel.setText(String.valueOf(finished));
-    }
-
-    private void showStatus(String msg, boolean ok) {
-        statusLabel.setStyle(ok ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
-        statusLabel.setText(msg);
-    }
-
-    // ── Inner model class cho TableView ──────────────────────────
-
-    public static class AuctionRow {
-        private final String shortId;
-        private final String id;
-        private final String name;
-        private final String status;
-        private final String price;
-        private final String winner;
-        private final String bids;
-
-        public AuctionRow(String shortId, String id, String name, String status,
-                          String price, String winner, String bids) {
-            this.shortId = shortId;
-            this.id      = id;
-            this.name    = name;
-            this.status  = status;
-            this.price   = price;
-            this.winner  = winner;
-            this.bids    = bids;
-        }
-
-        public String getId()      { return id; }
-        public String getShortId() { return shortId; }
-        public String getName()    { return name; }
-        public String getStatus()  { return status; }
-        public String getPrice()   { return price; }
-        public String getWinner()  { return winner; }
-        public String getBids()    { return bids; }
     }
 }
