@@ -484,31 +484,4 @@ public class AuctionListController implements Initializable {
         categoryFilter.setValue("All");
         statusFilter.setValue("All");
     }
-
-    private void applyFilter() {
-        filteredData.setPredicate(item -> {
-            String search = searchField.getText() == null
-                    ? ""
-                    : searchField.getText().toLowerCase().trim();
-            String category = categoryFilter.getValue();
-            String status = statusFilter.getValue();
-
-            boolean matchSearch = search.isEmpty()
-                    || item.getName().toLowerCase().contains(search)
-                    || item.getCategory().toLowerCase().contains(search);
-            boolean matchCategory = "All".equals(category) || category == null
-                    || item.getCategory().equalsIgnoreCase(category);
-            boolean matchStatus = "All".equals(status) || status == null
-                    || item.getStatus().contains(status);
-
-            return matchSearch && matchCategory && matchStatus;
-        });
-    }
-
-    @FXML
-    private void handleClearFilter() {
-        searchField.clear();
-        categoryFilter.setValue("All");
-        statusFilter.setValue("All");
-    }
 }
