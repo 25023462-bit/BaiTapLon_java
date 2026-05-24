@@ -200,7 +200,9 @@ public class Auction implements AuctionObservable, Serializable {
         }
     }
 
-    public static class AutoBidder {
+    public static class AutoBidder implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final String bidderId;
         private final double maxBid;
         private final double increment;
