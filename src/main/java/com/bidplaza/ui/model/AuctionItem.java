@@ -42,6 +42,10 @@ public class AuctionItem {
     public void setCurrentPrice(String price) { currentPrice.set(price); }
     public void setStatus(String s)           { status.set(s); }
 
+    public StringProperty nameProperty()         { return name; }
+    public StringProperty categoryProperty()     { return category; }
+    public StringProperty startPriceProperty()   { return startPrice; }
     public StringProperty currentPriceProperty() { return currentPrice; }
-    public StringProperty statusProperty()        { return status; }
+    public StringProperty statusProperty()       { return status; }
+    public StringProperty endTimeProperty()      { return endTime; }
 }

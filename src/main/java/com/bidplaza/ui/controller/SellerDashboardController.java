@@ -46,12 +46,29 @@ public class SellerDashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        userLabel.setText(UserSession.getInstance().getUsername());
 
+        // USER SAFE
+        String username = UserSession.getInstance().getUsername();
+        userLabel.setText(username != null ? username : "SELLER");
+
+        // CATEGORY
         categoryCombo.setItems(FXCollections.observableArrayList(
-                "electronics", "art", "vehicle"));
+                "electronics",
+                "art",
+                "vehicle"
+        ));
         categoryCombo.setValue("electronics");
 
+        // FIX SPINNER CRASH (QUAN TRỌNG NHẤT)
+        if (durationSpinner.getValueFactory() == null) {
+            durationSpinner.setValueFactory(
+                    new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                            1, 168, 24
+                    )
+            );
+        }
+
+        // TABLE
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
         colPrice.setCellValueFactory(new PropertyValueFactory<>("startPrice"));
@@ -60,23 +77,35 @@ public class SellerDashboardController implements Initializable {
 
         itemTable.setItems(items);
 
-        // Load danh sách phiên của Seller từ Server
+        // LOAD DATA
         loadSellerAuctions();
 
+        // CSS SAFE LOAD (KHÔNG DUPLICATE)
         Platform.runLater(() -> {
             try {
                 Scene scene = userLabel.getScene();
                 if (scene != null) {
-                    scene.getStylesheets().add(
-                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
-                    );
+
+                    var cssUrl = getClass()
+                            .getResource("/com/bidplaza/ui/style.css");
+
+                    if (cssUrl != null) {
+                        String css = cssUrl.toExternalForm();
+
+                        if (!scene.getStylesheets().contains(css)) {
+                            scene.getStylesheets().add(css);
+                        }
+                    }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
     private void loadSellerAuctions() {
         String sellerId = UserSession.getInstance().getUsername();
+
         new Thread(() -> {
             try {
                 Message response = ServerClient.request(
@@ -87,7 +116,7 @@ public class SellerDashboardController implements Initializable {
                         items.clear();
                         for (Object obj : list) {
                             if (obj instanceof AuctionSnapshot snap) {
-                                if (sellerId.equals(snap.getSellerId())) {
+                                if (sellerId != null && sellerId.equals(snap.getSellerId())) {
                                     items.add(snapshotToItem(snap));
                                 }
                             }
@@ -103,11 +132,13 @@ public class SellerDashboardController implements Initializable {
 
     @FXML
     private void handleAddItem() {
-        String name     = itemNameField.getText().trim();
+        String name = itemNameField.getText().trim();
         String category = categoryCombo.getValue();
-        String desc     = descField != null ? descField.getText().trim() : "";
+        String desc = descField != null ? descField.getText().trim() : "";
         String priceStr = startPriceField.getText().trim();
-        int duration    = durationSpinner.getValue();
+
+        Integer duration = durationSpinner.getValue();
+        if (duration == null) duration = 24;
 
         if (name.isEmpty() || priceStr.isEmpty()) {
             showResult("Vui lòng nhập đầy đủ thông tin!", false);
@@ -123,6 +154,7 @@ public class SellerDashboardController implements Initializable {
         }
 
         String sellerId = UserSession.getInstance().getUsername();
+
         CreateAuctionRequest req = new CreateAuctionRequest(
                 name, desc, category, price, duration, sellerId);
 
@@ -192,9 +224,11 @@ public class SellerDashboardController implements Initializable {
                     getClass().getResource("/com/bidplaza/ui/Login.fxml"));
             Scene scene = new Scene(loader.load(), 500, 500);
             AppStyles.applyTo(scene);
+
             Stage stage = (Stage) userLabel.getScene().getWindow();
             stage.setTitle("BidPlaza - Đăng nhập");
             stage.setScene(scene);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -203,6 +237,7 @@ public class SellerDashboardController implements Initializable {
     private AuctionItem snapshotToItem(AuctionSnapshot snap) {
         String endTime = snap.getEndTime() != null
                 ? snap.getEndTime().format(FMT) : "N/A";
+
         return new AuctionItem(
                 snap.getId(),
                 snap.getName(),
@@ -216,7 +251,8 @@ public class SellerDashboardController implements Initializable {
 
     private void showResult(String msg, boolean success) {
         formResultLabel.setStyle(success
-                ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+                ? "-fx-text-fill: #27ae60;"
+                : "-fx-text-fill: #e74c3c;");
         formResultLabel.setText(msg);
     }
 
