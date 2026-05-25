@@ -348,3 +348,48 @@
                     #0084ff
             );
 }
+/* ===================================
+   AUCTION LIST CYBER THEME
+=================================== */
+
+.table-view {
+    -fx-background-color: rgba(5,10,35,0.85);
+    -fx-border-color: #00e5ff;
+    -fx-border-width: 2;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: rgba(0,180,255,0.85);
+}
+
+.table-view .column-header {
+    -fx-background-color: rgba(0,180,255,0.85);
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-background-color: rgba(15,25,60,0.85);
+    -fx-text-fill: white;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #7b2cff;
+}
+
+.combo-box {
+    -fx-background-color: rgba(15,15,45,0.9);
+    -fx-border-color: #00e5ff;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: white;
+}

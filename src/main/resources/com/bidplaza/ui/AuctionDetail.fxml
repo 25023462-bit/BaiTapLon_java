@@ -92,16 +92,16 @@
                     <!-- ── Rating Section ─────────────────────── -->
                     <VBox fx:id="ratingSection" visible="false" managed="${ratingSection.visible}" spacing="10"
                           style="-fx-background-color: #fef9e7; -fx-padding: 14; -fx-border-color: #f39c12; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
-                      <Label text="🏆 Bạn đã thắng! Đánh giá người bán:" style="-fx-font-weight: bold; -fx-text-fill: #27ae60;" />
-                      <HBox spacing="5" alignment="CENTER_LEFT">
-                        <Label text="⭐ Số sao (1-5):" />
-                        <Spinner fx:id="ratingSpinner" min="1" max="5" initialValue="5" prefWidth="70" />
-                      </HBox>
-                      <TextArea fx:id="reviewCommentField" promptText="Nhận xét (tùy chọn)..."
-                                prefHeight="60" wrapText="true" />
-                      <Button text="Gửi đánh giá" onAction="#handleSubmitReview"
-                              style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;"/>
-                      <Label fx:id="reviewResultLabel" wrapText="true"/>
+                        <Label text="🏆 Bạn đã thắng! Đánh giá người bán:" style="-fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Label text="⭐ Số sao (1-5):" />
+                            <Spinner fx:id="ratingSpinner" min="1" max="5" initialValue="5" prefWidth="70" />
+                        </HBox>
+                        <TextArea fx:id="reviewCommentField" promptText="Nhận xét (tùy chọn)..."
+                                  prefHeight="60" wrapText="true" />
+                        <Button text="Gửi đánh giá" onAction="#handleSubmitReview"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;"/>
+                        <Label fx:id="reviewResultLabel" wrapText="true"/>
                     </VBox>
 
                     <Separator fx:id="ratingSeparator" visible="false" managed="${ratingSection.visible}"/>
@@ -170,15 +170,15 @@
                     <Separator/>
 
                     <TitledPane text="💬 Chat phòng đấu giá" expanded="true">
-                      <VBox spacing="8">
-                        <ListView fx:id="chatListView" prefHeight="150" />
-                        <HBox spacing="8">
-                          <TextField fx:id="chatInput" promptText="Nhập tin nhắn..."
-                                     HBox.hgrow="ALWAYS"
-                                     onKeyPressed="#handleChatKeyPress" />
-                          <Button text="Gửi" onAction="#handleSendChat" />
-                        </HBox>
-                      </VBox>
+                        <VBox spacing="8">
+                            <ListView fx:id="chatListView" prefHeight="150" />
+                            <HBox spacing="8">
+                                <TextField fx:id="chatInput" promptText="Nhập tin nhắn..."
+                                           HBox.hgrow="ALWAYS"
+                                           onKeyPressed="#handleChatKeyPress" />
+                                <Button text="Gửi" onAction="#handleSendChat" />
+                            </HBox>
+                        </VBox>
                     </TitledPane>
                 </VBox>
 
