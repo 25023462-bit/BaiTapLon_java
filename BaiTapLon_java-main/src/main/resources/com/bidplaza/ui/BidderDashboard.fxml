@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.bidplaza.ui.controller.BidderDashboardController">
+
+    <AnchorPane prefWidth="1500"
+                prefHeight="850"
+
+                style="
+                    -fx-background-image: url('/images/cyber-bg.png');
+                    -fx-background-size: cover;
+                    -fx-background-position: center;
+                ">
+
+        <!-- TOP BAR -->
+
+        <HBox layoutX="250"
+              layoutY="20"
+
+              prefWidth="1120"
+              prefHeight="45"
+
+              alignment="CENTER_LEFT"
+
+              spacing="30"
+
+              style="
+                -fx-background-color: rgba(10,10,35,0.75);
+
+                -fx-background-radius: 20;
+
+                -fx-border-color: #00e5ff;
+
+                -fx-border-radius: 20;
+
+                -fx-padding: 10 25 10 25;
+              ">
+
+            <Label text="BIDPLAZA"
+                   style="
+                    -fx-text-fill: #00e5ff;
+                    -fx-font-size: 24;
+                    -fx-font-weight: bold;
+                   "/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Label fx:id="welcomeLabel"
+                   text="WELCOME BIDDER"
+                   style="
+                    -fx-text-fill: white;
+                    -fx-font-size: 16;
+                   "/>
+
+            <Label fx:id="balanceLabel"
+                   text="Số dư: $0.00"
+                   style="
+                    -fx-text-fill: #00e5ff;
+                    -fx-font-size: 16;
+                    -fx-font-weight: bold;
+                   "/>
+
+            <Button fx:id="bellButton"
+                    text="Bell (0)"
+                    onAction="#handleOpenNotifications"
+                    prefWidth="95"
+                    prefHeight="34"/>
+
+        </HBox>
+
+        <!-- SIDEBAR -->
+
+        <VBox layoutX="25"
+              layoutY="70"
+
+              prefWidth="180"
+              prefHeight="680"
+
+              alignment="TOP_CENTER"
+
+              spacing="30"
+
+              style="
+                -fx-background-color: rgba(10,10,30,0.78);
+
+                -fx-background-radius: 25;
+
+                -fx-border-color: #7a00ff;
+
+                -fx-border-width: 2;
+
+                -fx-border-radius: 25;
+
+                -fx-padding: 30;
+
+                -fx-effect: dropshadow(
+                    gaussian,
+                    #7a00ff,
+                    25,
+                    0.5,
+                    0,
+                    0
+                );
+              ">
+
+            <Label text="BIDDER"
+                   style="
+                    -fx-text-fill: white;
+                    -fx-font-size: 24;
+                    -fx-font-weight: bold;
+                   "/>
+
+            <Button text="AUCTIONS"
+                    onAction="#openAuctions"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="NẠP TIỀN"
+                    onAction="#openDeposit"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="MY BIDS"
+                    onAction="#openMyBids"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="WATCHLIST"
+                    onAction="#openWatchlist"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="HISTORY"
+                    onAction="#openHistory"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="PROFILE"
+                    onAction="#openProfile"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+            <Button text="LOGOUT"
+                    onAction="#handleLogout"
+                    prefWidth="140"
+                    prefHeight="45"/>
+
+        </VBox>
+
+        <!-- MAIN FRAME -->
+
+        <Pane layoutX="250"
+              layoutY="90"
+
+              prefWidth="820"
+              prefHeight="560"
+
+              style="
+                -fx-background-color: rgba(0,0,20,0.18);
+
+                -fx-border-color: #00e5ff;
+
+                -fx-border-width: 3;
+
+                -fx-border-radius: 20;
+
+                -fx-background-radius: 20;
+
+                -fx-effect: dropshadow(
+                    gaussian,
+                    #00e5ff,
+                    25,
+                    0.7,
+                    0,
+                    0
+                );
+              ">
+
+            <!-- TITLE -->
+
+            <Label layoutX="30"
+                   layoutY="25"
+
+                   text="LIVE AUCTIONS"
+
+                   style="
+                    -fx-text-fill: white;
+                    -fx-font-size: 28;
+                    -fx-font-weight: bold;
+                   "/>
+
+            <!-- LIVE AUCTIONS CONTAINER -->
+
+            <ScrollPane layoutX="30"
+                        layoutY="85"
+
+                        prefWidth="755"
+                        prefHeight="450"
+
+                        fitToWidth="true"
+
+                        hbarPolicy="NEVER"
+
+                        style="
+                            -fx-background: transparent;
+                            -fx-background-color: transparent;
+                        ">
+
+                <content>
+
+                    <VBox fx:id="liveAuctionContainer"
+
+                          spacing="25"
+
+                          prefWidth="720"
+
+                          style="
+                            -fx-padding: 5;
+                          ">
+
+                        <!-- SAMPLE CARD -->
+
+                        <HBox spacing="25"
+
+                              prefWidth="720"
+                              prefHeight="120"
+
+                              style="
+                                -fx-background-color: rgba(20,20,45,0.82);
+
+                                -fx-background-radius: 20;
+
+                                -fx-border-color: #00e5ff;
+
+                                -fx-border-radius: 20;
+
+                                -fx-padding: 20;
+                               ">
+
+                            <VBox spacing="12">
+
+                                <Label text="LOADING LIVE AUCTIONS..."
+                                       style="
+                                        -fx-text-fill: white;
+                                        -fx-font-size: 24;
+                                        -fx-font-weight: bold;
+                                       "/>
+
+                                <Label text="Connecting to server..."
+                                       style="
+                                        -fx-text-fill: #00e5ff;
+                                        -fx-font-size: 16;
+                                       "/>
+
+                                <Label text="Please wait..."
+                                       style="
+                                        -fx-text-fill: #ff4dff;
+                                        -fx-font-size: 16;
+                                       "/>
+
+                            </VBox>
+
+                        </HBox>
+
+                    </VBox>
+
+                </content>
+
+            </ScrollPane>
+
+        </Pane>
+
+        <!-- RIGHT PANEL -->
+
+        <VBox layoutX="1100"
+              layoutY="90"
+
+              prefWidth="260"
+              prefHeight="500"
+
+              spacing="22"
+
+              style="
+                -fx-background-color: rgba(20,0,40,0.85);
+
+                -fx-border-color: #ff00ff;
+
+                -fx-border-width: 2;
+
+                -fx-border-radius: 25;
+
+                -fx-background-radius: 25;
+
+                -fx-padding: 28;
+
+                -fx-effect: dropshadow(
+                    gaussian,
+                    #ff00ff,
+                    30,
+                    0.7,
+                    0,
+                    0
+                );
+              ">
+
+            <!-- TITLE -->
+
+            <Label text="LIVE STATUS"
+                   style="
+                    -fx-text-fill: #ff4dff;
+                    -fx-font-size: 26;
+                    -fx-font-weight: bold;
+                   "/>
+
+            <Separator/>
+
+            <!-- SERVER STATUS -->
+
+            <VBox spacing="8">
+
+                <Label text="SERVER STATUS"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="liveStatusLabel"
+                       text="ONLINE"
+                       style="
+                        -fx-text-fill: #00ff99;
+                        -fx-font-size: 34;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+            <Separator/>
+
+            <!-- LIVE AUCTIONS -->
+
+            <VBox spacing="8">
+
+                <Label text="LIVE AUCTIONS"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="totalAuctionsLabel"
+                       text="0"
+                       style="
+                        -fx-text-fill: #00e5ff;
+                        -fx-font-size: 42;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+            <Separator/>
+
+            <!-- HIGHEST BID -->
+
+            <VBox spacing="8">
+
+                <Label text="HIGHEST BID"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="highestBidLabel"
+                       text="\$0"
+                       style="
+                        -fx-text-fill: #00ff99;
+                        -fx-font-size: 34;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+            <Separator/>
+
+            <!-- ENDING SOON -->
+
+            <VBox spacing="8">
+
+                <Label text="ENDING SOON"
+                       style="
+                        -fx-text-fill: white;
+                        -fx-font-size: 15;
+                       "/>
+
+                <Label fx:id="endingSoonLabel"
+                       text="--"
+                       style="
+                        -fx-text-fill: #ff4dff;
+                        -fx-font-size: 28;
+                        -fx-font-weight: bold;
+                       "/>
+
+            </VBox>
+
+        </VBox>
+
+    </AnchorPane>
+
+</StackPane>

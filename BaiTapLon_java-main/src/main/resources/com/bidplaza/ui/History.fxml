@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootPane"
+            fx:controller="com.bidplaza.ui.controller.HistoryController"
+            style="-fx-background-color: linear-gradient(to bottom, #050816, #0b1026);">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: rgba(10,10,35,0.92); -fx-padding: 20;
+                     -fx-border-color: #00e5ff; -fx-border-width: 0 0 2 0;">
+            <Label text="Lịch Sử Đấu Giá"
+                   style="-fx-text-fill: #00e5ff; -fx-font-size: 30; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <TableView fx:id="historyTable" prefHeight="520"
+                       style="-fx-background-color: rgba(15,15,35,0.95);
+                              -fx-control-inner-background: rgba(15,15,35,0.95);
+                              -fx-border-color: #ff00ff; -fx-border-radius: 15;">
+                <columns>
+                    <TableColumn fx:id="colName" text="Tên sản phẩm" prefWidth="160"/>
+                    <TableColumn fx:id="colStarting" text="Giá khởi điểm" prefWidth="120"/>
+                    <TableColumn fx:id="colFinal" text="Giá cuối ($)" prefWidth="120"/>
+                    <TableColumn fx:id="colWinner" text="Người thắng" prefWidth="140"/>
+                    <TableColumn fx:id="colEndTime" text="Kết thúc lúc" prefWidth="160"/>
+                    <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="100"/>
+                </columns>
+            </TableView>
+            <HBox spacing="15">
+                <Button text="Làm mới" onAction="#handleRefresh" prefWidth="120" prefHeight="40"/>
+                <Button text="📥 Export CSV" onAction="#handleExportCSV" prefWidth="120" prefHeight="40"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 15; -fx-border-radius: 15;"/>
+                <Button text="Quay lại" onAction="#handleBack" prefWidth="120" prefHeight="40"
+                        style="-fx-background-color: rgba(255,0,255,0.15); -fx-border-color: #ff00ff;
+                               -fx-text-fill: white; -fx-background-radius: 15; -fx-border-radius: 15;"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
