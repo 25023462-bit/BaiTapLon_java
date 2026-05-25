@@ -57,7 +57,7 @@
                 <VBox alignment="CENTER" prefWidth="190" prefHeight="82"
                       style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
                     <Label text="Total Revenue"/>
-                    <Label fx:id="revenueLabel" text="$0.00"
+                    <Label fx:id="revenueLabel" text="0.00"
                            style="-fx-font-size: 24; -fx-font-weight: bold;"/>
                 </VBox>
             </HBox>
