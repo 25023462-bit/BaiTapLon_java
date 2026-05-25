@@ -8,54 +8,156 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:id="rootPane"
             fx:controller="com.bidplaza.ui.controller.ProfileController"
-            style="-fx-background-color: #f4f7fb;">
+            stylesheets="@style.css">
 
     <center>
-        <VBox spacing="20">
-            <padding>
-                <Insets top="30" right="30" bottom="30" left="30"/>
-            </padding>
 
-            <Label text="Thong tin ca nhan"
-                   style="-fx-font-size: 26; -fx-font-weight: bold;"/>
+        <AnchorPane styleClass="profile-background">
 
-            <HBox spacing="20">
-                <VBox spacing="8" prefWidth="320"
-                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 20;">
-                    <Label text="Username:"/>
-                    <Label fx:id="usernameLabel" text="-"
-                           style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                    <Label text="Email:"/>
-                    <Label fx:id="emailLabel" text="-"
-                           style="-fx-font-size: 16;"/>
-                    <Label text="Vai tro:"/>
-                    <Label fx:id="roleLabel" text="-"
-                           style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+            <VBox spacing="25"
+                  AnchorPane.topAnchor="35"
+                  AnchorPane.leftAnchor="40"
+                  AnchorPane.rightAnchor="40"
+                  AnchorPane.bottomAnchor="35">
+
+                <!-- TITLE -->
+
+                <Label text="THÔNG TIN CÁ NHÂN"
+                       styleClass="profile-title"/>
+
+                <!-- TOP SECTION -->
+
+                <HBox spacing="30">
+
+                    <!-- PROFILE CARD -->
+
+                    <VBox spacing="16"
+                          prefWidth="500"
+                          styleClass="neon-card">
+
+                        <Label text="THÔNG TIN CÁ NHÂN"
+                               styleClass="card-title"/>
+
+                        <VBox spacing="8">
+
+                            <Label text="Username"
+                                   styleClass="field-label"/>
+
+                            <Label fx:id="usernameLabel"
+                                   text="-"
+                                   styleClass="field-value"/>
+
+                        </VBox>
+
+                        <VBox spacing="8">
+
+                            <Label text="Email"
+                                   styleClass="field-label"/>
+
+                            <Label fx:id="emailLabel"
+                                   text="-"
+                                   styleClass="field-value"/>
+
+                        </VBox>
+
+                        <VBox spacing="8">
+
+                            <Label text="Vai trò"
+                                   styleClass="field-label"/>
+
+                            <Label fx:id="roleLabel"
+                                   text="-"
+                                   styleClass="role-value"/>
+
+                        </VBox>
+
+                    </VBox>
+
+                    <!-- STATS CARD -->
+
+                    <VBox spacing="20"
+                          prefWidth="420"
+                          styleClass="neon-card">
+
+                        <Label text="THỐNG KÊ BIDDER"
+                               styleClass="card-title"/>
+
+                        <HBox spacing="10">
+
+                            <Label text="Số dư:"
+                                   styleClass="stat-label"/>
+
+                            <Label fx:id="stat1Label"
+                                   text="-"
+                                   styleClass="money-value"/>
+
+                        </HBox>
+
+                        <HBox spacing="10">
+
+                            <Label text="Tổng bid:"
+                                   styleClass="stat-label"/>
+
+                            <Label fx:id="stat2Label"
+                                   text="-"
+                                   styleClass="cyan-value"/>
+
+                        </HBox>
+
+                        <HBox spacing="10">
+
+                            <Label text="Phiên thắng:"
+                                   styleClass="stat-label"/>
+
+                            <Label fx:id="stat3Label"
+                                   text="-"
+                                   styleClass="pink-value"/>
+
+                        </HBox>
+
+                    </VBox>
+
+                </HBox>
+
+                <!-- PASSWORD BOX -->
+
+                <VBox spacing="18"
+                      styleClass="password-box">
+
+                    <Label text="ĐỔI MẬT KHẨU"
+                           styleClass="card-title"/>
+
+                    <PasswordField fx:id="oldPasswordField"
+                                   promptText="Mật khẩu cũ"
+                                   styleClass="cyber-input"/>
+
+                    <PasswordField fx:id="newPasswordField"
+                                   promptText="Mật khẩu mới"
+                                   styleClass="cyber-input"/>
+
+                    <Button text="XÁC NHẬN"
+                            onAction="#handleChangePassword"
+                            styleClass="cyber-button"/>
+
+                    <Label fx:id="passwordResultLabel"
+                           style="-fx-text-fill: #00ffff;" />
+
                 </VBox>
 
-                <VBox spacing="8" prefWidth="320"
-                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 20;">
-                    <Label fx:id="statsTitle" text="Thong ke"
-                           style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-                    <Label fx:id="stat1Label" text="-"/>
-                    <Label fx:id="stat2Label" text="-"/>
-                    <Label fx:id="stat3Label" text="-"/>
-                </VBox>
-            </HBox>
+                <!-- BACK BUTTON -->
 
-            <TitledPane text="Doi mat khau" expanded="true">
-                <VBox spacing="10">
-                    <padding>
-                        <Insets top="12" right="12" bottom="12" left="12"/>
-                    </padding>
-                    <PasswordField fx:id="oldPasswordField" promptText="Mat khau cu"/>
-                    <PasswordField fx:id="newPasswordField" promptText="Mat khau moi"/>
-                    <Button text="Xac nhan" onAction="#handleChangePassword"/>
-                    <Label fx:id="passwordResultLabel"/>
-                </VBox>
-            </TitledPane>
+                <HBox>
 
-            <Button text="Quay lai" onAction="#handleBack"/>
-        </VBox>
+                    <Button text="← QUAY LẠI"
+                            onAction="#handleBack"
+                            styleClass="back-button"/>
+
+                </HBox>
+
+            </VBox>
+
+        </AnchorPane>
+
     </center>
+
 </BorderPane>
