@@ -50,7 +50,9 @@ public class ProfileController {
                 Message.Type.GET_PROFILE, null,
                 UserSession.getInstance().getUserId(), 0, null));
             Platform.runLater(() -> {
-                if (response.getPayload() instanceof ProfileData profile) {
+                if (response != null
+        && response.getType() == Message.Type.PROFILE_RESPONSE
+        && response.getPayload() instanceof ProfileData profile) {
                     usernameLabel.setText(profile.getUsername());
                     emailLabel.setText(profile.getEmail());
                     roleLabel.setText(profile.getRole());
