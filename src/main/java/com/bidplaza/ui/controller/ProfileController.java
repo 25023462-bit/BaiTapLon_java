@@ -30,40 +30,45 @@ public class ProfileController {
 
     @FXML
     public void initialize() {
-        loadProfile();
-        Platform.runLater(() -> {
-            try {
-                Scene scene = rootPane.getScene();
-                if (scene != null) {
-                    scene.getStylesheets().add(
-                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
-                    );
-                }
-            } catch (Exception ignored) {}
-        });
-    }
+    new Thread(() -> loadProfile(), "profile-loader").start();
+    Platform.runLater(() -> {
+        try {
+            Scene scene = rootPane.getScene();
+            if (scene != null) {
+                scene.getStylesheets().add(
+                    getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
+                );
+            }
+        } catch (Exception ignored) {}
+    });
+}
 
     private void loadProfile() {
+    new Thread(() -> {
         try {
             Message response = ServerClient.request(new Message(
                 Message.Type.GET_PROFILE, null,
                 UserSession.getInstance().getUserId(), 0, null));
-            if (response.getPayload() instanceof ProfileData profile) {
-                usernameLabel.setText(profile.getUsername());
-                emailLabel.setText(profile.getEmail());
-                roleLabel.setText(profile.getRole());
-                updateStats(profile);
-            } else {
-                showPasswordResult("Khong tai duoc profile", false);
-            }
+            Platform.runLater(() -> {
+                if (response.getPayload() instanceof ProfileData profile) {
+                    usernameLabel.setText(profile.getUsername());
+                    emailLabel.setText(profile.getEmail());
+                    roleLabel.setText(profile.getRole());
+                    updateStats(profile);
+                } else {
+                    showPasswordResult("Khong tai duoc profile", false);
+                }
+            });
         } catch (Exception e) {
-            usernameLabel.setText(UserSession.getInstance().getUsername());
-            roleLabel.setText(UserSession.getInstance().getRole());
-            emailLabel.setText("");
-            showPasswordResult("Khong ket noi duoc server: " + e.getMessage(), false);
+            Platform.runLater(() -> {
+                usernameLabel.setText(UserSession.getInstance().getUsername());
+                roleLabel.setText(UserSession.getInstance().getRole());
+                emailLabel.setText("");
+                showPasswordResult("Khong ket noi duoc server: " + e.getMessage(), false);
+            });
         }
-    }
-
+    }, "profile-loader").start();
+}
     private void updateStats(ProfileData profile) {
         if ("SELLER".equals(profile.getRole())) {
             statsTitle.setText("Thong ke Seller");
