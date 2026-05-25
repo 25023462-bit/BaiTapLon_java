@@ -3,14 +3,18 @@ package com.bidplaza.model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.io.Serializable;
+
 public class Notification implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private final String id;
     private final String title;
     private final String message;
     private final String type;
     private final LocalDateTime timestamp;
     private boolean read;
+
     public Notification(String title, String message, String type) {
         this.id = UUID.randomUUID().toString();
         this.title = title;
@@ -19,6 +23,7 @@ public class Notification implements Serializable {
         this.timestamp = LocalDateTime.now();
         this.read = false;
     }
+
     public String getId() { return id; }
     public String getTitle() { return title; }
     public String getMessage() { return message; }

@@ -418,7 +418,6 @@
     -fx-background-color: rgba(0,180,255,0.35);
 }
 
-.combo-box-popup .list-cell:selected {
     -fx-background-color: rgba(0,180,255,0.85);
     -fx-text-fill: white;
 }

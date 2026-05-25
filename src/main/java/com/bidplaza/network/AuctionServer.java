@@ -35,6 +35,9 @@ import com.bidplaza.manager.UserManager;
 public class AuctionServer {
 
     private static final int PORT = 8080;
+    private static final String DEFAULT_ADMIN_USERNAME = "admin";
+    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+    private static final String DEFAULT_ADMIN_ROLE = "ADMIN";
 
     // Thread-safe list: đọc nhiều, ghi ít
     private static final List<ClientHandler> connectedClients = new CopyOnWriteArrayList<>();
@@ -76,14 +79,9 @@ public class AuctionServer {
             System.out.println("[Server] Loaded existing data.");
         } else {
             auctionManager = AuctionManager.getInstance();
-            try {
-                UserManager.getInstance().register("admin", "admin123", "ADMIN");
-                System.out.println("[Server] Default admin created: admin/admin123");
-            } catch (Exception e) {
-                // Already exists
-            }
             System.out.println("[Server] Fresh start.");
         }
+        ensureDefaultAdmin();
 
         // Đồng bộ Singleton với instance vừa load
         try {
@@ -128,7 +126,7 @@ public class AuctionServer {
         auction.registerAutoBid("bot-vip-2", 2000.0, 100.0);
         System.out.println("Da them bot-vip-1 (max $1500, inc $50) va bot-vip-2 (max $2000, inc $100)");
 
-        ExecutorService pool = Executors.newFixedThreadPool(10);
+        ExecutorService pool = Executors.newCachedThreadPool();
 
         ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Server dang chay tai cong " + PORT + "...");
@@ -197,5 +195,21 @@ public class AuctionServer {
 
     public static AuctionManager getAuctionManager() {
         return auctionManager;
+    }
+
+    private static void ensureDefaultAdmin() {
+        UserManager userManager = UserManager.getInstance();
+        if (userManager.findByUsername(DEFAULT_ADMIN_USERNAME) != null) {
+            return;
+        }
+
+        try {
+            userManager.register(
+                DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD, DEFAULT_ADMIN_ROLE);
+            DataStorage.save(auctionManager, userManager);
+            System.out.println("[Server] Default admin created: admin/admin123");
+        } catch (Exception e) {
+            System.err.println("[Server] Could not create default admin: " + e.getMessage());
+        }
     }
 }

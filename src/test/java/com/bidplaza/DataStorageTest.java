@@ -7,22 +7,34 @@ import com.bidplaza.storage.DataStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DataStorageTest {
 
+    @TempDir
+    Path tempDir;
+    private String previousDataDir;
+    private String previousDataFile;
+
     @BeforeEach
     void setUp() {
+        previousDataDir = System.getProperty("bidplaza.data.dir");
+        previousDataFile = System.getProperty("bidplaza.data.file");
+        System.setProperty("bidplaza.data.dir", tempDir.resolve("data").toString());
         DataStorage.clear();
     }
 
     @AfterEach
     void tearDown() {
         DataStorage.clear();
+        restoreProperty("bidplaza.data.dir", previousDataDir);
+        restoreProperty("bidplaza.data.file", previousDataFile);
     }
 
     @Test
@@ -49,7 +61,15 @@ class DataStorageTest {
         UserManager userManager = UserManager.getInstance();
         DataStorage.save(manager, userManager);
 
-        File file = new File("data/app_data.dat");
+        File file = tempDir.resolve("data").resolve("app_data.dat").toFile();
         assertTrue(file.exists());
+    }
+
+    private void restoreProperty(String key, String value) {
+        if (value == null) {
+            System.clearProperty(key);
+        } else {
+            System.setProperty(key, value);
+        }
     }
 }
