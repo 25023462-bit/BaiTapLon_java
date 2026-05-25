@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bidplaza.ui.controller.AdminDashboardController"
+            style="-fx-background-color: #f4f7fb;">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #1f2937; -fx-padding: 14 20;">
+            <Label text="BidPlaza Admin"
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="userLabel"
+                   style="-fx-text-fill: white; -fx-font-size: 13;"/>
+            <Button text="Refresh" onAction="#handleRefresh"/>
+            <Button text="Logout" onAction="#handleLogout"
+                    style="-fx-background-color: #dc2626; -fx-text-fill: white;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="18">
+            <padding>
+                <Insets top="20" right="24" bottom="20" left="24"/>
+            </padding>
+
+            <HBox spacing="15">
+                <VBox alignment="CENTER" prefWidth="150" prefHeight="82"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label text="Total Users"/>
+                    <Label fx:id="totalUsersLabel" text="0"
+                           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="150" prefHeight="82"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label text="Bidders"/>
+                    <Label fx:id="totalBiddersLabel" text="0"
+                           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="150" prefHeight="82"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label text="Sellers"/>
+                    <Label fx:id="totalSellersLabel" text="0"
+                           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="150" prefHeight="82"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label text="Running"/>
+                    <Label fx:id="runningLabel" text="0"
+                           style="-fx-font-size: 28; -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox alignment="CENTER" prefWidth="190" prefHeight="82"
+                      style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12;">
+                    <Label text="Total Revenue"/>
+                    <Label fx:id="revenueLabel" text="\$0.00"
+                           style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="10" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
+                <Label text="User Management"
+                       style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TableView fx:id="usersTable" prefHeight="230"/>
+            </VBox>
+
+            <VBox spacing="10" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 16;">
+                <Label text="Running Auctions"
+                       style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+                <TableView fx:id="auctionsTable" prefHeight="250"/>
+            </VBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox style="-fx-background-color: #e5e7eb; -fx-padding: 8 16;">
+            <Label fx:id="statusLabel" text="Ready"
+                   style="-fx-font-size: 12; -fx-text-fill: #4b5563;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

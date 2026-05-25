@@ -1,0 +1,108 @@
+/* 1. GLOBAL STYLES */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 12px;
+    -fx-background-color: #f5f5f5;
+}
+
+/* 2. BUTTON STYLES */
+.button {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+    -fx-background-radius: 4px;
+}
+.button:hover {
+    -fx-background-color: #0056b3;
+}
+.button:pressed {
+    -fx-background-color: #004085;
+}
+
+/* 3. PRIMARY BUTTON (green) */
+.button-primary, .primary-button, .btn-primary {
+    -fx-background-color: #28a745;
+}
+.button-primary:hover, .primary-button:hover, .btn-primary:hover {
+    -fx-background-color: #218838;
+}
+
+/* 4. DANGER BUTTON (red) */
+.button-danger, .danger-button, .btn-danger {
+    -fx-background-color: #dc3545;
+}
+.button-danger:hover, .danger-button:hover, .btn-danger:hover {
+    -fx-background-color: #c82333;
+}
+
+/* 5. TEXT FIELD / TEXT AREA */
+.text-field, .text-area {
+    -fx-padding: 6px;
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #007bff;
+    -fx-border-width: 2px;
+}
+
+/* 6. LABEL STYLES */
+.label-title, .title-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #007bff;
+}
+.label-error, .error-label {
+    -fx-text-fill: #dc3545;
+    -fx-font-weight: bold;
+}
+.label-success, .success-label {
+    -fx-text-fill: #28a745;
+    -fx-font-weight: bold;
+}
+
+/* 7. PRICE DISPLAY */
+.price-display, .price-label, .label-price {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #dc3545;
+}
+
+/* 8. TABLE VIEW */
+.table-view {
+    -fx-border-color: #ddd;
+    -fx-border-width: 1px;
+}
+.table-view .column-header-background {
+    -fx-background-color: #007bff;
+}
+.table-view .column-header {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+}
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* 9. CONTAINERS (VBox, HBox, Cards) */
+.vbox-container {
+    -fx-spacing: 10px;
+    -fx-padding: 15px;
+}
+.hbox-container {
+    -fx-spacing: 10px;
+}
+.card {
+    -fx-background-color: white;
+    -fx-border-color: #e9ecef;
+    -fx-border-width: 1px;
+    -fx-padding: 15px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}

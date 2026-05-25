@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml"
+
+           fx:controller="com.bidplaza.ui.controller.WatchlistController"
+
+           stylesheets="@../../../css/bidder.css">
+
+    <!-- BACKGROUND OVERLAY -->
+
+    <Pane styleClass="background-overlay"/>
+
+    <!-- MAIN UI -->
+
+    <BorderPane fx:id="rootPane"
+
+                prefWidth="1500"
+                prefHeight="850"
+
+                style="
+                    -fx-background-color: transparent;
+                    -fx-font-family: 'Segoe UI';
+                ">
+
+        <!-- TOP -->
+
+        <top>
+
+            <HBox alignment="CENTER_LEFT"
+                  spacing="20"
+                  prefHeight="85"
+
+                  style="
+                        -fx-background-color: rgba(10,10,35,0.70);
+
+                        -fx-padding: 20;
+
+                        -fx-border-color: #ff00ff;
+
+                        -fx-border-width: 0 0 2 0;
+
+                        -fx-effect: dropshadow(
+                            gaussian,
+                            rgba(255,0,255,0.35),
+                            15,
+                            0.3,
+                            0,
+                            0
+                        );
+                  ">
+
+                <Label text="⭐ MY WATCHLIST"
+
+                       style="
+                            -fx-text-fill: #ff00ff;
+
+                            -fx-font-size: 32;
+
+                            -fx-font-weight: bold;
+
+                            -fx-effect: dropshadow(
+                                gaussian,
+                                #ff00ff,
+                                18,
+                                0.5,
+                                0,
+                                0
+                            );
+                       "/>
+
+            </HBox>
+
+        </top>
+
+        <!-- CENTER -->
+
+        <center>
+
+            <VBox spacing="22"
+
+                  style="-fx-padding: 30;">
+
+                <!-- SEARCH -->
+
+                <TextField fx:id="searchField"
+
+                           promptText="Search auctions..."
+
+                           prefHeight="52"
+
+                           style="
+                                -fx-background-color:
+                                    rgba(20,20,45,0.82);
+
+                                -fx-text-fill: white;
+
+                                -fx-prompt-text-fill: #8c8c8c;
+
+                                -fx-border-color: #00e5ff;
+
+                                -fx-border-width: 2;
+
+                                -fx-border-radius: 14;
+
+                                -fx-background-radius: 14;
+
+                                -fx-font-size: 16;
+
+                                -fx-padding: 0 15 0 15;
+
+                                -fx-effect: dropshadow(
+                                    gaussian,
+                                    rgba(0,229,255,0.35),
+                                    18,
+                                    0.3,
+                                    0,
+                                    0
+                                );
+                           "/>
+
+                <!-- SCROLL -->
+
+                <ScrollPane fitToWidth="true"
+
+                            VBox.vgrow="ALWAYS"
+
+                            style="
+                                -fx-background: transparent;
+                                -fx-background-color: transparent;
+                            ">
+
+                    <content>
+
+                        <VBox fx:id="watchlistContainer"
+
+                              spacing="22"
+
+                              style="
+                                    -fx-padding: 10;
+                                    -fx-background-color: transparent;
+                              "/>
+
+                    </content>
+
+                </ScrollPane>
+
+                <!-- BACK BUTTON -->
+
+                <Button text="⬅ BACK"
+
+                        onAction="#goBack"
+
+                        prefWidth="210"
+                        prefHeight="55"
+
+                        style="
+                            -fx-background-color:
+                                rgba(255,0,255,0.15);
+
+                            -fx-border-color: #ff00ff;
+
+                            -fx-border-width: 2;
+
+                            -fx-text-fill: white;
+
+                            -fx-font-size: 18;
+
+                            -fx-font-weight: bold;
+
+                            -fx-background-radius: 16;
+
+                            -fx-border-radius: 16;
+
+                            -fx-cursor: hand;
+
+                            -fx-effect: dropshadow(
+                                gaussian,
+                                rgba(255,0,255,0.35),
+                                18,
+                                0.3,
+                                0,
+                                0
+                            );
+                        "/>
+
+            </VBox>
+
+        </center>
+
+    </BorderPane>
+
+</StackPane>
