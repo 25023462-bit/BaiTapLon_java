@@ -393,3 +393,32 @@
 .combo-box .list-cell {
     -fx-text-fill: white;
 }
+
+/* Make ComboBox popup match cyber theme (fix white popup) */
+.combo-box-base {
+    -fx-mark-color: #00e5ff;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: rgba(5,10,35,0.96);
+    -fx-border-color: rgba(0,229,255,0.55);
+    -fx-border-width: 2;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 6;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 10 12 10 12;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: rgba(0,180,255,0.35);
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: rgba(0,180,255,0.85);
+    -fx-text-fill: white;
+}

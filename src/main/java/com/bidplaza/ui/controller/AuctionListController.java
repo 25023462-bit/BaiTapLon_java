@@ -15,6 +15,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -120,6 +123,35 @@ public class AuctionListController implements Initializable {
 
         // Start realtime countdown
         startCountdown();
+
+        // Status pill (match redesigned UI; keep original data/filters)
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                }
+
+                String v = value.trim();
+                boolean isLive = v.startsWith("LIVE");
+
+                Circle dot = new Circle(4);
+                dot.setFill(isLive ? Color.web("#00ff99") : Color.web("#ff006e"));
+
+                Label label = new Label(v);
+                label.getStyleClass().add("status-pill-label");
+
+                HBox pill = new HBox(dot, label);
+                pill.getStyleClass().add("status-pill");
+                pill.getStyleClass().add(isLive ? "status-pill-live" : "status-pill-ended");
+
+                setText(null);
+                setGraphic(pill);
+            }
+        });
 
         javafx.application.Platform.runLater(() -> {
             try {

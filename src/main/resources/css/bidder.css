@@ -531,3 +531,171 @@
     -fx-background-color:
             rgba(0,229,255,0.25);
 }
+
+/* =========================================================
+   AUCTIONS (redesign like mock)
+========================================================= */
+
+.auctions-topbar{
+    -fx-background-color: rgba(5,5,30,0.86);
+    -fx-padding: 16 22;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(0,229,255,0.45);
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+}
+
+.auctions-back{
+    -fx-background-color: rgba(0,229,255,0.08);
+    -fx-border-color: rgba(0,229,255,0.55);
+    -fx-border-width: 2;
+    -fx-text-fill: #9ff7ff;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10 18;
+}
+.auctions-back:hover{
+    -fx-background-color: rgba(0,229,255,0.14);
+}
+
+.auctions-logo{
+    -fx-font-size: 28;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00e5ff;
+}
+
+.auctions-subtitle{
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(255,255,255,0.75);
+}
+
+.auctions-user{
+    -fx-text-fill: rgba(255,255,255,0.90);
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+.auctions-toolbar{
+    -fx-padding: 6 0 0 0;
+}
+
+.auctions-searchbox{
+    -fx-background-color: rgba(10,15,40,0.78);
+    -fx-border-color: rgba(0,229,255,0.35);
+    -fx-border-width: 2;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 8 12;
+}
+
+.auctions-searchicon{
+    -fx-text-fill: rgba(0,229,255,0.90);
+    -fx-font-size: 14;
+}
+
+.auctions-searchfield{
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.45);
+    -fx-font-size: 14;
+    -fx-padding: 4 0 4 0;
+}
+
+.auctions-filter{
+    -fx-background-color: rgba(10,15,40,0.78);
+    -fx-border-color: rgba(0,229,255,0.35);
+    -fx-border-width: 2;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 4 8 4 8;
+}
+
+.auctions-tablewrap{
+    -fx-background-color: rgba(10,15,40,0.78);
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-border-color: rgba(0,229,255,0.35);
+    -fx-border-width: 2;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,229,255,0.18), 30, 0.25, 0, 0);
+}
+
+.auctions-table{
+    -fx-background-color: transparent;
+    -fx-control-inner-background: rgba(6,10,30,0.55);
+    -fx-table-cell-border-color: transparent;
+    -fx-text-background-color: white;
+    -fx-background-insets: 0;
+}
+
+.auctions-table .column-header-background{
+    -fx-background-color: rgba(0,229,255,0.10);
+    -fx-background-radius: 14 14 0 0;
+}
+
+.auctions-table .column-header .label{
+    -fx-text-fill: rgba(185,245,255,0.95);
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.auctions-table .table-row-cell{
+    -fx-background-color: rgba(255,255,255,0.02);
+}
+.auctions-table .table-row-cell:filled:hover{
+    -fx-background-color: rgba(0,229,255,0.08);
+}
+.auctions-table .table-row-cell:selected{
+    -fx-background-color: rgba(0,229,255,0.16);
+}
+
+.auctions-empty{
+    -fx-text-fill: rgba(255,255,255,0.55);
+    -fx-font-size: 14;
+}
+
+.auctions-join{
+    -fx-background-color: rgba(0,229,255,0.12);
+    -fx-border-color: rgba(0,229,255,0.55);
+    -fx-border-width: 2;
+    -fx-text-fill: white;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 12 22;
+}
+.auctions-join:hover{
+    -fx-background-color: rgba(0,229,255,0.18);
+    -fx-effect: dropshadow(gaussian, rgba(0,229,255,0.45), 18, 0.35, 0, 0);
+}
+
+.status-pill{
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 8;
+}
+
+.status-pill-label{
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+}
+
+.status-pill-live{
+    -fx-background-color: rgba(0,255,153,0.12);
+    -fx-border-color: rgba(0,255,153,0.40);
+    -fx-border-width: 1.5;
+}
+
+.status-pill-ended{
+    -fx-background-color: rgba(255,0,110,0.12);
+    -fx-border-color: rgba(255,0,110,0.45);
+    -fx-border-width: 1.5;
+}

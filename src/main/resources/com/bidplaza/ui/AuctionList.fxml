@@ -7,7 +7,7 @@
 <BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bidplaza.ui.controller.AuctionListController"
-
+            stylesheets="@../../../css/bidder.css"
             style="
                 -fx-background-image: url('/images/cyber-bg.png');
                 -fx-background-size: cover;
@@ -19,74 +19,32 @@
     <top>
 
         <HBox alignment="CENTER_LEFT"
-              spacing="25"
-              prefHeight="90"
-
-              style="
-              -fx-background-color: rgba(5,5,30,0.92);
-              -fx-padding: 20;
-              -fx-border-color: #00e5ff;
-              -fx-border-width: 0 0 2 0;
-          ">
+              spacing="18"
+              prefHeight="86"
+              styleClass="auctions-topbar">
 
             <!-- BACK -->
             <Button text="← BACK"
                     onAction="#handleBack"
-
-                    style="
-                    -fx-background-color: transparent;
-                    -fx-text-fill: #00e5ff;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 20;
-                    -fx-background-radius: 12;
-                    -fx-border-color: #00e5ff;
-                    -fx-border-radius: 12;
-                    -fx-border-width: 2;
-                    -fx-cursor: hand;
-                    -fx-padding: 12 28;
-                "/>
+                    styleClass="auctions-back"/>
 
             <!-- LOGO -->
             <Label text="BIDPLAZA"
-
-                   style="
-                   -fx-font-size: 34;
-                   -fx-font-weight: bold;
-                   -fx-text-fill: #00e5ff;
-               "/>
+                   styleClass="auctions-logo"/>
 
             <Label text="LIVE AUCTIONS"
-
-                   style="
-                   -fx-font-size: 22;
-                   -fx-font-weight: bold;
-                   -fx-text-fill: #ff00ff;
-               "/>
+                   styleClass="auctions-subtitle"/>
 
             <HBox HBox.hgrow="ALWAYS"/>
 
             <!-- USER -->
             <Label fx:id="userLabel"
-
-                   style="
-                   -fx-text-fill: white;
-                   -fx-font-size: 18;
-                   -fx-font-weight: bold;
-               "/>
+                   styleClass="auctions-user"/>
 
             <!-- LOGOUT -->
             <Button text="LOGOUT"
                     onAction="#handleLogout"
-
-                    style="
-                    -fx-background-color: #ff006e;
-                    -fx-text-fill: white;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 18;
-                    -fx-background-radius: 12;
-                    -fx-cursor: hand;
-                    -fx-padding: 12 26;
-                "/>
+                    styleClass="remove-button"/>
 
         </HBox>
 
@@ -95,7 +53,7 @@
     <!-- CENTER -->
     <center>
 
-        <VBox spacing="20">
+        <VBox spacing="18">
 
             <padding>
                 <Insets top="25"
@@ -106,75 +64,43 @@
 
 
             <!-- SEARCH -->
-            <HBox spacing="12" alignment="CENTER_LEFT">
+            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="auctions-toolbar">
 
-                <TextField fx:id="searchField"
-                           promptText="Search auction..."
-                           prefWidth="320"
-                           style="
-                   -fx-background-color: rgba(15,15,40,0.92);
-                   -fx-text-fill: white;
-                   -fx-prompt-text-fill: #bbbbbb;
-                   -fx-border-color: #00e5ff;
-                   -fx-border-radius: 10;
-                   -fx-background-radius: 10;
-                   -fx-padding: 10;
-                   -fx-font-size: 14;
-               "/>
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="auctions-searchbox">
+                    <Label text="🔍" styleClass="auctions-searchicon"/>
+                    <TextField fx:id="searchField"
+                               promptText="Search auction..."
+                               prefWidth="360"
+                               styleClass="auctions-searchfield"/>
+                </HBox>
 
                 <ComboBox fx:id="categoryFilter"
-                          promptText="Category"
-                          prefWidth="150"/>
+                          promptText="All Categories"
+                          prefWidth="170"
+                          styleClass="auctions-filter"/>
 
                 <ComboBox fx:id="statusFilter"
-                          promptText="Status"
-                          prefWidth="130"/>
+                          promptText="All Status"
+                          prefWidth="150"
+                          styleClass="auctions-filter"/>
 
                 <Button text="REFRESH"
                         onAction="#handleRefresh"
-                        style="
-                -fx-background-color: #00b4ff;
-                -fx-text-fill: white;
-                -fx-font-weight: bold;
-                -fx-background-radius: 10;
-                -fx-cursor: hand;
-                -fx-padding: 10 22;
-            "/>
+                        styleClass="cyber-button"/>
 
                 <Button text="CLEAR"
                         onAction="#handleClearFilter"
-                        style="
-                -fx-background-color: #ff006e;
-                -fx-text-fill: white;
-                -fx-font-weight: bold;
-                -fx-background-radius: 10;
-                -fx-cursor: hand;
-                -fx-padding: 10 22;
-            "/>
+                        styleClass="remove-button"/>
 
             </HBox>
 
 
             <!-- TABLE -->
             <StackPane VBox.vgrow="ALWAYS"
-
-                       style="
-                           -fx-background-color: rgba(10,20,45,0.85);
-                           -fx-background-radius: 20;
-                           -fx-border-color: #00e5ff;
-                           -fx-border-radius: 20;
-                           -fx-padding: 20;
-                       ">
+                       styleClass="auctions-tablewrap">
 
                 <TableView fx:id="auctionTable"
-
-                           style="
-                               -fx-background-color: transparent;
-                               -fx-control-inner-background: rgba(20,30,60,0.92);
-                               -fx-table-cell-border-color: transparent;
-                               -fx-text-background-color: white;
-                               -fx-font-size: 14;
-                           ">
+                           styleClass="auctions-table">
 
                     <columns>
 
@@ -207,11 +133,7 @@
                     <placeholder>
 
                         <Label text="NO LIVE AUCTIONS"
-
-                               style="
-                                   -fx-text-fill: #bbbbbb;
-                                   -fx-font-size: 16;
-                               "/>
+                               styleClass="auctions-empty"/>
 
                     </placeholder>
 
@@ -224,16 +146,7 @@
 
                 <Button text="JOIN AUCTION →"
                         onAction="#handleJoinAuction"
-
-                        style="
-                            -fx-background-color: #00e5ff;
-                            -fx-text-fill: #081120;
-                            -fx-font-weight: bold;
-                            -fx-font-size: 14;
-                            -fx-background-radius: 12;
-                            -fx-cursor: hand;
-                            -fx-padding: 12 24;
-                        "/>
+                        styleClass="auctions-join"/>
 
             </HBox>
 

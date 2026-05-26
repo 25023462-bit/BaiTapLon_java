@@ -56,17 +56,6 @@ public class AdminDashboardController implements Initializable {
         loadStats();
         loadUsers();
         loadRunningAuctions();
-
-        Platform.runLater(() -> {
-            try {
-                Scene scene = userLabel.getScene();
-                if (scene != null) {
-                    scene.getStylesheets().add(
-                        getClass().getResource("/com/bidplaza/ui/style.css").toExternalForm()
-                    );
-                }
-            } catch (Exception ignored) {}
-        });
     }
 
     private void setupTables() {
