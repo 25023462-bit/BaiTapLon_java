@@ -659,6 +659,7 @@ public class BidderDashboardController {
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("BidPlaza - History");
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
