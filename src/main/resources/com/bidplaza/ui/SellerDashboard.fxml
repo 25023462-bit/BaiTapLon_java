@@ -76,22 +76,27 @@
 
                     <Button text="🏠 Dashboard"
                             maxWidth="Infinity"
+                            onAction="#handleShowDashboard"
                             styleClass="cyber-button"/>
 
                     <Button text="➕ Create Auction"
                             maxWidth="Infinity"
+                            onAction="#handleShowCreateForm"
                             styleClass="cyber-button"/>
 
                     <Button text="📦 My Auctions"
                             maxWidth="Infinity"
+                            onAction="#handleShowMyAuctions"
                             styleClass="cyber-button"/>
 
                     <Button text="📈 Revenue"
                             maxWidth="Infinity"
+                            onAction="#handleShowRevenue"
                             styleClass="cyber-button"/>
 
                     <Button text="🔔 Notifications"
                             maxWidth="Infinity"
+                            onAction="#handleOpenNotifications"
                             styleClass="cyber-button"/>
 
                     <Region VBox.vgrow="ALWAYS"/>
@@ -115,7 +120,7 @@
                                         -fx-font-size: 14;
                                    "/>
 
-                            <Label text="128"
+                            <Label fx:id="totalAuctionsLabel" text="0"
                                    style="
                                         -fx-text-fill: white;
                                         -fx-font-size: 34;
@@ -134,7 +139,7 @@
                                         -fx-font-size: 14;
                                    "/>
 
-                            <Label text="34"
+                            <Label fx:id="activeAuctionsLabel" text="0"
                                    style="
                                         -fx-text-fill: #00ff99;
                                         -fx-font-size: 34;
@@ -153,7 +158,7 @@
                                         -fx-font-size: 14;
                                    "/>
 
-                            <Label text="14,520 USD"
+                            <Label fx:id="revenueLabel" text="0 USD"
                                    style="
                                         -fx-text-fill: #ff00ff;
                                         -fx-font-size: 34;
@@ -169,7 +174,8 @@
                           VBox.vgrow="ALWAYS">
 
                         <!-- FORM -->
-                        <VBox spacing="14"
+                        <VBox fx:id="createFormPanel"
+                              spacing="14"
                               prefWidth="360"
                               minWidth="360"
                               styleClass="watchlist-card">
@@ -231,7 +237,8 @@
                         </VBox>
 
                         <!-- TABLE -->
-                        <VBox spacing="14"
+                        <VBox fx:id="auctionsTablePanel"
+                              spacing="14"
                               VBox.vgrow="ALWAYS"
                               HBox.hgrow="ALWAYS"
                               styleClass="watchlist-card">

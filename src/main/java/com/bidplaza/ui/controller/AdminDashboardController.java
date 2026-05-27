@@ -107,8 +107,18 @@ public class AdminDashboardController implements Initializable {
         column.setPrefWidth(100);
         column.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
         column.setCellFactory(col -> new TableCell<>() {
-            private final Button button = new Button("Ban");
+            private final Button button = new Button("⚠ BAN");
 
+            {
+                button.setStyle("""
+                    -fx-background-color: transparent;
+                    -fx-border-color: #ff00ff;
+                    -fx-border-radius: 8;
+                    -fx-background-radius: 8;
+                    -fx-text-fill: #ff00ff;
+                    -fx-font-weight: bold;
+                """);
+            }
             @Override
             protected void updateItem(UserInfo user, boolean empty) {
                 super.updateItem(user, empty);
@@ -129,8 +139,17 @@ public class AdminDashboardController implements Initializable {
         column.setPrefWidth(120);
         column.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue()));
         column.setCellFactory(col -> new TableCell<>() {
-            private final Button button = new Button("Force Close");
-
+            private final Button button = new Button("⚡ CLOSE");
+            {
+                button.setStyle("""
+                    -fx-background-color: transparent;
+                    -fx-border-color: #ff4d6d;
+                    -fx-border-radius: 8;
+                    -fx-background-radius: 8;
+                    -fx-text-fill: #ff4d6d;
+                    -fx-font-weight: bold;
+                """);
+            }
             @Override
             protected void updateItem(AuctionSnapshot auction, boolean empty) {
                 super.updateItem(auction, empty);

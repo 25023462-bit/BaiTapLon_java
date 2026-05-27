@@ -107,6 +107,10 @@ public class LoginController implements Initializable {
                 String resolvedRole = (loginResponse.getUser() != null)
                     ? loginResponse.getUser().getRole()
                     : role;
+                if (!resolvedRole.equalsIgnoreCase(role)) {
+                    showError("Vai trò không khớp với tài khoản!");
+                    return;
+                }
 
                 // Lấy userId thực từ server để dùng khi đặt giá
                 String userId = (loginResponse.getUser() != null)
