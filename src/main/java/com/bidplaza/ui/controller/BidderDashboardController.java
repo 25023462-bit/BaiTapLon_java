@@ -572,14 +572,24 @@ public class BidderDashboardController {
     @FXML
     private void openDeposit() {
         try {
+
             FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/Deposit.fxml"));
-            Scene scene = new Scene(loader.load());
+                    getClass().getResource("/com/bidplaza/ui/Deposit.fxml"));
+
+            Scene scene = new Scene(loader.load(), 1500, 900);
+
             AppStyles.applyTo(scene);
+
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+
             stage.setScene(scene);
+
             stage.setTitle("BidPlaza - Nạp Tiền");
+
+            stage.setMaximized(true);
+
             stage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
