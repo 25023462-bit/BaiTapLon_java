@@ -123,11 +123,6 @@
                     prefWidth="140"
                     prefHeight="45"/>
 
-            <Button text="MY BIDS"
-                    onAction="#openMyBids"
-                    prefWidth="140"
-                    prefHeight="45"/>
-
             <Button text="WATCHLIST"
                     onAction="#openWatchlist"
                     prefWidth="140"

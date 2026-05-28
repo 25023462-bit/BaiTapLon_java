@@ -627,21 +627,6 @@ public class BidderDashboardController {
         }
     }
 
-    @FXML
-    private void openMyBids() {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/bidplaza/ui/MyBids.fxml"));
-            Scene scene = new Scene(loader.load());
-            AppStyles.applyTo(scene);
-            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("BidPlaza - My Bids");
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     private void openWatchlist() {

@@ -26,8 +26,6 @@ public class Message implements Serializable {
         DEPOSIT,
         DEPOSIT_SUCCESS,
         DEPOSIT_FAILED,
-        GET_MY_BIDS,
-        MY_BIDS_RESPONSE,
         GET_AUCTION_HISTORY,
         AUCTION_HISTORY_RESPONSE,
         OUTBID,

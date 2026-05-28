@@ -77,7 +77,6 @@ public class ClientHandler implements Runnable {
             case REGISTER_AUTO_BID -> handleRegisterAutoBid(       // Phase 3
                                         (AutoBidRequest) message.getPayload());
             case DEPOSIT           -> handleDeposit(message);
-            case GET_MY_BIDS       -> handleGetMyBids(message);
             case GET_AUCTION_HISTORY -> handleGetAuctionHistory();
             case JOIN_AUCTION      -> {
                 AuctionServer.joinRoom(message.getAuctionId(), this);
@@ -262,31 +261,6 @@ public class ClientHandler implements Runnable {
             sendMessage(new Message(Message.Type.DEPOSIT_FAILED, null, null, 0,
                 "Chi tai khoan Bidder moi nap tien duoc"));
         }
-    }
-
-    private void handleGetMyBids(Message message) {
-        String bidderId = message.getBidderId();
-        List<BidTransactionInfo> result = new ArrayList<>();
-        for (Auction auction : auctionManager.getAllAuctions()) {
-            for (BidTransaction tx : auction.getBids()) {
-                if (tx.getBidderId().equals(bidderId)) {
-                    String status = "ACTIVE";
-                    if (auction.getStatus() == Auction.Status.FINISHED
-                            || auction.getStatus() == Auction.Status.PAID) {
-                        status = bidderId.equals(auction.getWinnerId()) ? "WON" : "LOST";
-                    }
-                    result.add(new BidTransactionInfo(
-                        auction.getId(),
-                        auction.getItem().getName(),
-                        tx.getAmount(),
-                        tx.getTimestamp(),
-                        status
-                    ));
-                }
-            }
-        }
-        result.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
-        sendMessage(new Message(Message.Type.MY_BIDS_RESPONSE, new BidHistoryResponse(result)));
     }
 
     private void handleGetAuctionHistory() {

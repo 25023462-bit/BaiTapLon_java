@@ -89,7 +89,6 @@ class FxmlLoadTest {
             "/com/bidplaza/ui/Deposit.fxml",
             "/com/bidplaza/ui/History.fxml",
             "/com/bidplaza/ui/Login.fxml",
-            "/com/bidplaza/ui/MyBids.fxml",
             "/com/bidplaza/ui/Profile.fxml",
             "/com/bidplaza/ui/Register.fxml",
             "/com/bidplaza/ui/SellerDashboard.fxml",
