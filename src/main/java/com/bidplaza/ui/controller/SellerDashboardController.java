@@ -75,7 +75,6 @@ public class SellerDashboardController implements Initializable {
 
         itemTable.setItems(items);
         loadSellerAuctions();
-        syncNotifications();
     }
 
     private String resolveSellerId() {
@@ -148,115 +147,6 @@ public class SellerDashboardController implements Initializable {
         revenueLabel.setText(String.format("%,.0f USD", revenue));
     }
 
-    @FXML
-    private void handleShowDashboard() {
-        formResultLabel.setText("");
-        loadSellerAuctions();
-    }
-
-    @FXML
-    private void handleShowCreateForm() {
-        if (createFormPanel != null) {
-            createFormPanel.requestFocus();
-        }
-        if (itemNameField != null) {
-            itemNameField.requestFocus();
-        }
-    }
-
-    @FXML
-    private void handleShowMyAuctions() {
-        loadSellerAuctions();
-        if (auctionsTablePanel != null) {
-            auctionsTablePanel.requestFocus();
-        }
-        if (itemTable != null) {
-            itemTable.requestFocus();
-        }
-    }
-
-    @FXML
-    private void handleShowRevenue() {
-        double revenue = 0;
-        int sold = 0;
-        StringBuilder detail = new StringBuilder();
-
-        for (AuctionSnapshot snap : sellerSnapshots) {
-            String status = snap.getStatus() != null ? snap.getStatus().toUpperCase() : "";
-            if ("FINISHED".equals(status) || "PAID".equals(status)) {
-                revenue += snap.getCurrentPrice();
-                sold++;
-                detail.append("• ")
-                    .append(snap.getName())
-                    .append(": $")
-                    .append(String.format("%.2f", snap.getCurrentPrice()))
-                    .append("\n");
-            }
-        }
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Doanh thu");
-        alert.setHeaderText(String.format("Tổng doanh thu: %,.2f USD (%d phiên đã bán)",
-            revenue, sold));
-        alert.setContentText(detail.length() > 0
-            ? detail.toString()
-            : "Chưa có phiên đấu giá hoàn tất.");
-        alert.showAndWait();
-    }
-
-    @FXML
-    private void handleOpenNotifications() {
-        syncNotifications();
-
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Thông báo");
-        ListView<Notification> listView = new ListView<>();
-        listView.setItems(FXCollections.observableArrayList(
-            UserSession.getNotifications()));
-        listView.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Notification notification, boolean empty) {
-                super.updateItem(notification, empty);
-                if (empty || notification == null) {
-                    setText(null);
-                    return;
-                }
-                setText((notification.isRead() ? "" : "* ")
-                    + notification.getTitle()
-                    + "\n" + notification.getMessage()
-                    + "\n" + notification.getTimestamp().format(
-                        DateTimeFormatter.ofPattern("dd/MM HH:mm")));
-            }
-        });
-        dialog.getDialogPane().setContent(listView);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-        dialog.showAndWait();
-
-        UserSession.getNotifications().forEach(n -> n.setRead(true));
-        ServerClient.sendAsync(new Message(
-            Message.Type.MARK_NOTIFICATIONS_READ, null,
-            resolveSellerId(), 0, null));
-    }
-
-    private void syncNotifications() {
-        new Thread(() -> {
-            try {
-                Message response = ServerClient.request(
-                    new Message(Message.Type.GET_NOTIFICATIONS, null,
-                        resolveSellerId(), 0, null));
-                if (response.getPayload() instanceof List<?> list) {
-                    List<Notification> notifications = new ArrayList<>();
-                    for (Object object : list) {
-                        if (object instanceof Notification notification) {
-                            notifications.add(notification);
-                        }
-                    }
-                    UserSession.setNotifications(notifications);
-                }
-            } catch (Exception ignored) {
-            }
-        }, "seller-notifications").start();
-    }
 
     @FXML
     private void handleAddItem() {
