@@ -34,14 +34,14 @@ BidPlaza/
 │   │   ├── storage/           (DataStorage – Serialization)
 │   │   └── util/              (CsvExporter)
 │   ├── main/java/com/bidplaza/ui/
-│   │   ├── controller/        (12 controllers: Login, Welcome, AuctionList,
+│   │   ├── controller/        (11 controllers: Login, Welcome, AuctionList,
 │   │   │                       AuctionDetail, BidderDashboard, SellerDashboard,
-│   │   │                       AdminDashboard, Profile, MyBids, History,
+│   │   │                       AdminDashboard, Profile, History,
 │   │   │                       Watchlist, Deposit)
 │   │   ├── model/             (UserSession, AuctionItem)
 │   │   └── net/               (ServerClient)
 │   ├── main/resources/com/bidplaza/ui/
-│   │   ├── *.fxml             (13 FXML screens)
+│   │   ├── *.fxml             (12 FXML screens)
 │   │   └── style.css
 │   └── test/java/com/bidplaza/
 │       ├── AuctionTest.java            (12 tests)
