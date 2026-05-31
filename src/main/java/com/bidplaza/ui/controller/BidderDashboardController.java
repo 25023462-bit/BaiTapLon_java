@@ -402,7 +402,15 @@ public class BidderDashboardController {
                                 .getScene()
                                 .getWindow();
 
+                if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
                 stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
                 stage.setTitle(
                         "BidPlaza - "
@@ -582,11 +590,19 @@ public class BidderDashboardController {
 
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.setTitle("BidPlaza - Nạp Tiền");
 
-            stage.setMaximized(true);
+            
 
             stage.show();
 
@@ -615,7 +631,15 @@ public class BidderDashboardController {
             Stage stage =
                     (Stage) welcomeLabel.getScene().getWindow();
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.setTitle("BidPlaza - Auctions");
 
@@ -636,7 +660,15 @@ public class BidderDashboardController {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
             stage.setTitle("BidPlaza - Watchlist");
             stage.show();
         } catch (Exception e) {
@@ -652,9 +684,17 @@ public class BidderDashboardController {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("BidPlaza - History");
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
             stage.setMaximized(true);
+            
+            stage.setTitle("BidPlaza - History");
+            
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -669,7 +709,15 @@ public class BidderDashboardController {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
             stage.setTitle("BidPlaza - Profile");
             stage.show();
         } catch (Exception e) {
@@ -685,7 +733,15 @@ public class BidderDashboardController {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) welcomeLabel.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
             stage.setTitle("BidPlaza - Login");
             stage.show();
         } catch (Exception e) {

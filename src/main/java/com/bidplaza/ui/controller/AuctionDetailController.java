@@ -631,7 +631,15 @@ public class AuctionDetailController implements Initializable {
             Scene scene = new Scene(loader.load(), 900, 600);
             AppStyles.applyTo(scene);
             Stage stage = (Stage) titleLabel.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

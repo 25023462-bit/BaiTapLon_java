@@ -498,6 +498,10 @@
     -fx-background-radius: 12;
 
     -fx-border-radius: 12;
+
+    /* Ép màu chữ mặc định cho toàn bộ ô */
+    -fx-control-inner-background: rgba(10,15,40,0.65);
+    -fx-text-background-color: white;
 }
 
 .table-view .column-header-background{
@@ -515,6 +519,8 @@
 
     -fx-text-fill: white;
 
+    -fx-font-size: 13;
+
     -fx-font-weight: bold;
 }
 
@@ -526,11 +532,45 @@
     -fx-text-fill: white;
 }
 
+.table-row-cell:odd{
+
+    -fx-background-color:
+            rgba(15,20,55,0.70);
+}
+
+.table-row-cell:filled .table-cell{
+
+    -fx-text-fill: white;
+}
+
+.table-row-cell:filled:hover{
+
+    -fx-background-color:
+            rgba(0,229,255,0.08);
+}
+
 .table-row-cell:selected{
 
     -fx-background-color:
             rgba(0,229,255,0.25);
 }
+
+.table-row-cell:selected .table-cell{
+
+    -fx-text-fill: white;
+}
+
+/* Đảm bảo cell text không bị transparent/đen */
+.table-cell{
+
+    -fx-text-fill: white;
+
+    -fx-alignment: CENTER_LEFT;
+
+    -fx-padding: 4 8 4 8;
+}
+
+
 
 /* =========================================================
    AUCTIONS (redesign like mock)

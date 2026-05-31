@@ -21,8 +21,16 @@ public class Main extends Application {
         Scene scene = new Scene(loader.load(), 500, 520);
         AppStyles.applyTo(scene);
         stage.setTitle("BidPlaza - Đăng nhập");
-        stage.setScene(scene);
-        stage.setResizable(false);
+        if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
+        
         stage.show();
     }
 

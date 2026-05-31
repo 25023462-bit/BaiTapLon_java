@@ -86,7 +86,15 @@ public class LoginController implements Initializable {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
             stage.setTitle("BidPlaza - Register");
             stage.show();
         } catch (Exception e) {
@@ -174,8 +182,16 @@ public class LoginController implements Initializable {
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setTitle("BidPlaza - " + role);
+            
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
             stage.setMaximized(true);
-            stage.setScene(scene);
+            
             stage.show();
 
         } catch (Exception e) {

@@ -263,7 +263,15 @@ public class AdminDashboardController implements Initializable {
             Scene scene = new Scene(loader.load());
             AppStyles.applyTo(scene);
             Stage stage = (Stage) userLabel.getScene().getWindow();
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
             stage.setTitle("BidPlaza - Login");
         } catch (Exception e) {
             showStatus("Loi dang xuat: " + e.getMessage(), false);

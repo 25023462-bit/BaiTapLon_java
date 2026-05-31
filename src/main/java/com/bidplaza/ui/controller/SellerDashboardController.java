@@ -8,6 +8,8 @@ import com.bidplaza.ui.AppStyles;
 import com.bidplaza.ui.model.AuctionItem;
 import com.bidplaza.ui.model.UserSession;
 import com.bidplaza.ui.net.ServerClient;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
@@ -53,6 +56,9 @@ public class SellerDashboardController implements Initializable {
     private final ObservableList<AuctionItem> items = FXCollections.observableArrayList();
     private final List<AuctionSnapshot> sellerSnapshots = new ArrayList<>();
 
+    // Auto-refresh timeline: cập nhật bảng mỗi 5 giây để Seller thấy giá mới nhất từ Bidder
+    private Timeline autoRefreshTimeline;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         String username = UserSession.getInstance().getUsername();
@@ -69,12 +75,73 @@ public class SellerDashboardController implements Initializable {
 
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
-        colPrice.setCellValueFactory(new PropertyValueFactory<>("startPrice"));
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("currentPrice")); // Hiện giá hiện tại
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colBids.setCellValueFactory(new PropertyValueFactory<>("endTime"));
 
+        // Style text cho table cell để dễ nhìn
+        colName.setCellFactory(col -> new TableCell<AuctionItem, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            }
+        });
+        colCategory.setCellFactory(col -> new TableCell<AuctionItem, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle("-fx-text-fill: #8ea6ff;");
+            }
+        });
+        colPrice.setCellFactory(col -> new TableCell<AuctionItem, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle("-fx-text-fill: #00ff99; -fx-font-weight: bold;");
+            }
+        });
+        colStatus.setCellFactory(col -> new TableCell<AuctionItem, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                if (item != null && (item.contains("RUNNING") || item.contains("OPEN"))) {
+                    setStyle("-fx-text-fill: #00ff99; -fx-font-weight: bold;");
+                } else if (item != null && item.contains("FINISHED")) {
+                    setStyle("-fx-text-fill: #ff4dff;");
+                } else {
+                    setStyle("-fx-text-fill: #aaaaaa;");
+                }
+            }
+        });
+        colBids.setCellFactory(col -> new TableCell<AuctionItem, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle("-fx-text-fill: rgba(255,255,255,0.75);");
+            }
+        });
+
         itemTable.setItems(items);
+
+        // Load lần đầu trên background thread (tránh UI freeze)
         loadSellerAuctions();
+
+        // Tự động refresh mỗi 5 giây để Seller thấy bid mới nhất của Bidder
+        startAutoRefresh();
+    }
+
+    private void startAutoRefresh() {
+        autoRefreshTimeline = new Timeline(
+            new KeyFrame(Duration.seconds(5), e -> loadSellerAuctions())
+        );
+        autoRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        autoRefreshTimeline.play();
     }
 
     private String resolveSellerId() {
@@ -99,6 +166,7 @@ public class SellerDashboardController implements Initializable {
     }
 
     private void loadSellerAuctions() {
+        // Chạy trên background thread để không đóng băng UI
         new Thread(() -> {
             try {
                 Message response = ServerClient.request(
@@ -177,6 +245,7 @@ public class SellerDashboardController implements Initializable {
         CreateAuctionRequest req = new CreateAuctionRequest(
                 name, desc, category, price, duration, sellerId);
 
+        showResult("Đang gửi lên server...", true);
         new Thread(() -> {
             try {
                 Message response = ServerClient.request(
@@ -207,6 +276,7 @@ public class SellerDashboardController implements Initializable {
             return;
         }
 
+        showResult("Đang kết thúc phiên...", true);
         new Thread(() -> {
             try {
                 Message response = ServerClient.request(
@@ -236,6 +306,10 @@ public class SellerDashboardController implements Initializable {
 
     @FXML
     private void handleLogout() {
+        // Dừng auto-refresh trước khi rời khỏi màn hình
+        if (autoRefreshTimeline != null) {
+            autoRefreshTimeline.stop();
+        }
         UserSession.getInstance().logout();
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -245,7 +319,14 @@ public class SellerDashboardController implements Initializable {
 
             Stage stage = (Stage) userLabel.getScene().getWindow();
             stage.setTitle("BidPlaza - Đăng nhập");
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -260,17 +341,19 @@ public class SellerDashboardController implements Initializable {
                 snap.getName(),
                 snap.getCategory(),
                 String.format("$%.2f", snap.getStartingPrice()),
-                String.format("$%.2f", snap.getCurrentPrice()),
+                String.format("$%.2f", snap.getCurrentPrice()), // giá hiện tại (live)
                 snap.getStatus(),
                 endTime
         );
     }
 
     private void showResult(String msg, boolean success) {
-        formResultLabel.setStyle(success
-                ? "-fx-text-fill: #27ae60;"
-                : "-fx-text-fill: #e74c3c;");
-        formResultLabel.setText(msg);
+        if (formResultLabel != null) {
+            formResultLabel.setStyle(success
+                    ? "-fx-text-fill: #00ff99; -fx-font-weight: bold;"
+                    : "-fx-text-fill: #ff4d4d; -fx-font-weight: bold;");
+            formResultLabel.setText(msg);
+        }
     }
 
     private void clearForm() {

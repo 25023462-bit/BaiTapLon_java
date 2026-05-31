@@ -286,7 +286,15 @@ public class DepositController implements Initializable {
             Stage stage =
                     (Stage) balanceLabel.getScene().getWindow();
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.setTitle("BidPlaza - Bidder Dashboard");
 

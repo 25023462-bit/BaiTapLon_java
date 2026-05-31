@@ -313,9 +313,17 @@ public class AuctionListController implements Initializable {
 
             stage.setTitle("BidPlaza - BIDDER");
 
-            stage.setMaximized(true);
+            
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.show();
 
@@ -365,9 +373,17 @@ public class AuctionListController implements Initializable {
                     "BidPlaza - " + selected.getName()
             );
 
-            stage.setMaximized(true);
+            
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.show();
 
@@ -404,9 +420,17 @@ public class AuctionListController implements Initializable {
 
             stage.setTitle("BidPlaza - Login");
 
-            stage.setMaximized(true);
+            
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
             stage.show();
 

@@ -41,7 +41,15 @@ public class WelcomeController {
             Scene scene = new Scene(root);
             AppStyles.applyTo(scene);
 
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,7 +63,15 @@ public class WelcomeController {
                     .getScene().getWindow();
             Scene scene = new Scene(root);
             AppStyles.applyTo(scene);
-            stage.setScene(scene);
+            if (stage.getScene() != null) {
+                javafx.scene.Parent rootNode = scene.getRoot();
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.getScene().setRoot(rootNode);
+            } else {
+                stage.setScene(scene);
+            }
+            stage.setMaximized(true);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
