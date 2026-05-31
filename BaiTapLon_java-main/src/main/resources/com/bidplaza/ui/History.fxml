@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.openjfx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="rootPane"
+            fx:controller="com.bidplaza.ui.controller.HistoryController"
+            stylesheets="@../../../css/bidder.css"
+            style="
+                -fx-background-image: url('/images/cyber-bg.png');
+                -fx-background-size: cover;
+                -fx-background-position: center center;
+                -fx-background-repeat: no-repeat;
+            ">
+
+    <top>
+        <VBox spacing="6" styleClass="history-header">
+            <padding>
+                <Insets top="22" right="28" bottom="18" left="28"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <Label text="🕐🔨" styleClass="history-header-icon"/>
+                <VBox spacing="4">
+                    <Label text="LỊCH SỬ ĐẤU GIÁ" styleClass="history-title"/>
+                    <Label text="Theo dõi toàn bộ hoạt động đấu giá của bạn"
+                           styleClass="history-subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="BidPlaza › History" styleClass="history-breadcrumb"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="18">
+            <padding>
+                <Insets top="8" right="28" bottom="24" left="28"/>
+            </padding>
+
+            <!-- STATS -->
+            <HBox spacing="16">
+                <VBox alignment="CENTER_LEFT" spacing="6"
+                      HBox.hgrow="ALWAYS" styleClass="history-stat-card history-stat-blue">
+                    <Label text="TỔNG PHIÊN" styleClass="history-stat-label"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🔨" styleClass="history-stat-icon"/>
+                        <Label fx:id="totalSessionsLabel" text="0" styleClass="history-stat-value"/>
+                    </HBox>
+                </VBox>
+
+                <VBox alignment="CENTER_LEFT" spacing="6"
+                      HBox.hgrow="ALWAYS" styleClass="history-stat-card history-stat-green">
+                    <Label text="ĐÃ THẮNG" styleClass="history-stat-label"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🏆" styleClass="history-stat-icon"/>
+                        <Label fx:id="wonCountLabel" text="0" styleClass="history-stat-value"/>
+                    </HBox>
+                </VBox>
+
+                <VBox alignment="CENTER_LEFT" spacing="6"
+                      HBox.hgrow="ALWAYS" styleClass="history-stat-card history-stat-purple">
+                    <Label text="TỔNG ĐÃ CHI" styleClass="history-stat-label"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="💲" styleClass="history-stat-icon"/>
+                        <Label fx:id="totalSpentLabel" text="0.00" styleClass="history-stat-value"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+
+            <!-- FILTER BAR -->
+            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="history-toolbar">
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="auctions-searchbox">
+                    <Label text="🔍" styleClass="auctions-searchicon"/>
+                    <TextField fx:id="searchField"
+                               promptText="Tìm kiếm sản phẩm..."
+                               prefWidth="320"
+                               styleClass="auctions-searchfield"/>
+                </HBox>
+
+                <ComboBox fx:id="statusFilter"
+                          promptText="Trạng thái: Tất cả"
+                          prefWidth="170"
+                          styleClass="auctions-filter"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="↻ Làm mới"
+                        onAction="#handleRefresh"
+                        styleClass="cyber-button"/>
+            </HBox>
+
+            <!-- TABLE -->
+            <StackPane VBox.vgrow="ALWAYS" styleClass="history-tablewrap">
+                <TableView fx:id="historyTable"
+                           styleClass="auctions-table history-table">
+                    <columns>
+                        <TableColumn fx:id="colName" text="TÊN SẢN PHẨM" prefWidth="220"/>
+                        <TableColumn fx:id="colStarting" text="GIÁ KHỞI ĐIỂM" prefWidth="130"/>
+                        <TableColumn fx:id="colFinal" text="GIÁ CUỐI ($)" prefWidth="130"/>
+                        <TableColumn fx:id="colWinner" text="NGƯỜI THẮNG" prefWidth="150"/>
+                        <TableColumn fx:id="colEndTime" text="KẾT THÚC LÚC" prefWidth="170"/>
+                        <TableColumn fx:id="colStatus" text="TRẠNG THÁI" prefWidth="120"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Chưa có lịch sử đấu giá"
+                               styleClass="auctions-empty"/>
+                    </placeholder>
+                </TableView>
+            </StackPane>
+
+            <!-- ACTIONS -->
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <Button text="↻ Làm mới"
+                        onAction="#handleRefresh"
+                        prefWidth="150"
+                        styleClass="history-btn-refresh"/>
+                <Button text="📥 EXPORT CSV"
+                        onAction="#handleExportCSV"
+                        prefWidth="170"
+                        styleClass="history-btn-export"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="← QUAY LẠI"
+                        onAction="#handleBack"
+                        prefWidth="150"
+                        styleClass="history-btn-back"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
