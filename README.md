@@ -3,6 +3,14 @@
 
 BidPlaza là hệ thống đấu giá trực tuyến mô phỏng quy trình tạo phiên đấu giá, quản lý người dùng, đặt giá, cập nhật giá theo thời gian thực và xử lý nhiều client kết nối đồng thời qua Socket. Project được xây dựng theo hướng hướng đối tượng, có tách lớp model, manager, network, observer và factory để dễ mở rộng.
 
+## 📄 Báo cáo & Video Demo
+
+[![PDF](https://img.shields.io/badge/📄%20Báo%20cáo-PDF-red?style=for-the-badge)](./Báo-cáo-và-VIDEO.pdf)
+
+> 📥 [**Tải báo cáo và video demo tại đây**](./Báo-cáo-và-VIDEO.pdf)
+
+---
+
 ## Công nghệ sử dụng
 
 | Công nghệ | Mục đích |
@@ -34,14 +42,14 @@ BidPlaza/
 │   │   ├── storage/           (DataStorage – Serialization)
 │   │   └── util/              (CsvExporter)
 │   ├── main/java/com/bidplaza/ui/
-│   │   ├── controller/        (12 controllers: Login, Welcome, AuctionList,
+│   │   ├── controller/        (11 controllers: Login, Welcome, AuctionList,
 │   │   │                       AuctionDetail, BidderDashboard, SellerDashboard,
-│   │   │                       AdminDashboard, Profile, MyBids, History,
+│   │   │                       AdminDashboard, Profile, History,
 │   │   │                       Watchlist, Deposit)
 │   │   ├── model/             (UserSession, AuctionItem)
 │   │   └── net/               (ServerClient)
 │   ├── main/resources/com/bidplaza/ui/
-│   │   ├── *.fxml             (13 FXML screens)
+│   │   ├── *.fxml             (12 FXML screens)
 │   │   └── style.css
 │   └── test/java/com/bidplaza/
 │       ├── AuctionTest.java            (12 tests)
