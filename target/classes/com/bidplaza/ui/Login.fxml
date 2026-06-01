@@ -20,7 +20,7 @@
             <!-- Dark Overlay -->
             <Pane prefWidth="1200"
                   prefHeight="700"
-                  style="-fx-background-color: rgba(0,0,0,0.45);" />
+                  style="-fx-background-color: rgba(0,0,0,0.25);" />
 
             <!-- Main Layout -->
             <HBox prefWidth="1200"
@@ -36,143 +36,150 @@
                     <Insets top="0" right="80" bottom="0" left="80"/>
                 </padding>
 
-                <!-- Login Card -->
+                <!-- LOGIN CARD -->
                 <VBox spacing="16"
                       alignment="CENTER_LEFT"
-                      maxWidth="420"
-                      prefWidth="420"
-                      style="-fx-background-color: rgba(10,15,30,0.72);
-                             -fx-background-radius: 26;
-                             -fx-border-color: rgba(0,255,255,0.35);
-                             -fx-border-radius: 26;
-                             -fx-padding: 38;
-                             -fx-effect: dropshadow(gaussian, rgba(0,255,255,0.25), 35, 0.25, 0, 0);">
+                      maxWidth="480"
+                      prefWidth="480"
+                      style="-fx-background-color: rgba(8,18,40,0.35);
+                             -fx-background-radius: 30;
+                             -fx-border-color: rgba(0,245,255,0.25);
+                             -fx-border-radius: 30;
+                             -fx-padding: 50;
+                             -fx-effect: dropshadow(gaussian, rgba(0,245,255,0.35), 40, 0.3, 0, 0);">
 
-                    <!-- Logo -->
-                    <VBox spacing="2">
+                    <!-- LOGO -->
+                    <VBox spacing="6">
 
-                        <Label text="BidPlaza"
-                               style="-fx-font-size: 34px;
+                        <Label text="⚖"
+                               style="-fx-font-size: 50px;
+                                      -fx-text-fill: #00f5ff;" />
+
+                        <Label text="BIDPLAZA"
+                               style="-fx-font-size: 38px;
                                       -fx-font-weight: bold;
-                                      -fx-text-fill: linear-gradient(to right, #00f5ff, #ff4dff);" />
+                                      -fx-text-fill: #00f5ff;" />
 
-                        <Label text="Online Auction Platform"
-                               style="-fx-font-size: 13px;
-                                      -fx-text-fill: #dfe6e9;" />
+                        <Label text="REAL-TIME AUCTION PLATFORM"
+                               style="-fx-font-size: 11px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #8be9fd;" />
 
                     </VBox>
 
-                    <Region prefHeight="10"/>
+                    <Region prefHeight="15"/>
 
-                    <!-- Title -->
-                    <Label text="Login Account"
-                           style="-fx-font-size: 30px;
-                                  -fx-font-weight: bold;
-                                  -fx-text-fill: white;" />
+                    <Label text="WELCOME BACK"
+                           style="-fx-font-size: 32px;
+                      -fx-font-weight: bold;
+                      -fx-text-fill: white;" />
 
-                    <Label text="Access your BidPlaza dashboard"
+                    <Label text="Sign in to continue your auction journey"
                            style="-fx-font-size: 14px;
-                                  -fx-text-fill: #dfe6e9;" />
+                      -fx-text-fill: #cfd8dc;" />
 
-                    <!-- Username -->
+                    <!-- USERNAME -->
                     <VBox spacing="8">
 
                         <Label text="Username"
                                style="-fx-font-size: 15px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                          -fx-font-weight: bold;
+                          -fx-text-fill: white;" />
 
                         <TextField fx:id="usernameField"
                                    promptText="Enter username"
                                    prefWidth="320"
                                    prefHeight="46"
                                    style="-fx-background-color: rgba(0,0,0,0.35);
-                                          -fx-border-color: #00eaff;
-                                          -fx-border-radius: 12;
-                                          -fx-background-radius: 12;
-                                          -fx-text-fill: white;
-                                          -fx-prompt-text-fill: #95a5a6;
-                                          -fx-padding: 12;
-                                          -fx-font-size: 14px;" />
+                              -fx-border-color: #00eaff;
+                              -fx-border-radius: 12;
+                              -fx-background-radius: 12;
+                              -fx-text-fill: white;
+                              -fx-prompt-text-fill: #95a5a6;
+                              -fx-padding: 12;
+                              -fx-font-size: 14px;" />
                     </VBox>
 
-                    <!-- Password -->
+                    <!-- PASSWORD -->
                     <VBox spacing="8">
 
                         <Label text="Password"
                                style="-fx-font-size: 15px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                          -fx-font-weight: bold;
+                          -fx-text-fill: white;" />
 
                         <PasswordField fx:id="passwordField"
                                        promptText="Enter password"
                                        prefWidth="320"
                                        prefHeight="46"
                                        style="-fx-background-color: rgba(0,0,0,0.35);
-                                              -fx-border-color: #00eaff;
-                                              -fx-border-radius: 12;
-                                              -fx-background-radius: 12;
-                                              -fx-text-fill: white;
-                                              -fx-prompt-text-fill: #95a5a6;
-                                              -fx-padding: 12;
-                                              -fx-font-size: 14px;" />
+                                  -fx-border-color: #00eaff;
+                                  -fx-border-radius: 12;
+                                  -fx-background-radius: 12;
+                                  -fx-text-fill: white;
+                                  -fx-prompt-text-fill: #95a5a6;
+                                  -fx-padding: 12;
+                                  -fx-font-size: 14px;" />
                     </VBox>
 
-                    <!-- Role -->
+                    <!-- ROLE -->
                     <VBox spacing="8">
 
                         <Label text="Role"
                                style="-fx-font-size: 15px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                          -fx-font-weight: bold;
+                          -fx-text-fill: white;" />
 
                         <ComboBox fx:id="roleCombo"
                                   prefWidth="320"
                                   prefHeight="46"
                                   style="-fx-background-color: rgba(0,0,0,0.35);
-                                         -fx-border-color: #00eaff;
-                                         -fx-border-radius: 12;
-                                         -fx-background-radius: 12;
-                                         -fx-font-size: 14px;" />
+                             -fx-border-color: #00eaff;
+                             -fx-border-radius: 12;
+                             -fx-background-radius: 12;
+                             -fx-font-size: 14px;" />
                     </VBox>
 
-                    <!-- Error -->
+                    <!-- ERROR -->
                     <Label fx:id="errorLabel"
                            text=""
                            style="-fx-font-size: 13px;
-                                  -fx-text-fill: #ff7675;" />
+                      -fx-text-fill: #ff7675;" />
 
-                    <!-- Login Button -->
-                    <Button text="LOGIN"
+                    <!-- LOGIN -->
+                    <Button fx:id="loginButton"
+                            text="LOGIN"
                             prefWidth="320"
                             prefHeight="48"
                             onAction="#handleLogin"
-                            style="-fx-background-color: linear-gradient(to right, #00f5ff, #00a8ff);
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 16px;
-                                   -fx-font-weight: bold;
-                                   -fx-background-radius: 14;
-                                   -fx-cursor: hand;" />
+                            style="-fx-background-color: linear-gradient(to right,#00f5ff,#00a8ff);
+                       -fx-text-fill: white;
+                       -fx-font-size: 16px;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 14;
+                       -fx-cursor: hand;" />
 
-                    <!-- Register Button -->
+                    <!-- REGISTER -->
                     <Button text="CREATE ACCOUNT"
                             prefWidth="320"
                             prefHeight="48"
                             onAction="#openRegister"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: #00f5ff;
-                                   -fx-font-size: 15px;
-                                   -fx-font-weight: bold;
-                                   -fx-border-color: #00f5ff;
-                                   -fx-border-width: 1.5;
-                                   -fx-border-radius: 14;
-                                   -fx-background-radius: 14;
-                                   -fx-cursor: hand;" />
+                       -fx-text-fill: #00f5ff;
+                       -fx-font-size: 15px;
+                       -fx-font-weight: bold;
+                       -fx-border-color: #00f5ff;
+                       -fx-border-width: 1.5;
+                       -fx-border-radius: 14;
+                       -fx-background-radius: 14;
+                       -fx-cursor: hand;" />
 
                 </VBox>
 
-            </HBox>
+                <!-- RIGHT SIDE CONTENT -->
+                <Region HBox.hgrow="ALWAYS"/>
 
+            </HBox>
         </AnchorPane>
 
     </children>

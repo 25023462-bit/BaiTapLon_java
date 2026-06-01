@@ -7,15 +7,20 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.bidplaza.ui.controller.RegisterController"
             prefWidth="1366" prefHeight="768"
-            style="-fx-background-color: #070d1f;">
+            style="-fx-background-image: url('/images/register1-bg.png');
+                   -fx-background-size: cover;
+                   -fx-background-position: center center;
+                   -fx-background-repeat: no-repeat;">
 
     <HBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
         <!-- LEFT PANEL -->
-        <VBox prefWidth="640" spacing="30"
+        <VBox prefWidth="700"
+              HBox.hgrow="ALWAYS"
+              spacing="30"
               alignment="CENTER_LEFT"
-              style="-fx-padding: 80 60 80 80;">
+              style="-fx-padding: 40 80 40 100;">
 
             <!-- LOGO -->
             <HBox spacing="14" alignment="CENTER_LEFT">
@@ -102,17 +107,17 @@
         </VBox>
 
         <!-- RIGHT PANEL - FORM CARD -->
-        <VBox prefWidth="726" alignment="CENTER"
-              style="-fx-padding: 60 80 60 60;">
-
+        <VBox HBox.hgrow="ALWAYS"
+              alignment="CENTER"
+              style="-fx-padding: 40 60 40 60;">
             <VBox maxWidth="520"
-                  style="-fx-background-color: #0d1635;
-                         -fx-border-color: #1a2a5e;
-                         -fx-border-width: 1;
-                         -fx-border-radius: 20;
-                         -fx-background-radius: 20;
-                         -fx-padding: 50 50 50 50;
-                         -fx-effect: dropshadow(gaussian, #00d4ff33, 30, 0, 0, 0);">
+                  style="-fx-background-color: rgba(10,20,50,0.82);
+                         -fx-border-color: rgba(0,212,255,0.35);
+                         -fx-border-width: 1.2;
+                         -fx-border-radius: 25;
+                         -fx-background-radius: 25;
+                         -fx-padding: 50;
+                         -fx-effect: dropshadow(gaussian,#00d4ff55,35,0.2,0,0);">
                 <VBox.margin>
                     <Insets/>
                 </VBox.margin>
@@ -223,14 +228,14 @@
                         text="👤+  TẠO TÀI KHOẢN"
                         maxWidth="Infinity"
                         onAction="#handleRegister"
-                        style="-fx-background-color: linear-gradient(to right, #00d4ff, #b44fff);
+                        style="-fx-background-color: linear-gradient(to right,#00d4ff,#8b5cf6);
                                -fx-text-fill: white;
                                -fx-font-weight: bold;
                                -fx-font-size: 15;
-                               -fx-padding: 16;
-                               -fx-background-radius: 10;
+                               -fx-padding: 18;
+                               -fx-background-radius: 12;
                                -fx-cursor: hand;
-                               -fx-border-radius: 10;">
+                               -fx-effect: dropshadow(gaussian,#00d4ff66,15,0.3,0,0);">
                     <VBox.margin>
                         <Insets bottom="16"/>
                     </VBox.margin>
@@ -244,20 +249,21 @@
                     </VBox.margin>
                 </Label>
 
-                <!-- BACK TO LOGIN -->
                 <Button text="→  QUAY LẠI ĐĂNG NHẬP"
                         maxWidth="Infinity"
                         onAction="#goBackToLogin"
-                        style="-fx-background-color: transparent;
+                        style="-fx-background-color: rgba(255,255,255,0.03);
                                -fx-border-color: #00d4ff;
                                -fx-border-width: 1.5;
-                               -fx-border-radius: 10;
-                               -fx-background-radius: 10;
+                               -fx-border-radius: 12;
+                               -fx-background-radius: 12;
                                -fx-text-fill: #00d4ff;
                                -fx-font-weight: bold;
                                -fx-font-size: 14;
                                -fx-padding: 14;
-                               -fx-cursor: hand;"/>
+                               -fx-cursor: hand;">
+
+                </Button>
 
             </VBox>
         </VBox>
