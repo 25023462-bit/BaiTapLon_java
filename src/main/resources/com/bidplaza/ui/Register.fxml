@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bidplaza.ui.controller.RegisterController"
+            prefWidth="1366" prefHeight="768"
+            style="-fx-background-image: url('/images/register1-bg.png');
+                   -fx-background-size: cover;
+                   -fx-background-position: center center;
+                   -fx-background-repeat: no-repeat;">
+
+    <HBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <!-- LEFT PANEL -->
+        <VBox prefWidth="700"
+              HBox.hgrow="ALWAYS"
+              spacing="30"
+              alignment="CENTER_LEFT"
+              style="-fx-padding: 40 80 40 100;">
+
+            <!-- LOGO -->
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <Label text="⬡" style="-fx-font-size: 36; -fx-text-fill: #00d4ff;"/>
+                <VBox>
+                    <Label text="BIDPLAZA"
+                           style="-fx-font-size: 32; -fx-font-weight: bold;
+                                  -fx-text-fill: white;"/>
+                    <Label text="REAL-TIME AUCTION PLATFORM"
+                           style="-fx-font-size: 10; -fx-text-fill: #00d4ff;
+                                  -fx-letter-spacing: 2;"/>
+                </VBox>
+            </HBox>
+
+            <!-- TAGLINE -->
+            <VBox spacing="8">
+                <Label text="Tham gia đấu giá"
+                       style="-fx-font-size: 40; -fx-font-weight: bold;
+                              -fx-text-fill: white;"/>
+                <Label text="thông minh cùng"
+                       style="-fx-font-size: 40; -fx-font-weight: bold;
+                              -fx-text-fill: white;"/>
+                <Label text="BidPlaza"
+                       style="-fx-font-size: 40; -fx-font-weight: bold;
+                              -fx-text-fill: #00d4ff;"/>
+            </VBox>
+
+            <Label text="Tạo tài khoản để bắt đầu hành trình&#10;tham gia đấu giá chuyên nghiệp và an toàn."
+                   style="-fx-font-size: 14; -fx-text-fill: #8899aa;
+                          -fx-line-spacing: 4;" wrapText="true"/>
+
+            <!-- FEATURE LIST -->
+            <VBox spacing="18">
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <Label text="⚡"
+                           style="-fx-font-size: 18; -fx-text-fill: #00d4ff;
+                                  -fx-background-color: #00d4ff22;
+                                  -fx-padding: 8; -fx-background-radius: 8;"/>
+                    <VBox>
+                        <Label text="Đấu giá thời gian thực"
+                               style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 13;"/>
+                        <Label text="Cập nhật tức thì, không bỏ lỡ cơ hội"
+                               style="-fx-text-fill: #8899aa; -fx-font-size: 12;"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <Label text="🛡"
+                           style="-fx-font-size: 18; -fx-text-fill: #00d4ff;
+                                  -fx-background-color: #00d4ff22;
+                                  -fx-padding: 8; -fx-background-radius: 8;"/>
+                    <VBox>
+                        <Label text="Bảo mật tuyệt đối"
+                               style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 13;"/>
+                        <Label text="Thông tin của bạn luôn được bảo vệ"
+                               style="-fx-text-fill: #8899aa; -fx-font-size: 12;"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <Label text="🤖"
+                           style="-fx-font-size: 18; -fx-text-fill: #00d4ff;
+                                  -fx-background-color: #00d4ff22;
+                                  -fx-padding: 8; -fx-background-radius: 8;"/>
+                    <VBox>
+                        <Label text="Hệ thống Auto Bid"
+                               style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 13;"/>
+                        <Label text="Tối ưu cơ hội thắng đấu giá"
+                               style="-fx-text-fill: #8899aa; -fx-font-size: 12;"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="16" alignment="CENTER_LEFT">
+                    <Label text="🌐"
+                           style="-fx-font-size: 18; -fx-text-fill: #00d4ff;
+                                  -fx-background-color: #00d4ff22;
+                                  -fx-padding: 8; -fx-background-radius: 8;"/>
+                    <VBox>
+                        <Label text="Đấu giá mọi lúc, mọi nơi"
+                               style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 13;"/>
+                        <Label text="Chỉ cần kết nối Internet"
+                               style="-fx-text-fill: #8899aa; -fx-font-size: 12;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+        </VBox>
+
+        <!-- RIGHT PANEL - FORM CARD -->
+        <VBox HBox.hgrow="ALWAYS"
+              alignment="CENTER"
+              style="-fx-padding: 40 60 40 60;">
+            <VBox maxWidth="520"
+                  style="-fx-background-color: rgba(10,20,50,0.82);
+                         -fx-border-color: rgba(0,212,255,0.35);
+                         -fx-border-width: 1.2;
+                         -fx-border-radius: 25;
+                         -fx-background-radius: 25;
+                         -fx-padding: 50;
+                         -fx-effect: dropshadow(gaussian,#00d4ff55,35,0.2,0,0);">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+
+                <!-- ICON -->
+                <Label text="👤+"
+                       alignment="CENTER"
+                       style="-fx-font-size: 40; -fx-text-fill: #00d4ff;
+                              -fx-background-color: #00d4ff15;
+                              -fx-background-radius: 50;
+                              -fx-padding: 20;">
+                    <VBox.margin>
+                        <Insets bottom="10"/>
+                    </VBox.margin>
+                </Label>
+
+                <!-- TITLE -->
+                <Label text="TẠO TÀI KHOẢN" alignment="CENTER"
+                       maxWidth="Infinity"
+                       style="-fx-font-size: 24; -fx-font-weight: bold;
+                              -fx-text-fill: #00d4ff;"/>
+                <Label text="Chào mừng bạn đến với BidPlaza!" alignment="CENTER"
+                       maxWidth="Infinity"
+                       style="-fx-font-size: 13; -fx-text-fill: #8899aa;">
+                    <VBox.margin>
+                        <Insets bottom="30"/>
+                    </VBox.margin>
+                </Label>
+
+                <!-- USERNAME -->
+                <Label text="Họ và tên người dùng"
+                       style="-fx-text-fill: #ccddee; -fx-font-size: 13; -fx-font-weight: bold;">
+                    <VBox.margin>
+                        <Insets bottom="6"/>
+                    </VBox.margin>
+                </Label>
+                <TextField fx:id="usernameField"
+                           promptText="Nhập họ và tên"
+                           style="-fx-background-color: #162040;
+                                  -fx-border-color: #1e3060;
+                                  -fx-border-width: 1;
+                                  -fx-border-radius: 10;
+                                  -fx-background-radius: 10;
+                                  -fx-text-fill: white;
+                                  -fx-prompt-text-fill: #445566;
+                                  -fx-padding: 14 16;
+                                  -fx-font-size: 14;">
+                    <VBox.margin>
+                        <Insets bottom="20"/>
+                    </VBox.margin>
+                </TextField>
+
+                <!-- PASSWORD -->
+                <Label text="Mật khẩu"
+                       style="-fx-text-fill: #ccddee; -fx-font-size: 13; -fx-font-weight: bold;">
+                    <VBox.margin>
+                        <Insets bottom="6"/>
+                    </VBox.margin>
+                </Label>
+                <PasswordField fx:id="passwordField"
+                               promptText="Nhập mật khẩu (ít nhất 6 ký tự)"
+                               style="-fx-background-color: #162040;
+                                      -fx-border-color: #1e3060;
+                                      -fx-border-width: 1;
+                                      -fx-border-radius: 10;
+                                      -fx-background-radius: 10;
+                                      -fx-text-fill: white;
+                                      -fx-prompt-text-fill: #445566;
+                                      -fx-padding: 14 16;
+                                      -fx-font-size: 14;">
+                    <VBox.margin>
+                        <Insets bottom="20"/>
+                    </VBox.margin>
+                </PasswordField>
+
+                <!-- ROLE -->
+                <Label text="Vai trò"
+                       style="-fx-text-fill: #ccddee; -fx-font-size: 13; -fx-font-weight: bold;">
+                    <VBox.margin>
+                        <Insets bottom="6"/>
+                    </VBox.margin>
+                </Label>
+                <ComboBox fx:id="roleCombo"
+                          maxWidth="Infinity"
+                          style="-fx-background-color: #162040;
+                                 -fx-border-color: #1e3060;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 10;
+                                 -fx-background-radius: 10;
+                                 -fx-text-fill: white;
+                                 -fx-font-size: 14;
+                                 -fx-padding: 6;">
+                    <VBox.margin>
+                        <Insets bottom="30"/>
+                    </VBox.margin>
+                </ComboBox>
+
+                <!-- ERROR LABEL -->
+                <Label fx:id="messageLabel" maxWidth="Infinity"
+                       style="-fx-text-fill: #ff4466; -fx-font-size: 12;" wrapText="true">
+                    <VBox.margin>
+                        <Insets bottom="10"/>
+                    </VBox.margin>
+                </Label>
+
+                <!-- CREATE BUTTON -->
+                <Button fx:id="registerButton"
+                        text="👤+  TẠO TÀI KHOẢN"
+                        maxWidth="Infinity"
+                        onAction="#handleRegister"
+                        style="-fx-background-color: linear-gradient(to right,#00d4ff,#8b5cf6);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 15;
+                               -fx-padding: 18;
+                               -fx-background-radius: 12;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian,#00d4ff66,15,0.3,0,0);">
+                    <VBox.margin>
+                        <Insets bottom="16"/>
+                    </VBox.margin>
+                </Button>
+
+                <!-- SEPARATOR -->
+                <Label text="hoặc" alignment="CENTER" maxWidth="Infinity"
+                       style="-fx-text-fill: #445566; -fx-font-size: 13;">
+                    <VBox.margin>
+                        <Insets bottom="16"/>
+                    </VBox.margin>
+                </Label>
+
+                <Button text="→  QUAY LẠI ĐĂNG NHẬP"
+                        maxWidth="Infinity"
+                        onAction="#goBackToLogin"
+                        style="-fx-background-color: rgba(255,255,255,0.03);
+                               -fx-border-color: #00d4ff;
+                               -fx-border-width: 1.5;
+                               -fx-border-radius: 12;
+                               -fx-background-radius: 12;
+                               -fx-text-fill: #00d4ff;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14;
+                               -fx-padding: 14;
+                               -fx-cursor: hand;">
+
+                </Button>
+
+            </VBox>
+        </VBox>
+    </HBox>
+
+</AnchorPane>

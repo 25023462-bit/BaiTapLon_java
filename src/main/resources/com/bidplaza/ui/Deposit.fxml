@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.bidplaza.ui.controller.DepositController"
+
+            style="
+-fx-background-image: url('/images/money.png');
+-fx-background-size: cover;
+-fx-background-position: center center;
+-fx-background-repeat: no-repeat;
+-fx-background-color: #050816;
+">
+
+    <!-- HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT"
+              spacing="15"
+
+              style="
+-fx-background-color: rgba(5,10,30,0.82);
+-fx-padding: 18 30 18 30;
+-fx-border-color: #00e5ff;
+-fx-border-width: 0 0 2 0;
+">
+
+            <Label text="💳"
+
+                   style="
+-fx-font-size: 30;
+-fx-text-fill: #00e5ff;
+"/>
+
+            <Label text="Nạp Tiền"
+
+                   style="
+-fx-text-fill: #00e5ff;
+-fx-font-size: 30;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+"/>
+        </HBox>
+    </top>
+
+    <!-- BODY -->
+    <center>
+
+        <HBox alignment="CENTER_LEFT"
+              spacing="40"
+
+              style="
+-fx-padding: 30 0 30 40;
+">
+
+            <!-- ================= FORM NẠP ================= -->
+
+            <VBox fx:id="depositPane"
+
+                  alignment="CENTER"
+                  spacing="18"
+
+                  prefWidth="470"
+                  maxWidth="470"
+
+                  style="
+-fx-background-color: rgba(3,12,28,0.88);
+
+-fx-background-radius: 26;
+
+-fx-border-color: #00e5ff;
+-fx-border-width: 1.5;
+-fx-border-radius: 26;
+
+-fx-padding: 30 28 30 28;
+
+-fx-effect:
+dropshadow(gaussian, rgba(0,229,255,0.18), 12, 0.12, 0, 0);
+">
+
+                <padding>
+                    <Insets top="15"/>
+                </padding>
+
+                <Label text="💳 NẠP TIỀN"
+
+                       style="
+-fx-text-fill: #00e5ff;
+-fx-font-size: 30;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+"/>
+
+                <Separator prefWidth="380"/>
+
+                <VBox alignment="CENTER_LEFT"
+                      spacing="8"
+                      prefWidth="390">
+
+                    <Label text="💰 Số dư hiện tại"
+
+                           style="
+-fx-text-fill: white;
+-fx-font-size: 20;
+-fx-font-family: 'Segoe UI';
+"/>
+
+                    <Label fx:id="balanceLabel"
+
+                           style="
+-fx-text-fill: #00e5ff;
+-fx-font-size: 28;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+"/>
+                </VBox>
+
+                <TextField fx:id="amountField"
+
+                           promptText="Nhập số tiền ($)"
+
+                           prefWidth="390"
+                           prefHeight="48"
+
+                           style="
+-fx-background-color: rgba(0,0,0,0.35);
+
+-fx-text-fill: white;
+
+-fx-prompt-text-fill: #8fa6d8;
+
+-fx-border-color: #00d9ff;
+-fx-border-width: 1.5;
+-fx-border-radius: 18;
+
+-fx-background-radius: 18;
+
+-fx-font-size: 18;
+-fx-font-family: 'Segoe UI';
+
+-fx-padding: 0 18 0 18;
+
+-fx-effect:
+dropshadow(gaussian, rgba(0,229,255,0.12), 8, 0.1, 0, 0);
+"/>
+
+                <Button text="🛡 XÁC NHẬN NẠP"
+
+                        onAction="#showInvoice"
+
+                        prefWidth="390"
+                        prefHeight="52"
+
+                        style="
+-fx-background-color:
+linear-gradient(to right, #11dfff, #14cfff);
+
+-fx-text-fill: black;
+
+-fx-font-size: 20;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+
+-fx-background-radius: 20;
+
+-fx-cursor: hand;
+
+-fx-effect:
+dropshadow(gaussian, rgba(0,229,255,0.22), 12, 0.1, 0, 0);
+"/>
+
+                <Button text="↩ Quay lại"
+
+                        onAction="#handleBack"
+
+                        prefWidth="330"
+                        prefHeight="46"
+
+                        style="
+-fx-background-color: transparent;
+
+-fx-border-color:#ff00ff;
+-fx-border-width:2;
+
+-fx-border-radius:18;
+-fx-background-radius:18;
+
+-fx-text-fill:white;
+
+-fx-font-size:18;
+-fx-font-family:'Segoe UI';
+
+-fx-cursor:hand;
+"/>
+
+                <Label fx:id="resultLabel"
+
+                       style="
+-fx-font-size: 18;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+"/>
+            </VBox>
+
+            <!-- ================= HÓA ĐƠN ================= -->
+
+            <VBox fx:id="invoicePane"
+
+                  visible="false"
+                  managed="false"
+
+                  alignment="CENTER"
+                  spacing="18"
+
+                  prefWidth="470"
+                  maxWidth="470"
+
+                  style="
+-fx-background-color: rgba(20,10,40,0.90);
+
+-fx-background-radius: 26;
+
+-fx-border-color: #ff00ff;
+-fx-border-width: 1.5;
+-fx-border-radius: 26;
+
+-fx-padding: 30 28 30 28;
+
+-fx-effect:
+dropshadow(gaussian, rgba(255,0,255,0.18), 12, 0.12, 0, 0);
+">
+
+                <padding>
+                    <Insets top="15"/>
+                </padding>
+
+                <Label text="🧾 HÓA ĐƠN"
+
+                       style="
+-fx-text-fill: #ff00ff;
+-fx-font-size: 30;
+-fx-font-weight: bold;
+-fx-font-family: 'Segoe UI';
+"/>
+
+                <Separator prefWidth="320"/>
+
+                <VBox spacing="15"
+                      alignment="CENTER_LEFT"
+                      prefWidth="390">
+
+                    <Label fx:id="invoiceUserLabel"
+
+                           style="
+-fx-text-fill:white;
+-fx-font-size:20;
+-fx-font-family:'Segoe UI';
+"/>
+
+                    <Label fx:id="invoiceBalanceLabel"
+
+                           style="
+-fx-text-fill:white;
+-fx-font-size:20;
+-fx-font-family:'Segoe UI';
+"/>
+
+                    <Label fx:id="invoiceAmountLabel"
+
+                           style="
+-fx-text-fill:#00e5ff;
+-fx-font-size:22;
+-fx-font-weight:bold;
+-fx-font-family:'Segoe UI';
+"/>
+
+                    <Label fx:id="invoiceTotalLabel"
+
+                           style="
+-fx-text-fill:#00ff99;
+-fx-font-size:28;
+-fx-font-weight:bold;
+-fx-font-family:'Segoe UI';
+"/>
+                </VBox>
+
+                <HBox spacing="16"
+                      alignment="CENTER">
+
+                    <Button text="✅ XÁC NHẬN"
+
+                            onAction="#handleDeposit"
+
+                            prefWidth="240"
+                            prefHeight="50"
+
+                            style="
+-fx-background-color:#00ff99;
+
+-fx-text-fill:black;
+
+-fx-font-size:18;
+-fx-font-weight:bold;
+
+-fx-background-radius:18;
+
+-fx-cursor:hand;
+
+-fx-effect:
+dropshadow(gaussian, rgba(0,255,153,0.25), 10, 0.1, 0, 0);
+"/>
+
+                    <Button text="❌ HỦY"
+
+                            onAction="#hideInvoice"
+
+                            prefWidth="150"
+                            prefHeight="50"
+
+                            style="
+-fx-background-color:#ff0055;
+
+-fx-text-fill:white;
+
+-fx-font-size:18;
+-fx-font-weight:bold;
+
+-fx-background-radius:18;
+
+-fx-cursor:hand;
+
+-fx-effect:
+dropshadow(gaussian, rgba(255,0,85,0.22), 10, 0.1, 0, 0);
+"/>
+                </HBox>
+
+                <Label fx:id="invoiceResultLabel"
+
+                       style="
+-fx-font-size:18;
+-fx-font-weight:bold;
+-fx-font-family:'Segoe UI';
+"/>
+            </VBox>
+
+        </HBox>
+
+    </center>
+
+</BorderPane>

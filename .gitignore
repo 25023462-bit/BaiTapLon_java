@@ -1,0 +1,8 @@
+﻿target/
+data/
+BaiTapLon_java-main/
+*.iml
+.idea/
+.vscode/
+*.class
+*.log
