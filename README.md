@@ -191,7 +191,6 @@ Badge CI/CD sẽ hiển thị trạng thái build trên GitHub.
 | [Lê Văn Đạt] | [25023460] | Testing, integration, CI/CD |
 | [Đỗ Thành Đạt] | [25023458] | Advanced features, documentation |
 
-(Điền thông tin thực tế của nhóm vào bảng trên)
 
 ## Hướng dẫn chạy Server
 
