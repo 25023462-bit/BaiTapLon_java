@@ -186,10 +186,10 @@ Badge CI/CD sẽ hiển thị trạng thái build trên GitHub.
 
 | Thành viên | MSSV | Phần phụ trách |
 |---|---|---|
-| [Tên 1] | [MSSV] | Backend: Server, concurrency, business logic |
-| [Tên 2] | [MSSV] | Frontend: JavaFX UI, controllers, FXML |
-| [Tên 3] | [MSSV] | Testing, integration, CI/CD |
-| [Tên 4] | [MSSV] | Advanced features, documentation |
+| [Nguyễn Huy Đức] | [25023466] | Backend: Server, concurrency, business logic |
+| [Trần Đức Đạt] | [25023462] | Frontend: JavaFX UI, controllers, FXML |
+| [Lê Văn Đạt] | [25023460] | Testing, integration, CI/CD |
+| [Đỗ Thành Đạt] | [25023458] | Advanced features, documentation |
 
 (Điền thông tin thực tế của nhóm vào bảng trên)
 
