@@ -189,7 +189,7 @@ Badge CI/CD sẽ hiển thị trạng thái build trên GitHub.
 | [Nguyễn Huy Đức] | [25023466] | Backend: Server, concurrency, business logic |
 | [Trần Đức Đạt] | [25023462] | Frontend: JavaFX UI, controllers, FXML |
 | [Lê Văn Đạt] | [25023460] | Testing, integration, CI/CD |
-| [Đỗ Thành Đạt] | [25023458] | Advanced features, documentation |
+| [Đỗ Thành Đạt] | [25023458] | Database, Advanced features, documentation |
 
 
 ## Hướng dẫn chạy Server
