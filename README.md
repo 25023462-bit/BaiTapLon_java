@@ -156,9 +156,9 @@ Dự án có **74 unit tests** chia thành nhiều test class:
 | CsvExporterTest | 5 | Xuất file CSV, special chars |
 | ObserverTest | 3 | Add/remove observer, notify |
 | DataStorageTest | 3 | Save/load serialization |
-| NetworkDtoTest | ? | Network data objects |
-| ManagerExtendedTest | ? | AuctionManager, UserManager |
-| SellerReviewTest | ? | Rating, review validation |
+| NetworkDtoTest | 9 | Network data objects |
+| ManagerExtendedTest | 3 | AuctionManager, UserManager |
+| SellerReviewTest | 3 | Rating, review validation |
 
 Tổng: **74 tests, 0 failures**
 JaCoCo instruction coverage: *61.84%* (UI packages excluded)
